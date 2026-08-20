@@ -1,0 +1,86 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-serif: 'Libre Caslon Text', Georgia, Cambria, serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --color-primary: #0D2C24;
+    --color-secondary: #F5F2ED;
+    --color-gold: #C5A059;
+    --color-gold-light: #FDE8B5;
+    --color-neutral: #1A1A1A;
+  }
+
+  html,
+  body {
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  /* Custom subtle vertical scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+}
+
+/* Custom SAVE Brand Utilities */
+.bg-save-primary {
+  background-color: #0D2C24;
+}
+.text-save-primary {
+  color: #0D2C24;
+}
+.border-save-primary {
+  border-color: #0D2C24;
+}
+
+.bg-save-secondary {
+  background-color: #F5F2ED;
+}
+.border-save-secondary {
+  border-color: #E8E5DF;
+}
+
+.bg-save-gold {
+  background-color: #C5A059;
+}
+.bg-save-gold-light {
+  background-color: #FDE8B5;
+}
+.text-save-gold {
+  color: #C5A059;
+}
+.text-save-gold-dark {
+  color: #8E6D29;
+}
+.border-save-gold {
+  border-color: #C5A059;
+}
+
+.bg-save-dark {
+  background-color: #1A1A1A;
+}
+.text-save-dark {
+  color: #1A1A1A;
+}
