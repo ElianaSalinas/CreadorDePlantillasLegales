@@ -12,6 +12,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
+RUN mkdir -p /app/public
 
 # Stage 3: Production runner
 FROM base AS runner
