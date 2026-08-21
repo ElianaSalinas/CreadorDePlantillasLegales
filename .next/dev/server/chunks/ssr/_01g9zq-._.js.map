@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Eliana/antigravity/SAVE-%E2%80%94-Plataforma-Documental-Legal/node_modules/next/src/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.ts"],"sourcesContent":["module.exports = (\n  require('../../module.compiled') as typeof import('../../module.compiled')\n).vendored['react-rsc']!.ReactJsxDevRuntime\n"],"names":["module","exports","require","vendored","ReactJsxDevRuntime"],"mappings":"AAAAA,OAAOC,OAAO,GACZC,QAAQ,4HACRC,QAAQ,CAAC,YAAY,CAAEC,kBAAkB","ignoreList":[0]}},
-    {"offset": {"line": 9, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Eliana/antigravity/SAVE-%E2%80%94-Plataforma-Documental-Legal/src/app/layout.tsx"],"sourcesContent":["import '../index.css';\r\n\r\nexport default function RootLayout({\r\n  children,\r\n}: {\r\n  children: React.ReactNode;\r\n}) {\r\n  return (\r\n    <html lang=\"es\" className=\"light\" suppressHydrationWarning>\r\n      <body suppressHydrationWarning>{children}</body>\r\n    </html>\r\n  );\r\n}\r\n"],"names":["RootLayout","children","lang","className","suppressHydrationWarning"],"mappings":";;;;;;;AAEe,SAASA,WAAW,EACjCC,QAAQ,EAGT;IACC,qBACE,8OAAC;QAAKC,MAAK;QAAKC,WAAU;QAAQC,wBAAwB;kBACxD,cAAA,8OAAC;YAAKA,wBAAwB;sBAAEH;;;;;;;;;;;AAGtC"}}]
-}
