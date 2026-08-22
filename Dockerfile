@@ -19,6 +19,7 @@ EXPOSE 3000
 
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 
-# Use Railway's dynamic $PORT (falls back to 3000 locally)
-CMD ["node_modules/.bin/next", "start", "-p", "3000"]
+# Escucha en el puerto que inyecta Railway ($PORT). Si no existe, usa 3000.
+CMD ["sh", "-c", "node_modules/.bin/next start -H 0.0.0.0 -p ${PORT:-3000}"]
