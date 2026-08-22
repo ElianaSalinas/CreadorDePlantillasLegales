@@ -18,7 +18,8 @@ export default async function AppLayout({
 
   // Fetch role
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  const { data: admin } = await supabase.from('save_admins').select('*').eq('id', user.id).maybeSingle()
+ // const { data: admin } = await supabase.from('save_admins').select('*').eq('id', user.id).maybeSingle()
+const admin = null; // Temporalmente deshabilitado para debugging
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
