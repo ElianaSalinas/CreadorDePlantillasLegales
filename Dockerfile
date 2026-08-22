@@ -18,8 +18,7 @@ RUN npm run build
 EXPOSE 3000
 
 ENV NODE_ENV=production
-ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Start the app
-CMD ["node_modules/.bin/next", "start", "-p", "3000"]
+# Use Railway's dynamic $PORT (falls back to 3000 locally)
+CMD sh -c "node_modules/.bin/next start -p ${PORT:-3000}"
