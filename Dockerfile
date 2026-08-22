@@ -20,11 +20,8 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy the public directory
-COPY --from=builder /app/public ./public 2>/dev/null || true
-# Copy the built Next.js application
+# Copy the built Next.js application and its dependencies
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-# Copy node_modules for production
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --chown=nextjs:nodejs package.json package-lock.json ./
 
