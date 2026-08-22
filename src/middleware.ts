@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
   )
 
   try {
-    await supabase.auth.getUser()
+    // await supabase.auth.getUser() // TODO: debug
   } catch (error) {
     // If Supabase call fails, continue anyway - don't crash the middleware
     console.error('Supabase middleware error:', error)
