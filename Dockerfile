@@ -12,7 +12,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
-RUN mkdir -p /app/public
 
 # Stage 3: Production runner
 FROM base AS runner
@@ -21,13 +20,17 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy the public directory
+COPY --from=builder /app/public ./public 2>/dev/null || true
+# Copy the built Next.js application
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+# Copy node_modules for production
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --chown=nextjs:nodejs package.json package-lock.json ./
 
 USER nextjs
 EXPOSE 8080
 ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
 
