@@ -1,4 +1,5 @@
 import { register } from './actions'
+import PasswordInput from '@/components/ui/PasswordInput'
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ message?: string }> }) {
   const resolvedSearchParams = await searchParams;
@@ -29,10 +30,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
               <input name="email" type="email" required className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-slate-900 dark:text-white" placeholder="tu@despacho.do" />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
-              <input name="password" type="password" required className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-slate-900 dark:text-white" placeholder="••••••••" />
-            </div>
+            <PasswordInput autoComplete="new-password" hint="Mínimo 6 caracteres." />
 
             <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Perfil Profesional</p>

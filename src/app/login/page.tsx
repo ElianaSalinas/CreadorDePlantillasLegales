@@ -1,4 +1,5 @@
 import { login } from './actions'
+import PasswordInput from '@/components/ui/PasswordInput'
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ message?: string }> }) {
   const resolvedSearchParams = await searchParams;
@@ -17,10 +18,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
               <input name="email" type="email" required className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-slate-900 dark:text-white" placeholder="tu@despacho.do" />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
-              <input name="password" type="password" required className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-slate-900 dark:text-white" placeholder="••••••••" />
-            </div>
+            <PasswordInput autoComplete="current-password" />
             {resolvedSearchParams?.message && (
               <p className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-900/20 p-2 rounded">{resolvedSearchParams.message}</p>
             )}
