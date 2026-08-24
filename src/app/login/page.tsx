@@ -19,6 +19,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               <input name="email" type="email" required className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-slate-900 dark:text-white" placeholder="tu@despacho.do" />
             </div>
             <PasswordInput autoComplete="current-password" />
+
+            <div className="text-right">
+              <a href="/forgot-password" className="text-sm text-emerald-600 hover:underline">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
             {resolvedSearchParams?.message && (
               <p className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-900/20 p-2 rounded">{resolvedSearchParams.message}</p>
             )}

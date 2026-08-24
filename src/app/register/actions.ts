@@ -3,14 +3,19 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { getSiteUrl } from '@/lib/siteUrl'
 
 export async function register(formData: FormData) {
   const supabase = await createClient()
+
+  const siteUrl = await getSiteUrl()
 
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     options: {
+      // Dónde aterriza el enlace del correo de verificación.
+      emailRedirectTo: `${siteUrl}/auth/confirm`,
       data: {
         first_name: formData.get('first_name'),
         last_name: formData.get('last_name'),
