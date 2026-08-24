@@ -6,6 +6,9 @@ import { logAudit } from '@/lib/audit'
 
 export type ActionResult = { ok: boolean; error?: string }
 
+const NO_PERMISSION =
+  'No tienes permiso para gestionar las plantillas del despacho. Pídeselo al titular.'
+
 function readForm(formData: FormData) {
   return {
     title: String(formData.get('title') ?? '').trim(),
@@ -15,8 +18,9 @@ function readForm(formData: FormData) {
 }
 
 export async function createTemplate(formData: FormData): Promise<ActionResult> {
-  const { supabase, user, org } = await requireSession()
+  const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (!permissions.templates) return { ok: false, error: NO_PERMISSION }
 
   const { title, category, body } = readForm(formData)
   if (!title) return { ok: false, error: 'El título es obligatorio.' }
@@ -45,8 +49,9 @@ export async function createTemplate(formData: FormData): Promise<ActionResult> 
 }
 
 export async function updateTemplate(id: string, formData: FormData): Promise<ActionResult> {
-  const { supabase, user, org } = await requireSession()
+  const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (!permissions.templates) return { ok: false, error: NO_PERMISSION }
 
   const { title, category, body } = readForm(formData)
   if (!title) return { ok: false, error: 'El título es obligatorio.' }
@@ -70,8 +75,9 @@ export async function updateTemplate(id: string, formData: FormData): Promise<Ac
 }
 
 export async function deleteTemplate(id: string): Promise<ActionResult> {
-  const { supabase, user, org } = await requireSession()
+  const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (!permissions.templates) return { ok: false, error: NO_PERMISSION }
 
   const { data: tpl } = await supabase.from('templates').select('title').eq('id', id).maybeSingle()
 
@@ -91,8 +97,9 @@ export async function deleteTemplate(id: string): Promise<ActionResult> {
 
 /** Copia una plantilla maestra de SA&VE al espacio del usuario para poder editarla. */
 export async function duplicateTemplate(id: string): Promise<ActionResult> {
-  const { supabase, user, org } = await requireSession()
+  const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (!permissions.templates) return { ok: false, error: NO_PERMISSION }
 
   const { data: source, error: readError } = await supabase
     .from('templates')

@@ -45,7 +45,9 @@ export default async function AdminPage() {
     await Promise.all([
       admin.from('profiles').select('*').order('created_at', { ascending: false }),
       admin.from('save_admins').select('id, admin_role'),
-      admin.from('organizations').select('id, owner_id, name, sub_status, free_limit, vault_limit'),
+      admin
+        .from('organizations')
+        .select('id, owner_id, name, sub_status, free_limit, vault_limit, included_members, seat_price_dop'),
       admin.from('org_members').select('user_id, org_id'),
     ])
 
@@ -77,6 +79,8 @@ export default async function AdminPage() {
           sub_status: orgByUser.get(p.id).sub_status,
           free_limit: orgByUser.get(p.id).free_limit,
           vault_limit: orgByUser.get(p.id).vault_limit,
+          included_members: orgByUser.get(p.id).included_members ?? 1,
+          seat_price_dop: orgByUser.get(p.id).seat_price_dop ?? 499,
         }
       : null,
   }))

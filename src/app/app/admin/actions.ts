@@ -163,6 +163,8 @@ export async function updateOrgLimits(
     const free_limit = Number(formData.get('free_limit'))
     const vault_limit = Number(formData.get('vault_limit'))
     const sub_status = String(formData.get('sub_status') ?? 'FREE')
+    const included_members = Number(formData.get('included_members'))
+    const seat_price_dop = Number(formData.get('seat_price_dop'))
 
     if (!Number.isFinite(free_limit) || free_limit < 0) {
       return { ok: false, error: 'El lÃ­mite de plantillas debe ser un nÃºmero vÃ¡lido.' }
@@ -170,13 +172,19 @@ export async function updateOrgLimits(
     if (!Number.isFinite(vault_limit) || vault_limit < 0) {
       return { ok: false, error: 'El lÃ­mite de bÃ³veda debe ser un nÃºmero vÃ¡lido.' }
     }
-    if (!['FREE', 'PREMIUM', 'CANCELLED'].includes(sub_status)) {
+    if (!Number.isFinite(included_members) || included_members < 0) {
+      return { ok: false, error: 'Los miembros incluidos deben ser un número válido.' }
+    }
+    if (!Number.isFinite(seat_price_dop) || seat_price_dop < 0) {
+      return { ok: false, error: 'El precio por miembro debe ser un número válido.' }
+    }
+    if (!['FREE', 'PREMIUM', 'BUSINESS', 'CANCELLED'].includes(sub_status)) {
       return { ok: false, error: 'Estado de suscripciÃ³n no vÃ¡lido.' }
     }
 
     const { error } = await admin
       .from('organizations')
-      .update({ free_limit, vault_limit, sub_status })
+      .update({ free_limit, vault_limit, sub_status, included_members, seat_price_dop })
       .eq('id', orgId)
 
     if (error) return { ok: false, error: error.message }

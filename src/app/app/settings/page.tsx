@@ -1,6 +1,8 @@
 import PageHeader from '@/components/ui/PageHeader'
 import { requireSession, displayName } from '@/lib/session'
 import { hasAdminCredentials } from '@/utils/supabase/admin'
+import { roleCanLeadTeam } from '@/lib/billing'
+import { resolvePermissions } from '@/lib/permissions'
 import SettingsClient, { type MemberRow } from './SettingsClient'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +15,7 @@ export default async function SettingsPage() {
   if (org) {
     const { data } = await supabase
       .from('org_members')
-      .select('id, user_id, role, profiles(id, email, first_name, last_name, is_active)')
+      .select('id, user_id, role, permissions, profiles(id, email, first_name, last_name, is_active)')
       .eq('org_id', org.id)
 
     members = (data ?? []).map((m: any) => ({
@@ -23,6 +25,7 @@ export default async function SettingsPage() {
       email: m.profiles?.email ?? '—',
       name: displayName(m.profiles, m.profiles?.email),
       is_active: m.profiles?.is_active ?? true,
+      permissions: resolvePermissions(m.role, m.permissions),
     }))
 
     // El titular primero, luego el resto por nombre.
@@ -43,6 +46,7 @@ export default async function SettingsPage() {
         members={members}
         isOwner={org?.owner_id === user.id}
         hasServiceKey={hasAdminCredentials()}
+        canLeadTeam={roleCanLeadTeam(profile?.prof_role)}
       />
     </div>
   )

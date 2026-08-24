@@ -17,11 +17,13 @@ export default function VaultClient({
   used,
   limit,
   canWrite,
+  canDelete,
 }: {
   files: VaultFile[]
   used: number
   limit: number
   canWrite: boolean
+  canDelete: boolean
 }) {
   const [error, setError] = useState<string | null>(null)
   const [busyPath, setBusyPath] = useState<string | null>(null)
@@ -182,7 +184,7 @@ export default function VaultClient({
                           <Download size={16} />
                         )}
                       </button>
-                      {canWrite && (
+                      {canDelete && (
                         <button
                           onClick={() => handleDelete(file)}
                           disabled={busyPath === file.path}

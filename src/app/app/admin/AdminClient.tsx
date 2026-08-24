@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from 'react'
 import { Search, ShieldCheck, ShieldOff, Ban, CheckCircle2, Trash2, SlidersHorizontal, Loader2 } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import EmptyState from '@/components/ui/EmptyState'
+import { PLAN_LABEL } from '@/lib/billing'
 import {
   setUserActive,
   deleteUserPermanently,
@@ -26,6 +27,8 @@ export type AdminUserRow = {
     sub_status: string
     free_limit: number
     vault_limit: number
+    included_members: number
+    seat_price_dop: number
   } | null
 }
 
@@ -145,7 +148,7 @@ export default function AdminClient({
                         <>
                           <p className="text-slate-700 dark:text-slate-300">{u.org.name}</p>
                           <p className="text-xs text-slate-500">
-                            {u.org.sub_status === 'PREMIUM' ? 'Premium' : 'Gratuito'} ·{' '}
+                            {PLAN_LABEL[u.org.sub_status] ?? u.org.sub_status} ·{' '}
                             {u.org.free_limit} plantillas · {u.org.vault_limit} bóveda
                           </p>
                         </>
@@ -258,7 +261,8 @@ export default function AdminClient({
                 className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               >
                 <option value="FREE">Gratuito</option>
-                <option value="PREMIUM">Premium</option>
+                <option value="PREMIUM">Pro</option>
+                <option value="BUSINESS">Equipo</option>
                 <option value="CANCELLED">Cancelado</option>
               </select>
             </div>
@@ -290,8 +294,36 @@ export default function AdminClient({
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Miembros incluidos
+                </label>
+                <input
+                  name="included_members"
+                  type="number"
+                  min={0}
+                  defaultValue={limitsFor.org.included_members}
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  RD$ por miembro extra
+                </label>
+                <input
+                  name="seat_price_dop"
+                  type="number"
+                  min={0}
+                  defaultValue={limitsFor.org.seat_price_dop}
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                />
+              </div>
+            </div>
+
             <p className="text-xs text-slate-500">
-              Un valor muy alto (por ejemplo 99999) equivale a un límite indefinido.
+              Miembros incluidos son los que cubre el precio base, sin contar al titular. Un límite
+              muy alto (99999) equivale a ilimitado.
             </p>
 
             <div className="flex justify-end gap-3 pt-2">

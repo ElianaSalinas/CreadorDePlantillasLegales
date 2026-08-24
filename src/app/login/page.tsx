@@ -1,43 +1,84 @@
-import { login } from './actions'
+import Link from 'next/link'
 import PasswordInput from '@/components/ui/PasswordInput'
+import AuthShowcase from '@/components/ui/AuthShowcase'
+import { login } from './actions'
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ message?: string }> }) {
-  const resolvedSearchParams = await searchParams;
-  
+export const metadata = { title: 'Iniciar sesión' }
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message?: string }>
+}) {
+  const params = await searchParams
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Save Documentos</h1>
-            <p className="text-sm text-slate-500 mt-2">Inicia sesión en tu cuenta profesional</p>
-          </div>
-          
-          <form className="space-y-4" action={login}>
+    <div className="grid min-h-screen lg:grid-cols-2">
+      <div className="flex items-center justify-center bg-white p-6 dark:bg-slate-950">
+        <div className="w-full max-w-md">
+          <Link href="/" className="mb-10 flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[7px] bg-[#0D2C24] font-serif text-base font-bold text-white">
+              S
+            </span>
+            <span className="font-serif text-xl font-bold tracking-tight text-[#0D2C24] dark:text-white">
+              SAVE
+            </span>
+          </Link>
+
+          <h1 className="font-serif text-3xl font-bold text-slate-900 dark:text-white">
+            Bienvenida de vuelta
+          </h1>
+          <p className="mt-2 text-sm text-slate-500">
+            Entra a tu espacio de trabajo en Save Documentos.
+          </p>
+
+          <form className="mt-8 space-y-4" action={login}>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
-              <input name="email" type="email" required className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-slate-900 dark:text-white" placeholder="tu@despacho.do" />
+              <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Email
+              </label>
+              <input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="tu@despacho.do"
+                className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              />
             </div>
+
             <PasswordInput autoComplete="current-password" />
 
             <div className="text-right">
-              <a href="/forgot-password" className="text-sm text-emerald-600 hover:underline">
+              <Link href="/forgot-password" className="text-sm text-emerald-600 hover:underline">
                 ¿Olvidaste tu contraseña?
-              </a>
+              </Link>
             </div>
-            {resolvedSearchParams?.message && (
-              <p className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-900/20 p-2 rounded">{resolvedSearchParams.message}</p>
+
+            {params?.message && (
+              <p className="rounded bg-red-50 p-2 text-center text-sm text-red-500 dark:bg-red-900/20">
+                {params.message}
+              </p>
             )}
-            <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition-colors mt-6">
+
+            <button
+              type="submit"
+              className="mt-6 w-full rounded-lg bg-emerald-600 py-2.5 font-semibold text-white transition-colors hover:bg-emerald-700"
+            >
               Ingresar a la Plataforma
             </button>
           </form>
-          
-          <div className="mt-6 text-center text-sm text-slate-500">
-            ¿No tienes cuenta? <a href="/register" className="text-emerald-600 font-semibold hover:underline">Regístrate como Profesional</a>
-          </div>
+
+          <p className="mt-6 text-center text-sm text-slate-500">
+            ¿No tienes cuenta?{' '}
+            <Link href="/register" className="font-semibold text-emerald-600 hover:underline">
+              Regístrate como Profesional
+            </Link>
+          </p>
         </div>
       </div>
+
+      <AuthShowcase />
     </div>
-  );
+  )
 }

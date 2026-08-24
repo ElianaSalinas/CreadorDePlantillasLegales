@@ -6,7 +6,7 @@ import { VAULT_BUCKET } from '@/lib/vault'
 export const dynamic = 'force-dynamic'
 
 export default async function VaultPage() {
-  const { supabase, org, memberRole } = await requireSession()
+  const { supabase, org, permissions } = await requireSession()
 
   let files: VaultFile[] = []
   let listError: string | null = null
@@ -49,7 +49,8 @@ export default async function VaultPage() {
         files={files}
         used={files.length}
         limit={org?.vault_limit ?? 30}
-        canWrite={memberRole !== 'ASSISTANT'}
+        canWrite={permissions.vault}
+        canDelete={permissions.delete}
       />
     </div>
   )

@@ -15,6 +15,9 @@ const ALLOWED = new Set([
 
 export type VaultResult = { ok: boolean; error?: string; url?: string }
 
+const NO_UPLOAD = 'No tienes permiso para subir documentos a la bóveda.'
+const NO_DELETE = 'No tienes permiso para eliminar documentos de la bóveda.'
+
 /** Quita acentos y caracteres que Supabase Storage rechaza en las rutas. */
 function sanitizeFileName(name: string) {
   const normalized = name
@@ -27,8 +30,9 @@ function sanitizeFileName(name: string) {
 }
 
 export async function uploadToVault(formData: FormData): Promise<VaultResult> {
-  const { supabase, user, org } = await requireSession()
+  const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (!permissions.vault) return { ok: false, error: NO_UPLOAD }
 
   const file = formData.get('file')
   if (!(file instanceof File) || file.size === 0) {
@@ -83,8 +87,9 @@ export async function uploadToVault(formData: FormData): Promise<VaultResult> {
 }
 
 export async function getVaultDownloadUrl(path: string): Promise<VaultResult> {
-  const { supabase, org } = await requireSession()
+  const { supabase, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (!permissions.vault) return { ok: false, error: 'No tienes acceso a la bóveda.' }
   if (!path.startsWith(`${org.id}/`)) {
     return { ok: false, error: 'No tienes acceso a ese documento.' }
   }
@@ -98,8 +103,9 @@ export async function getVaultDownloadUrl(path: string): Promise<VaultResult> {
 }
 
 export async function deleteFromVault(path: string): Promise<VaultResult> {
-  const { supabase, user, org } = await requireSession()
+  const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (!permissions.delete) return { ok: false, error: NO_DELETE }
   if (!path.startsWith(`${org.id}/`)) {
     return { ok: false, error: 'No tienes acceso a ese documento.' }
   }

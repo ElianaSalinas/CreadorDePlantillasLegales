@@ -1,16 +1,25 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { Loader2, UserPlus, Trash2, Users, User, Building2 } from 'lucide-react'
+import { useMemo, useState, useTransition } from 'react'
+import { Loader2, UserPlus, Trash2, Users, User, Building2, Lock } from 'lucide-react'
 import {
   updateProfile,
   updateOrganization,
   addMember,
   changeMemberRole,
+  updateMemberPermissions,
   removeMember,
   type SettingsResult,
 } from './actions'
 import { MEMBER_ROLE_LABEL } from '@/lib/labels'
+import {
+  BUSINESS_BASE_DOP,
+  formatDOP,
+  seatMath,
+  describeMonthlyCost,
+  planAllowsTeam,
+} from '@/lib/billing'
+import { PERMISSION_LIST, type MemberPermissions, type PermissionKey } from '@/lib/permissions'
 
 export type MemberRow = {
   id: string
@@ -19,6 +28,7 @@ export type MemberRow = {
   email: string
   name: string
   is_active: boolean
+  permissions: MemberPermissions
 }
 
 type Props = {
@@ -27,10 +37,19 @@ type Props = {
   members: MemberRow[]
   isOwner: boolean
   hasServiceKey: boolean
+  canLeadTeam: boolean
 }
 
-export default function SettingsClient({ profile, org, members, isOwner, hasServiceKey }: Props) {
+export default function SettingsClient({
+  profile,
+  org,
+  members,
+  isOwner,
+  hasServiceKey,
+  canLeadTeam,
+}: Props) {
   const [isFirm, setIsFirm] = useState<boolean>(Boolean(org?.is_firm))
+  const hasTeamPlan = planAllowsTeam(org?.sub_status)
 
   return (
     <div className="space-y-6">
@@ -48,26 +67,38 @@ export default function SettingsClient({ profile, org, members, isOwner, hasServ
           title="Mi despacho"
           description={
             isOwner
-              ? 'Actívalo como despacho si trabajas con paralegales o asistentes. Si ejerces por tu cuenta, déjalo desactivado.'
+              ? 'Si ejerces por tu cuenta, deja el trabajo en equipo desactivado.'
               : 'Configuración gestionada por el titular del despacho.'
           }
         >
-          <OrgForm org={org} isOwner={isOwner} isFirm={isFirm} onFirmChange={setIsFirm} />
+          <OrgForm
+            org={org}
+            isOwner={isOwner}
+            isFirm={isFirm}
+            onFirmChange={setIsFirm}
+            canLeadTeam={canLeadTeam}
+            hasTeamPlan={hasTeamPlan}
+          />
         </Section>
       )}
 
-      {org && isFirm && (
+      {/* El equipo solo tiene sentido para un profesional que encabeza un despacho. */}
+      {org && canLeadTeam && (
         <Section
           icon={<Users size={18} />}
           title="Equipo"
           description="Paralegales y asistentes con acceso a este despacho."
         >
-          <TeamPanel
-            members={members}
-            isOwner={isOwner}
-            hasServiceKey={hasServiceKey}
-            ownerId={org.owner_id}
-          />
+          {hasTeamPlan ? (
+            <TeamPanel
+              members={members}
+              isOwner={isOwner}
+              hasServiceKey={hasServiceKey}
+              org={org}
+            />
+          ) : (
+            <TeamLocked org={org} />
+          )}
         </Section>
       )}
     </div>
@@ -131,7 +162,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
-function SaveButton({ pending, children = 'Guardar cambios' }: { pending: boolean; children?: React.ReactNode }) {
+function SaveButton({
+  pending,
+  children = 'Guardar cambios',
+}: {
+  pending: boolean
+  children?: React.ReactNode
+}) {
   return (
     <button
       type="submit"
@@ -194,14 +231,20 @@ function OrgForm({
   isOwner,
   isFirm,
   onFirmChange,
+  canLeadTeam,
+  hasTeamPlan,
 }: {
   org: any
   isOwner: boolean
   isFirm: boolean
   onFirmChange: (v: boolean) => void
+  canLeadTeam: boolean
+  hasTeamPlan: boolean
 }) {
   const [result, setResult] = useState<SettingsResult | null>(null)
   const [pending, startTransition] = useTransition()
+
+  const teamBlocked = !canLeadTeam || !hasTeamPlan
 
   return (
     <form
@@ -220,16 +263,20 @@ function OrgForm({
           type="checkbox"
           name="is_firm"
           checked={isFirm}
-          disabled={!isOwner}
+          disabled={!isOwner || (teamBlocked && !org.is_firm)}
           onChange={(e) => onFirmChange(e.target.checked)}
-          className="mt-1 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+          className="mt-1 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
         />
         <span>
           <span className="block font-medium text-slate-900 dark:text-white">
             Trabajo con un equipo
           </span>
           <span className="block text-sm text-slate-500">
-            Habilita la gestión de paralegales y asistentes. Déjalo desmarcado si ejerces solo.
+            {!canLeadTeam
+              ? 'Solo un abogado o notario puede encabezar un despacho con equipo.'
+              : !hasTeamPlan
+                ? 'Requiere el plan Equipo.'
+                : 'Habilita la gestión de paralegales y asistentes.'}
           </span>
         </span>
       </label>
@@ -253,7 +300,7 @@ function OrgForm({
       </label>
 
       <div className="grid gap-4 text-sm sm:grid-cols-3">
-        <Stat label="Plan" value={org.sub_status === 'PREMIUM' ? 'Premium' : 'Gratuito'} />
+        <Stat label="Plan" value={PLAN_NAME[org.sub_status] ?? org.sub_status} />
         <Stat label="Límite de plantillas" value={String(org.free_limit)} />
         <Stat label="Límite de bóveda" value={String(org.vault_limit)} />
       </div>
@@ -262,6 +309,13 @@ function OrgForm({
       {isOwner && <SaveButton pending={pending} />}
     </form>
   )
+}
+
+const PLAN_NAME: Record<string, string> = {
+  FREE: 'Gratuito',
+  PREMIUM: 'Pro',
+  BUSINESS: 'Equipo',
+  CANCELLED: 'Cancelado',
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
@@ -273,19 +327,74 @@ function Stat({ label, value }: { label: string; value: string }) {
   )
 }
 
+/* ---------------- Plan de equipo aún no contratable ---------------- */
+
+function TeamLocked({ org }: { org: any }) {
+  const seatPrice = org.seat_price_dop ?? 499
+  const included = org.included_members ?? 1
+
+  return (
+    <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-6 dark:border-amber-800 dark:bg-amber-900/10">
+      <div className="mb-4 flex items-center gap-2 text-amber-800 dark:text-amber-400">
+        <Lock size={17} />
+        <h3 className="font-bold">Plan Equipo</h3>
+      </div>
+
+      <p className="mb-5 text-sm leading-relaxed text-amber-900 dark:text-amber-300">
+        Suma paralegales y asistentes a tu despacho, decide qué puede hacer cada uno y mantén el
+        control de lo que se redacta en tu nombre.
+      </p>
+
+      <div className="mb-5 flex flex-wrap items-end gap-x-3 gap-y-1">
+        <span className="text-3xl font-bold text-slate-900 dark:text-white">
+          {formatDOP(BUSINESS_BASE_DOP)}
+        </span>
+        <span className="pb-1 text-sm text-slate-600 dark:text-slate-400">al mes</span>
+      </div>
+
+      <ul className="mb-6 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+        <li>Incluye al titular y {included === 1 ? 'una persona más' : `${included} personas más`}.</li>
+        <li>
+          Cada persona adicional: <strong>{formatDOP(seatPrice)} al mes</strong>.
+        </li>
+        <li>Permisos individuales por miembro y registro de quién hizo cada cambio.</li>
+      </ul>
+
+      <button
+        type="button"
+        disabled
+        className="cursor-not-allowed rounded-lg bg-slate-300 px-5 py-2.5 font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-400"
+      >
+        Disponible próximamente
+      </button>
+      <p className="mt-3 text-xs text-slate-500">
+        Estamos terminando la integración de pagos. Te avisaremos por correo cuando puedas
+        contratarlo.
+      </p>
+    </div>
+  )
+}
+
+/* ---------------- Gestión real del equipo ---------------- */
+
 function TeamPanel({
   members,
   isOwner,
   hasServiceKey,
-  ownerId,
+  org,
 }: {
   members: MemberRow[]
   isOwner: boolean
   hasServiceKey: boolean
-  ownerId: string
+  org: any
 }) {
   const [result, setResult] = useState<SettingsResult | null>(null)
   const [pending, startTransition] = useTransition()
+
+  const math = useMemo(
+    () => seatMath(members.length, org.included_members ?? 1, org.seat_price_dop ?? 499),
+    [members.length, org.included_members, org.seat_price_dop]
+  )
 
   function run(fn: () => Promise<SettingsResult>) {
     setResult(null)
@@ -294,52 +403,70 @@ function TeamPanel({
 
   return (
     <div className="space-y-5">
-      <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 dark:divide-slate-800 dark:border-slate-800">
+      {/* Lo que cuesta el despacho hoy */}
+      <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+        <p className="font-semibold text-slate-900 dark:text-white">{describeMonthlyCost(math)}</p>
+        <p className="mt-1 text-sm text-slate-500">
+          {math.members} {math.members === 1 ? 'persona' : 'personas'} además de ti ·{' '}
+          {math.included} sin cargo · {math.billable} con cargo
+        </p>
+      </div>
+
+      <ul className="space-y-3">
         {members.map((m) => (
-          <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-            <div className="min-w-0">
-              <p className="truncate font-medium text-slate-900 dark:text-white">
-                {m.name}
-                {!m.is_active && (
-                  <span className="ml-2 rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                    Desactivado
+          <li
+            key={m.id}
+            className="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate font-medium text-slate-900 dark:text-white">
+                  {m.name}
+                  {!m.is_active && (
+                    <span className="ml-2 rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                      Desactivado
+                    </span>
+                  )}
+                </p>
+                <p className="truncate text-sm text-slate-500">{m.email}</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {m.role === 'OWNER' || !isOwner ? (
+                  <span className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    {MEMBER_ROLE_LABEL[m.role]}
                   </span>
+                ) : (
+                  <>
+                    <select
+                      defaultValue={m.role}
+                      disabled={pending}
+                      onChange={(e) => run(() => changeMemberRole(m.id, e.target.value))}
+                      aria-label={`Rol de ${m.name}`}
+                      className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    >
+                      <option value="PARALEGAL">Paralegal</option>
+                      <option value="ASSISTANT">Asistente</option>
+                    </select>
+                    <button
+                      onClick={() => {
+                        if (confirm(`¿Quitar a ${m.name} del despacho?`)) run(() => removeMember(m.id))
+                      }}
+                      disabled={pending}
+                      title="Quitar del despacho"
+                      aria-label={`Quitar a ${m.name}`}
+                      className="rounded-md p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-900/20"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </>
                 )}
-              </p>
-              <p className="truncate text-sm text-slate-500">{m.email}</p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {m.role === 'OWNER' || !isOwner ? (
-                <span className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                  {MEMBER_ROLE_LABEL[m.role]}
-                </span>
-              ) : (
-                <>
-                  <select
-                    defaultValue={m.role}
-                    disabled={pending}
-                    onChange={(e) => run(() => changeMemberRole(m.id, e.target.value))}
-                    aria-label={`Rol de ${m.name}`}
-                    className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                  >
-                    <option value="PARALEGAL">Paralegal</option>
-                    <option value="ASSISTANT">Asistente</option>
-                  </select>
-                  <button
-                    onClick={() => {
-                      if (confirm(`¿Quitar a ${m.name} del despacho?`)) run(() => removeMember(m.id))
-                    }}
-                    disabled={pending}
-                    title="Quitar del despacho"
-                    aria-label={`Quitar a ${m.name}`}
-                    className="rounded-md p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-900/20"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </>
-              )}
-            </div>
+            {m.role !== 'OWNER' && isOwner && (
+              <PermissionEditor member={m} pending={pending} onRun={run} />
+            )}
           </li>
         ))}
       </ul>
@@ -383,8 +510,10 @@ function TeamPanel({
           </button>
 
           <p className="w-full text-xs text-slate-500">
-            La persona debe tener ya una cuenta en Save Documentos. Pídele que se registre y luego
-            añádela aquí.
+            {math.costOfNext === 0
+              ? 'Esta persona entra sin cargo adicional.'
+              : `Añadir a esta persona sube tu factura en ${formatDOP(math.costOfNext)} al mes.`}{' '}
+            Debe tener ya una cuenta en Save Documentos.
           </p>
         </form>
       )}
@@ -397,6 +526,56 @@ function TeamPanel({
       )}
 
       <Feedback result={result} />
+    </div>
+  )
+}
+
+function PermissionEditor({
+  member,
+  pending,
+  onRun,
+}: {
+  member: MemberRow
+  pending: boolean
+  onRun: (fn: () => Promise<SettingsResult>) => void
+}) {
+  const [perms, setPerms] = useState<MemberPermissions>(member.permissions)
+
+  function toggle(key: PermissionKey, value: boolean) {
+    const next = { ...perms, [key]: value }
+    setPerms(next)
+
+    const fd = new FormData()
+    for (const k of Object.keys(next) as PermissionKey[]) {
+      if (next[k]) fd.set(k, 'on')
+    }
+    onRun(() => updateMemberPermissions(member.id, fd))
+  }
+
+  return (
+    <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
+      <p className="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">
+        Qué puede hacer
+      </p>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {PERMISSION_LIST.map(({ key, label, hint }) => (
+          <label key={key} className="flex items-start gap-2.5">
+            <input
+              type="checkbox"
+              checked={perms[key]}
+              disabled={pending}
+              onChange={(e) => toggle(key, e.target.checked)}
+              className="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+            />
+            <span>
+              <span className="block text-sm font-medium text-slate-800 dark:text-slate-200">
+                {label}
+              </span>
+              <span className="block text-xs text-slate-500">{hint}</span>
+            </span>
+          </label>
+        ))}
+      </div>
     </div>
   )
 }

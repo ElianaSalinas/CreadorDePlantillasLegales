@@ -4,11 +4,16 @@ import { revalidatePath } from 'next/cache'
 import { requireSession } from '@/lib/session'
 import { createAdminClient, hasAdminCredentials } from '@/utils/supabase/admin'
 import { logAudit } from '@/lib/audit'
+import { planAllowsTeam, roleCanLeadTeam, seatMath, formatDOP } from '@/lib/billing'
+import { sanitizePermissions, PERMISSION_LIST } from '@/lib/permissions'
 
 export type SettingsResult = { ok: boolean; error?: string; notice?: string }
 
 const MISSING_KEY =
   'Falta configurar SUPABASE_SERVICE_ROLE_KEY en Railway. Sin esa llave no se pueden gestionar miembros del despacho.'
+
+const NO_TEAM_PLAN =
+  'El trabajo en equipo pertenece al plan Equipo, que todavía no está disponible para contratar.'
 
 export async function updateProfile(formData: FormData): Promise<SettingsResult> {
   const { supabase, user } = await requireSession()
@@ -40,17 +45,48 @@ export async function updateProfile(formData: FormData): Promise<SettingsResult>
 }
 
 export async function updateOrganization(formData: FormData): Promise<SettingsResult> {
-  const { supabase, user, org } = await requireSession()
+  const { supabase, user, org, profile } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
   if (org.owner_id !== user.id) {
     return { ok: false, error: 'Solo el titular del despacho puede cambiar esta configuración.' }
   }
 
   const name = String(formData.get('name') ?? '').trim()
-  const is_firm = formData.get('is_firm') === 'on'
+  const wantsFirm = formData.get('is_firm') === 'on'
   const require_approval = formData.get('require_approval') === 'on'
 
   if (!name) return { ok: false, error: 'El nombre del despacho es obligatorio.' }
+
+  // El modo despacho depende del plan y del perfil profesional.
+  let is_firm = wantsFirm
+  if (wantsFirm && !org.is_firm) {
+    if (!roleCanLeadTeam(profile?.prof_role)) {
+      return {
+        ok: false,
+        error: 'Solo un abogado o notario puede encabezar un despacho con equipo.',
+      }
+    }
+    if (!planAllowsTeam(org.sub_status)) {
+      return { ok: false, error: NO_TEAM_PLAN }
+    }
+  }
+
+  // Apagar el modo despacho teniendo gente dentro dejaría a esas personas
+  // sin sitio, así que se bloquea hasta que el titular las retire.
+  if (!wantsFirm && org.is_firm) {
+    const { count } = await supabase
+      .from('org_members')
+      .select('id', { count: 'exact', head: true })
+      .eq('org_id', org.id)
+
+    if ((count ?? 1) > 1) {
+      return {
+        ok: false,
+        error: 'Primero retira a los miembros del despacho y luego desactiva el trabajo en equipo.',
+      }
+    }
+    is_firm = false
+  }
 
   const { error } = await supabase
     .from('organizations')
@@ -63,7 +99,7 @@ export async function updateOrganization(formData: FormData): Promise<SettingsRe
     orgId: org.id,
     userId: user.id,
     action: 'ORG_UPDATED',
-    description: `Configuración del despacho actualizada (modo despacho: ${is_firm ? 'activo' : 'inactivo'})`,
+    description: `Configuración del despacho actualizada (equipo: ${is_firm ? 'activo' : 'inactivo'})`,
   })
 
   revalidatePath('/app/settings')
@@ -72,11 +108,15 @@ export async function updateOrganization(formData: FormData): Promise<SettingsRe
 }
 
 export async function addMember(formData: FormData): Promise<SettingsResult> {
-  const { supabase, user, org } = await requireSession()
+  const { supabase, user, org, profile } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
   if (org.owner_id !== user.id) {
     return { ok: false, error: 'Solo el titular del despacho puede añadir miembros.' }
   }
+  if (!roleCanLeadTeam(profile?.prof_role)) {
+    return { ok: false, error: 'Solo un abogado o notario puede añadir miembros a su despacho.' }
+  }
+  if (!planAllowsTeam(org.sub_status)) return { ok: false, error: NO_TEAM_PLAN }
   if (!hasAdminCredentials()) return { ok: false, error: MISSING_KEY }
 
   const email = String(formData.get('email') ?? '').trim().toLowerCase()
@@ -91,7 +131,7 @@ export async function addMember(formData: FormData): Promise<SettingsResult> {
 
   const { data: target, error: lookupError } = await admin
     .from('profiles')
-    .select('id, email, first_name, last_name')
+    .select('id, email')
     .eq('email', email)
     .maybeSingle()
 
@@ -104,9 +144,7 @@ export async function addMember(formData: FormData): Promise<SettingsResult> {
     }
   }
 
-  if (target.id === user.id) {
-    return { ok: false, error: 'Ya eres el titular de este despacho.' }
-  }
+  if (target.id === user.id) return { ok: false, error: 'Ya eres el titular de este despacho.' }
 
   const { data: already } = await admin
     .from('org_members')
@@ -114,25 +152,33 @@ export async function addMember(formData: FormData): Promise<SettingsResult> {
     .eq('user_id', target.id)
     .maybeSingle()
 
-  if (already) {
-    return { ok: false, error: 'Esa persona ya pertenece a un despacho.' }
-  }
+  if (already) return { ok: false, error: 'Esa persona ya pertenece a un despacho.' }
+
+  const { count: before } = await admin
+    .from('org_members')
+    .select('id', { count: 'exact', head: true })
+    .eq('org_id', org.id)
 
   const { error } = await admin
     .from('org_members')
-    .insert({ org_id: org.id, user_id: target.id, role })
+    .insert({ org_id: org.id, user_id: target.id, role, permissions: {} })
 
   if (error) return { ok: false, error: error.message }
+
+  const math = seatMath((before ?? 1) + 1, org.included_members, org.seat_price_dop)
 
   await logAudit(supabase, {
     orgId: org.id,
     userId: user.id,
     action: 'MEMBER_ADDED',
-    description: `${email} añadido como ${role}`,
+    description: `${email} añadido como ${role}. Coste mensual del despacho: ${formatDOP(math.total)}`,
   })
 
   revalidatePath('/app/settings')
-  return { ok: true, notice: `${email} se añadió al despacho.` }
+  return {
+    ok: true,
+    notice: `${email} se añadió al despacho. Tu factura mensual pasa a ${formatDOP(math.total)}.`,
+  }
 }
 
 export async function changeMemberRole(memberId: string, role: string): Promise<SettingsResult> {
@@ -141,13 +187,13 @@ export async function changeMemberRole(memberId: string, role: string): Promise<
   if (org.owner_id !== user.id) {
     return { ok: false, error: 'Solo el titular del despacho puede cambiar roles.' }
   }
-  if (!['PARALEGAL', 'ASSISTANT'].includes(role)) {
-    return { ok: false, error: 'Rol no válido.' }
-  }
+  if (!['PARALEGAL', 'ASSISTANT'].includes(role)) return { ok: false, error: 'Rol no válido.' }
 
+  // Al cambiar de rol se vuelve a los permisos por defecto del rol nuevo,
+  // para no arrastrar permisos que ya no encajan.
   const { error } = await supabase
     .from('org_members')
-    .update({ role })
+    .update({ role, permissions: {} })
     .eq('id', memberId)
     .eq('org_id', org.id)
 
@@ -161,7 +207,51 @@ export async function changeMemberRole(memberId: string, role: string): Promise<
   })
 
   revalidatePath('/app/settings')
-  return { ok: true, notice: 'Rol actualizado.' }
+  return { ok: true, notice: 'Rol actualizado. Los permisos volvieron a los de ese rol.' }
+}
+
+export async function updateMemberPermissions(
+  memberId: string,
+  formData: FormData
+): Promise<SettingsResult> {
+  const { supabase, user, org } = await requireSession()
+  if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (org.owner_id !== user.id) {
+    return { ok: false, error: 'Solo el titular del despacho puede cambiar permisos.' }
+  }
+  if (!planAllowsTeam(org.sub_status)) return { ok: false, error: NO_TEAM_PLAN }
+
+  const raw: Record<string, unknown> = {}
+  for (const { key } of PERMISSION_LIST) raw[key] = formData.get(key) === 'on'
+
+  const { data: member } = await supabase
+    .from('org_members')
+    .select('role')
+    .eq('id', memberId)
+    .eq('org_id', org.id)
+    .maybeSingle()
+
+  if (member?.role === 'OWNER') {
+    return { ok: false, error: 'El titular siempre conserva todos los permisos.' }
+  }
+
+  const { error } = await supabase
+    .from('org_members')
+    .update({ permissions: sanitizePermissions(raw) })
+    .eq('id', memberId)
+    .eq('org_id', org.id)
+
+  if (error) return { ok: false, error: error.message }
+
+  await logAudit(supabase, {
+    orgId: org.id,
+    userId: user.id,
+    action: 'MEMBER_PERMISSIONS_CHANGED',
+    description: `Permisos actualizados para el miembro ${memberId}`,
+  })
+
+  revalidatePath('/app/settings')
+  return { ok: true, notice: 'Permisos actualizados.' }
 }
 
 export async function removeMember(memberId: string): Promise<SettingsResult> {
@@ -190,13 +280,23 @@ export async function removeMember(memberId: string): Promise<SettingsResult> {
 
   if (error) return { ok: false, error: error.message }
 
+  const { count } = await supabase
+    .from('org_members')
+    .select('id', { count: 'exact', head: true })
+    .eq('org_id', org.id)
+
+  const math = seatMath(count ?? 1, org.included_members, org.seat_price_dop)
+
   await logAudit(supabase, {
     orgId: org.id,
     userId: user.id,
     action: 'MEMBER_REMOVED',
-    description: `Miembro retirado del despacho`,
+    description: `Miembro retirado. Coste mensual del despacho: ${formatDOP(math.total)}`,
   })
 
   revalidatePath('/app/settings')
-  return { ok: true, notice: 'Miembro retirado del despacho.' }
+  return {
+    ok: true,
+    notice: `Miembro retirado. Tu factura mensual baja a ${formatDOP(math.total)}.`,
+  }
 }

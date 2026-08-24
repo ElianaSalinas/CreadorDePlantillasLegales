@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { resolvePermissions, type MemberPermissions } from './permissions'
 
 export type Profile = {
   id: string
@@ -18,13 +19,15 @@ export type Organization = {
   id: string
   owner_id: string
   name: string
-  sub_status: 'FREE' | 'PREMIUM' | 'CANCELLED'
+  sub_status: 'FREE' | 'PREMIUM' | 'BUSINESS' | 'CANCELLED'
   docs_generated_count: number
   free_limit: number
   vault_limit: number
   vault_used_count: number
   require_approval: boolean
   is_firm: boolean
+  included_members: number
+  seat_price_dop: number
   created_at: string
 }
 
@@ -66,18 +69,24 @@ export async function requireSession() {
 
   let org: Organization | null = ownedOrg ?? null
   let memberRole: 'OWNER' | 'PARALEGAL' | 'ASSISTANT' | null = ownedOrg ? 'OWNER' : null
+  let storedPermissions: unknown = null
 
   if (!org) {
     const { data: membership } = await supabase
       .from('org_members')
-      .select('role, organizations(*)')
+      .select('role, permissions, organizations(*)')
       .eq('user_id', user.id)
       .limit(1)
-      .maybeSingle<{ role: 'OWNER' | 'PARALEGAL' | 'ASSISTANT'; organizations: Organization }>()
+      .maybeSingle<{
+        role: 'OWNER' | 'PARALEGAL' | 'ASSISTANT'
+        permissions: unknown
+        organizations: Organization
+      }>()
 
     if (membership?.organizations) {
       org = membership.organizations
       memberRole = membership.role
+      storedPermissions = membership.permissions
     }
   }
 
@@ -87,12 +96,17 @@ export async function requireSession() {
     .eq('id', user.id)
     .maybeSingle<{ id: string; admin_role: string }>()
 
+  // El titular lo puede todo; el resto parte de su rol y encima se
+  // aplica lo que el titular haya marcado a mano.
+  const permissions: MemberPermissions = resolvePermissions(memberRole, storedPermissions)
+
   return {
     supabase,
     user,
     profile: profile ?? null,
     org,
     memberRole,
+    permissions,
     isAdmin: Boolean(admin),
     adminRole: admin?.admin_role ?? null,
   }
