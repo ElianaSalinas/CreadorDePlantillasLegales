@@ -167,24 +167,29 @@ for (const tag of nuevasVars) {
   out()
 }
 
+// Hasta aqui va la parte 0: categorias, clausulas y variables.
+const PARTE_CERO = lineas.length
+
 out('-- ══════════════ PLANTILLAS ══════════════')
 out()
-out('DO $$')
-out('DECLARE')
-out('  v_template UUID;')
-out('  v_cat      UUID;')
-out('  s_partes   UUID;')
-out('  s_cuerpo   UUID;')
-out('  s_cierre   UUID;')
-out('BEGIN')
-out()
+
+/** Linea donde termina cada plantilla, para poder cortar en archivos. */
+const cortes: number[] = []
 
 for (const [category, title, description, clauses] of TEMPLATES) {
   const slug = slugify(title)
   // El cierre va detrás, sin repetir lo que ya trae la plantilla.
   const todas = [...new Set([...clauses, ...CIERRE])]
 
-  out(`  -- ── ${title} ──`)
+  out(`-- ── ${title} ──`)
+  out('DO $$')
+  out('DECLARE')
+  out('  v_template UUID;')
+  out('  v_cat      UUID;')
+  out('  s_partes   UUID;')
+  out('  s_cuerpo   UUID;')
+  out('  s_cierre   UUID;')
+  out('BEGIN')
   out(`  SELECT id INTO v_cat FROM template_categories WHERE slug = ${q(category)};`)
   out(`  SELECT id INTO v_template FROM templates WHERE slug = ${q(slug)};`)
   out('  IF v_template IS NULL THEN')
@@ -239,13 +244,12 @@ for (const [category, title, description, clauses] of TEMPLATES) {
     out('  ) AS t(tag, ord)')
     out('  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL')
     out('  ON CONFLICT DO NOTHING;')
-    out()
   }
+  out('END $$;')
   out()
+  cortes.push(lineas.length)
 }
 
-out('  RAISE NOTICE \'Catálogo cargado\';')
-out('END $$;')
 out()
 out('-- ==========================================================')
 out('-- PARA PUBLICAR, DESPUÉS DE LA REVISIÓN LEGAL')
@@ -263,8 +267,52 @@ out('--     reviewed_by = (SELECT id FROM profiles WHERE email = \'abogado@ejemp
 out('--     reviewed_at = now()')
 out('--   WHERE slug = \'contrato-de-alquiler-de-local-comercial\';')
 
-const destino = 'supabase/migrations/20260827000000_catalog_completo.sql'
-writeFileSync(destino, lineas.join('\n') + '\n', 'utf-8')
+/* ── Reparto en archivos que el SQL Editor de Supabase sí acepta ──
+   Un archivo de 900 KB lo trunca el editor a media instrucción y el
+   error que da ("unterminated dollar-quoted string") no dice que se
+   quedó corto. Se corta por plantilla, nunca a mitad de una. */
+
+// La cabecera termina justo antes del banner de cláusulas; cortar por un
+// número fijo partía el primer INSERT por la mitad.
+const INICIO_CUERPO = lineas.findIndex((l) => l.includes('══ CLÁUSULAS ══'))
+if (INICIO_CUERPO < 0) { console.error('No encontré el banner de cláusulas'); process.exit(1) }
+const CABECERA = lineas.slice(0, INICIO_CUERPO)
+const PLANTILLAS_POR_ARCHIVO = 25
+
+const escritos: { archivo: string; lineas: number; kb: number }[] = []
+
+function escribir(nombre: string, cuerpo: string[], nota: string) {
+  const texto = [...CABECERA, `-- ${nota}`, '', ...cuerpo].join('\n') + '\n'
+  const ruta = `supabase/migrations/${nombre}`
+  writeFileSync(ruta, texto, 'utf-8')
+  escritos.push({ archivo: nombre, lineas: texto.split('\n').length, kb: Math.round(Buffer.byteLength(texto) / 1024) })
+}
+
+// Parte 0: categorías, cláusulas y variables.
+escribir(
+  '20260827000000_catalog_00_clausulas.sql',
+  lineas.slice(INICIO_CUERPO, PARTE_CERO),
+  `PARTE 0 de ${Math.ceil(TEMPLATES.length / PLANTILLAS_POR_ARCHIVO)}: cláusulas y variables. Ejecutar PRIMERO.`,
+)
+
+// Partes 1..N: las plantillas, en grupos.
+let desde = PARTE_CERO
+let parte = 1
+for (let i = 0; i < cortes.length; i += PLANTILLAS_POR_ARCHIVO) {
+  const hasta = cortes[Math.min(i + PLANTILLAS_POR_ARCHIVO, cortes.length) - 1]
+  const numero = String(parte).padStart(2, '0')
+  const total = Math.ceil(cortes.length / PLANTILLAS_POR_ARCHIVO)
+  escribir(
+    `202608270000${numero}_catalog_${numero}_plantillas.sql`,
+    lineas.slice(desde, hasta),
+    `PARTE ${parte} de ${total}: plantillas ${i + 1}–${Math.min(i + PLANTILLAS_POR_ARCHIVO, cortes.length)}. Requiere la parte 0.`,
+  )
+  desde = hasta
+  parte++
+}
+
+console.log('\nArchivos generados para el SQL Editor:')
+for (const e of escritos) console.log(`  ${e.archivo}  ${String(e.lineas).padStart(5)} líneas  ${String(e.kb).padStart(4)} KB`)
 
 /* ── Resumen ── */
 
@@ -274,7 +322,7 @@ for (const c of CLAUSES) porFamilia.set(c.family, (porFamilia.get(c.family) ?? 0
 const porCategoria = new Map<string, number>()
 for (const [cat] of TEMPLATES) porCategoria.set(cat, (porCategoria.get(cat) ?? 0) + 1)
 
-console.log(`\nMigración escrita en ${destino}\n`)
+console.log(`\n${escritos.length} archivos escritos en supabase/migrations/\n`)
 console.log(`Cláusulas nuevas: ${CLAUSES.length}  (+22 del arrendamiento = ${CLAUSES.length + 22} en total)`)
 for (const [f, n] of [...porFamilia].sort()) console.log(`  ${f.padEnd(16)} ${n}`)
 console.log(`\nVariables nuevas: ${nuevasVars.length}  (+30 del arrendamiento)`)
