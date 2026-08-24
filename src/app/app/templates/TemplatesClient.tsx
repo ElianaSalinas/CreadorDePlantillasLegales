@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { FileText, Plus, Pencil, Trash2, Copy, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { FileText, Plus, Pencil, Trash2, Copy, Loader2, Wand2 } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import EmptyState from '@/components/ui/EmptyState'
 import { TEMPLATE_CATEGORIES } from '@/lib/categories'
@@ -143,7 +144,14 @@ export default function TemplatesClient({
                 {previewOf(row.content) || 'Sin contenido todavía.'}
               </p>
 
-              <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+              <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+                <Link
+                  href={`/app/documents/new/${row.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                >
+                  <Wand2 size={15} /> Usar
+                </Link>
+
                 {row.is_master ? (
                   <button
                     onClick={() => handleDuplicate(row)}
