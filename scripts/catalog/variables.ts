@@ -29,6 +29,14 @@ export const VARIABLE_META: Record<string, VarMeta> = {
   parte_segunda_nacionalidad: { label: 'Nacionalidad de la segunda parte', type: 'text', default: 'dominicana' },
   parte_segunda_domicilio: { label: 'Domicilio de la segunda parte', type: 'address' },
 
+  distrito_judicial: { label: 'Distrito Judicial competente', question: '¿Qué Distrito Judicial conoce las controversias?', type: 'text', default: 'La Altagracia' },
+
+  parte_responsable_seguro: { label: 'Parte que contrata el seguro', question: '¿Quién contrata y paga la póliza?', type: 'text', default: 'LA PRIMERA PARTE' },
+  destino_uso: { label: 'Destino o uso del bien', question: '¿Para qué se usará el bien?', type: 'text' },
+  periodo_alquiler: { label: 'Período de pago del alquiler', question: '¿Cada cuánto se paga?', type: 'text', default: 'mes' },
+
+  descripcion_obra: { label: 'Descripción de la obra', question: '¿Qué trabajos comprende la obra?', type: 'text' },
+
   /* Económicas */
   monto_total_letras: { label: 'Monto total', question: '¿Cuál es el monto total?', type: 'currency', derived: { transform: 'monto_letras', as: 'monto_total_letras', currency: 'DOP' } },
   monto_penalidad_letras: { label: 'Monto de la penalidad', type: 'currency', derived: { transform: 'monto_letras', as: 'monto_penalidad_letras', currency: 'DOP' } },
@@ -36,6 +44,7 @@ export const VARIABLE_META: Record<string, VarMeta> = {
   deposito_letras: { label: 'Monto del depósito', type: 'currency', derived: { transform: 'monto_letras', as: 'deposito_letras', currency: 'DOP' } },
   precio_venta_letras: { label: 'Precio de venta', type: 'currency', derived: { transform: 'monto_letras', as: 'precio_venta_letras', currency: 'DOP' } },
   capital_letras: { label: 'Capital prestado', type: 'currency', derived: { transform: 'monto_letras', as: 'capital_letras', currency: 'DOP' } },
+  precio_alquiler_letras: { label: 'Precio del alquiler', question: '¿Cuánto se paga por período?', type: 'currency', derived: { transform: 'monto_letras', as: 'precio_alquiler_letras', currency: 'DOP' } },
   salario_letras: { label: 'Salario mensual', question: '¿Cuál es el salario?', type: 'currency', derived: { transform: 'monto_letras', as: 'salario_letras', currency: 'DOP' } },
   dias_pago: { label: 'Días para pagar', question: '¿En cuántos días se paga cada factura?', type: 'number', default: '30' },
   anticipo_porcentaje: { label: 'Anticipo', question: '¿Qué porcentaje se paga por adelantado?', type: 'percentage', default: '50' },

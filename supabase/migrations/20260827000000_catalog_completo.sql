@@ -6,7 +6,7 @@
 --   npm run catalog:build
 -- a partir de scripts/catalog/clauses.ts y templates.ts
 --
--- ⚠️  94 cláusulas y 250 plantillas, TODAS en estado DRAFT.
+-- ⚠️  101 cláusulas y 250 plantillas, TODAS en estado DRAFT.
 --     Ningún usuario las ve hasta que un abogado dominicano las
 --     revise y las publique. Al final hay instrucciones.
 -- ==========================================================
@@ -71,6 +71,42 @@ INSERT INTO clauses (org_id, slug, title, family, description, body, legal_refer
 VALUES (NULL, 'g-divisibilidad', 'Divisibilidad', 'Generales', 'Si una cláusula es nula, el resto del contrato sigue vigente.',
   'DIVISIBILIDAD. Si alguna disposición del presente contrato fuera declarada nula, inválida o inejecutable por autoridad competente, dicha declaración no afectará la validez de las restantes disposiciones, que continuarán vigentes. Las partes se obligan a sustituir la disposición afectada por otra válida que se aproxime en lo posible a la finalidad económica perseguida.',
   NULL, 'DRAFT')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
+VALUES (NULL, 'g-seguro-bienes', 'Seguro de los bienes', 'Generales', 'Quién asegura los bienes que cubre el contrato y hasta dónde responde cada parte.',
+  'SEGURO. {{parte_responsable_seguro}} mantendrá vigente, durante toda la vigencia del presente contrato y a su exclusivo costo, una póliza de seguro que cubra los bienes objeto del mismo contra los riesgos habituales de pérdida, daño, incendio y robo, así como la responsabilidad civil frente a terceros derivada de su uso u operación. La otra parte podrá exigir en cualquier momento la exhibición de la póliza y de los recibos de prima al día. La existencia del seguro no libera a la parte responsable de los daños que excedan la cobertura contratada ni de los causados por dolo o falta grave.',
+  'Ley 146-02 sobre Seguros y Fianzas de la República Dominicana', 'DRAFT')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
+VALUES (NULL, 'g-devolucion-bien', 'Devolución del bien', 'Generales', 'Cómo y en qué estado se devuelve el bien al terminar el contrato.',
+  'DEVOLUCIÓN. Al vencimiento del presente contrato o al producirse su terminación por cualquier causa, la parte que tenga el bien en su poder se obliga a devolverlo de inmediato en el mismo estado en que lo recibió, salvo el desgaste normal derivado del uso convenido, con todos sus accesorios, documentos y llaves, y libre de gravámenes, multas o cargos generados durante el período de uso. Las partes levantarán un acta de devolución en la que se hará constar el estado del bien; los daños que consten en dicha acta serán de cargo de la parte que lo devuelve.',
+  'Código Civil Dominicano, artículos 1730 y 1731', 'DRAFT')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
+VALUES (NULL, 'g-objeto-uso-bien', 'Objeto y uso del bien', 'Generales', 'Qué bien se cede y para qué puede usarse, sin suponer que es un inmueble.',
+  'OBJETO. Por el presente contrato, LA PRIMERA PARTE cede a LA SEGUNDA PARTE el uso del bien descrito en este documento, en adelante EL BIEN, el cual será destinado exclusivamente a {{destino_uso}}. LA SEGUNDA PARTE declara recibir EL BIEN en buen estado de conservación y funcionamiento, y se obliga a emplearlo conforme a su naturaleza y al destino convenido, sin poder cambiarlo ni cederlo a terceros sin autorización previa y por escrito de LA PRIMERA PARTE.',
+  'Código Civil Dominicano, artículos 1709 y siguientes', 'DRAFT')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
+VALUES (NULL, 'e-precio-alquiler', 'Precio del alquiler', 'Económicas', 'Cuánto se paga por el uso del bien y cuándo, sin suponer que es un inmueble.',
+  'PRECIO. El precio por el uso de EL BIEN se fija en la suma de {{precio_alquiler_letras}} por cada {{periodo_alquiler}}, que LA SEGUNDA PARTE se obliga a pagar por adelantado, a más tardar el día {{dia_pago}} de cada período, mediante transferencia a la cuenta que LA PRIMERA PARTE indique o en el domicilio de esta. El pago deberá hacerse sin necesidad de requerimiento previo y no podrá compensarse ni retenerse por reclamaciones pendientes entre las partes.',
+  'Código Civil Dominicano, artículo 1728', 'DRAFT')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
+VALUES (NULL, 'g-notificaciones', 'Notificaciones', 'Generales', 'Dónde y cómo se notifican las partes, sin atarlo a un inmueble.',
+  'NOTIFICACIONES. Para todos los fines del presente contrato, LA PRIMERA PARTE elige domicilio en {{parte_primera_domicilio}} y LA SEGUNDA PARTE en {{parte_segunda_domicilio}}. Toda notificación, requerimiento o comunicación relacionada con este contrato se reputará válidamente hecha si se entrega en dichos domicilios mediante acto de alguacil, correo certificado con acuse de recibo o entrega personal con constancia escrita. Cualquier cambio de domicilio deberá comunicarse a la otra parte por escrito dentro de los diez (10) días siguientes; mientras no se comunique, las notificaciones hechas al domicilio anterior conservarán plena validez.',
+  'Código de Procedimiento Civil Dominicano, artículos 68 y siguientes', 'DRAFT')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
+VALUES (NULL, 'g-ley-aplicable', 'Ley aplicable y jurisdicción', 'Generales', 'Ley dominicana y tribunales competentes, sin atarlo a un inmueble.',
+  'LEY APLICABLE Y JURISDICCIÓN. El presente contrato se rige por las leyes de la República Dominicana. Para el conocimiento de cualquier controversia derivada de su interpretación, ejecución o terminación, las partes se someten voluntariamente a la competencia de los tribunales del Distrito Judicial de {{distrito_judicial}}, renunciando expresamente a cualquier otro fuero que pudiera corresponderles.',
+  'Código de Procedimiento Civil Dominicano; Ley 834 de 1978', 'DRAFT')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
@@ -341,6 +377,12 @@ INSERT INTO clauses (org_id, slug, title, family, description, body, legal_refer
 VALUES (NULL, 'b-anticorrupcion', 'Cumplimiento y anticorrupción', 'Empresariales', 'Compromiso de no incurrir en prácticas corruptas.',
   'CUMPLIMIENTO NORMATIVO. Las partes declaran no haber ofrecido ni prometido, directa o indirectamente, ventaja alguna a funcionario público o particular para obtener la celebración del presente contrato, y se obligan a cumplir la legislación dominicana en materia de prevención de lavado de activos y de actos de corrupción.',
   'Ley 155-17 contra el Lavado de Activos', 'DRAFT')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
+VALUES (NULL, 'o-alcance-obra', 'Alcance de la obra', 'Inmobiliarias', 'Qué trabajos comprende la obra y qué queda expresamente fuera.',
+  'ALCANCE DE LA OBRA. EL CONTRATISTA ejecutará los trabajos descritos en {{descripcion_obra}}, conforme a los planos, especificaciones técnicas y presupuesto que las partes suscriben y que forman parte integrante del presente contrato. Todo trabajo no comprendido expresamente en dichos documentos constituirá una obra extraordinaria y requerirá acuerdo previo y por escrito sobre su alcance, precio y plazo, sin que su ejecución pueda presumirse por el solo hecho de haberse iniciado. EL CONTRATISTA suministrará la mano de obra, dirección técnica, herramientas y equipos necesarios; los materiales correrán a cargo de {{parte_suministra_materiales}}.',
+  'Código Civil Dominicano, artículos 1787 y siguientes', 'DRAFT')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
@@ -655,7 +697,17 @@ VALUES (NULL, 'descripcion_garantia', 'Descripción de la garantía', NULL, NULL
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'descripcion_obra', 'Descripción de la obra', '¿Qué trabajos comprende la obra?', NULL,
+  'text'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'descripcion_registral', 'Designación catastral', NULL, NULL,
+  'text'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'destino_uso', 'Destino o uso del bien', '¿Para qué se usará el bien?', NULL,
   'text'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
 ON CONFLICT DO NOTHING;
 
@@ -682,6 +734,11 @@ ON CONFLICT DO NOTHING;
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'disponibilidad_porcentaje', 'Disponibilidad garantizada', NULL, NULL,
   'percentage'::variable_data_type, '[]'::jsonb, '99.5', true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'distrito_judicial', 'Distrito Judicial competente', '¿Qué Distrito Judicial conoce las controversias?', NULL,
+  'text'::variable_data_type, '[]'::jsonb, 'La Altagracia', true, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
@@ -795,6 +852,11 @@ VALUES (NULL, 'parte_primera_nombre', 'Nombre de la primera parte', '¿Quién es
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_responsable_seguro', 'Parte que contrata el seguro', '¿Quién contrata y paga la póliza?', NULL,
+  'text'::variable_data_type, '[]'::jsonb, 'LA PRIMERA PARTE', true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_segunda_cedula', 'Cédula de la segunda parte', NULL, NULL,
   'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
 ON CONFLICT DO NOTHING;
@@ -825,8 +887,18 @@ VALUES (NULL, 'penalidad_diaria_porcentaje', 'Penalidad diaria', NULL, NULL,
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'periodo_alquiler', 'Período de pago del alquiler', '¿Cada cuánto se paga?', NULL,
+  'text'::variable_data_type, '[]'::jsonb, 'mes', true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'plazo_obra_dias', 'Plazo de la obra en días', NULL, NULL,
   'number'::variable_data_type, '[]'::jsonb, '90', true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'precio_alquiler_letras', 'Precio del alquiler', '¿Cuánto se paga por período?', NULL,
+  'currency'::variable_data_type, '[]'::jsonb, NULL, true, '{"transform":"monto_letras","as":"precio_alquiler_letras","currency":"DOP"}'::jsonb)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
@@ -947,14 +1019,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-comercial', 11),
@@ -965,8 +1037,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 16),
     ('g-modificaciones', 17),
     ('g-divisibilidad', 18),
-    ('notificaciones', 19),
-    ('ley-aplicable-jurisdiccion', 20),
+    ('g-notificaciones', 19),
+    ('g-ley-aplicable', 20),
     ('integridad-contractual', 21)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -975,15 +1047,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1026,14 +1103,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-residencial', 11),
@@ -1044,8 +1121,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 16),
     ('g-modificaciones', 17),
     ('g-divisibilidad', 18),
-    ('notificaciones', 19),
-    ('ley-aplicable-jurisdiccion', 20),
+    ('g-notificaciones', 19),
+    ('g-ley-aplicable', 20),
     ('integridad-contractual', 21)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1054,15 +1131,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1105,14 +1187,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-residencial', 11),
@@ -1122,8 +1204,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 15),
     ('g-modificaciones', 16),
     ('g-divisibilidad', 17),
-    ('notificaciones', 18),
-    ('ley-aplicable-jurisdiccion', 19),
+    ('g-notificaciones', 18),
+    ('g-ley-aplicable', 19),
     ('integridad-contractual', 20)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1132,15 +1214,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1193,8 +1280,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1203,15 +1290,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1254,14 +1342,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-residencial', 11),
@@ -1272,8 +1360,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 16),
     ('g-modificaciones', 17),
     ('g-divisibilidad', 18),
-    ('notificaciones', 19),
-    ('ley-aplicable-jurisdiccion', 20),
+    ('g-notificaciones', 19),
+    ('g-ley-aplicable', 20),
     ('integridad-contractual', 21)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1282,15 +1370,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1333,14 +1426,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-comercial', 11),
@@ -1350,8 +1443,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 15),
     ('g-modificaciones', 16),
     ('g-divisibilidad', 17),
-    ('notificaciones', 18),
-    ('ley-aplicable-jurisdiccion', 19),
+    ('g-notificaciones', 18),
+    ('g-ley-aplicable', 19),
     ('integridad-contractual', 20)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1360,15 +1453,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1411,14 +1509,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-comercial', 11),
@@ -1428,8 +1526,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 15),
     ('g-modificaciones', 16),
     ('g-divisibilidad', 17),
-    ('notificaciones', 18),
-    ('ley-aplicable-jurisdiccion', 19),
+    ('g-notificaciones', 18),
+    ('g-ley-aplicable', 19),
     ('integridad-contractual', 20)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1438,15 +1536,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1498,8 +1601,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1511,15 +1614,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_registral', 3),
     ('direccion_inmueble', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('superficie_metros', 13)
+    ('distrito_judicial', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('superficie_metros', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1570,8 +1674,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1580,14 +1684,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1639,8 +1744,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1654,19 +1759,20 @@ _______________________________          _______________________________
     ('descripcion_registral', 4),
     ('dias_pago', 5),
     ('direccion_inmueble', 6),
-    ('fecha_entrega_larga', 7),
-    ('lugar_entrega', 8),
-    ('parte_paga_transferencia', 9),
-    ('parte_primera_cedula', 10),
-    ('parte_primera_domicilio', 11),
-    ('parte_primera_nacionalidad', 12),
-    ('parte_primera_nombre', 13),
-    ('parte_segunda_cedula', 14),
-    ('parte_segunda_domicilio', 15),
-    ('parte_segunda_nacionalidad', 16),
-    ('parte_segunda_nombre', 17),
-    ('precio_venta_letras', 18),
-    ('superficie_metros', 19)
+    ('distrito_judicial', 7),
+    ('fecha_entrega_larga', 8),
+    ('lugar_entrega', 9),
+    ('parte_paga_transferencia', 10),
+    ('parte_primera_cedula', 11),
+    ('parte_primera_domicilio', 12),
+    ('parte_primera_nacionalidad', 13),
+    ('parte_primera_nombre', 14),
+    ('parte_segunda_cedula', 15),
+    ('parte_segunda_domicilio', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('precio_venta_letras', 19),
+    ('superficie_metros', 20)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1717,8 +1823,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1731,17 +1837,18 @@ _______________________________          _______________________________
     ('ciudad_firma', 3),
     ('descripcion_registral', 4),
     ('direccion_inmueble', 5),
-    ('monto_penalidad_letras', 6),
-    ('parte_paga_transferencia', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15),
-    ('superficie_metros', 16)
+    ('distrito_judicial', 6),
+    ('monto_penalidad_letras', 7),
+    ('parte_paga_transferencia', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_nacionalidad', 15),
+    ('parte_segunda_nombre', 16),
+    ('superficie_metros', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1791,8 +1898,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1805,16 +1912,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 3),
     ('descripcion_registral', 4),
     ('direccion_inmueble', 5),
-    ('monto_penalidad_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('superficie_metros', 15)
+    ('distrito_judicial', 6),
+    ('monto_penalidad_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15),
+    ('superficie_metros', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1864,8 +1972,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1875,17 +1983,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('objeto_exclusividad', 3),
-    ('parte_exclusiva', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('territorio_contrato', 13)
+    ('distrito_judicial', 3),
+    ('objeto_exclusividad', 4),
+    ('parte_exclusiva', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('territorio_contrato', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -1936,8 +2045,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -1947,14 +2056,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2004,8 +2114,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2017,18 +2127,19 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_registral', 3),
     ('direccion_inmueble', 4),
-    ('fecha_entrega_larga', 5),
-    ('lugar_entrega', 6),
-    ('parte_paga_transferencia', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15),
-    ('superficie_metros', 16)
+    ('distrito_judicial', 5),
+    ('fecha_entrega_larga', 6),
+    ('lugar_entrega', 7),
+    ('parte_paga_transferencia', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_nacionalidad', 15),
+    ('parte_segunda_nombre', 16),
+    ('superficie_metros', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2071,14 +2182,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('i-descripcion-inmueble', 11),
@@ -2087,8 +2198,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 14),
     ('g-modificaciones', 15),
     ('g-divisibilidad', 16),
-    ('notificaciones', 17),
-    ('ley-aplicable-jurisdiccion', 18),
+    ('g-notificaciones', 17),
+    ('g-ley-aplicable', 18),
     ('integridad-contractual', 19)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2100,18 +2211,23 @@ _______________________________          _______________________________
     ('certificado_titulo', 2),
     ('ciudad_firma', 3),
     ('descripcion_registral', 4),
-    ('direccion_inmueble', 5),
-    ('fecha_entrega_larga', 6),
-    ('parte_paga_transferencia', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15),
-    ('superficie_metros', 16)
+    ('destino_uso', 5),
+    ('dia_pago', 6),
+    ('direccion_inmueble', 7),
+    ('distrito_judicial', 8),
+    ('fecha_entrega_larga', 9),
+    ('parte_paga_transferencia', 10),
+    ('parte_primera_cedula', 11),
+    ('parte_primera_domicilio', 12),
+    ('parte_primera_nacionalidad', 13),
+    ('parte_primera_nombre', 14),
+    ('parte_segunda_cedula', 15),
+    ('parte_segunda_domicilio', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('periodo_alquiler', 19),
+    ('precio_alquiler_letras', 20),
+    ('superficie_metros', 21)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2162,8 +2278,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2172,14 +2288,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2228,8 +2345,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2238,15 +2355,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2295,8 +2413,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2305,14 +2423,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2359,8 +2478,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2369,14 +2488,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2421,11 +2541,11 @@ _______________________________          _______________________________
   FROM (VALUES
     ('incumplimiento-desalojo', 1),
     ('devolucion-inmueble', 2),
-    ('notificaciones', 3),
+    ('g-notificaciones', 3),
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2434,14 +2554,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2486,11 +2607,11 @@ _______________________________          _______________________________
   FROM (VALUES
     ('g-renovacion-automatica', 1),
     ('devolucion-inmueble', 2),
-    ('notificaciones', 3),
+    ('g-notificaciones', 3),
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2499,14 +2620,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2550,11 +2672,11 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('e-ajuste-precio-anual', 1),
-    ('notificaciones', 2),
+    ('g-notificaciones', 2),
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2563,14 +2685,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2620,8 +2743,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2631,15 +2754,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2689,8 +2813,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2699,14 +2823,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2749,14 +2874,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-comercial', 11),
@@ -2766,8 +2891,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 15),
     ('g-modificaciones', 16),
     ('g-divisibilidad', 17),
-    ('notificaciones', 18),
-    ('ley-aplicable-jurisdiccion', 19),
+    ('g-notificaciones', 18),
+    ('g-ley-aplicable', 19),
     ('integridad-contractual', 20)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2776,15 +2901,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2827,14 +2957,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-comercial', 11),
@@ -2843,8 +2973,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 14),
     ('g-modificaciones', 15),
     ('g-divisibilidad', 16),
-    ('notificaciones', 17),
-    ('ley-aplicable-jurisdiccion', 18),
+    ('g-notificaciones', 17),
+    ('g-ley-aplicable', 18),
     ('integridad-contractual', 19)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2853,15 +2983,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2904,14 +3039,14 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
-    ('precio-renta', 2),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
     ('deposito-garantia', 3),
     ('mora-recargo', 4),
     ('vigencia-arrendamiento', 5),
     ('terminacion-anticipada', 6),
     ('i-entrega-inmueble', 7),
-    ('devolucion-inmueble', 8),
+    ('g-devolucion-bien', 8),
     ('reparaciones-menores', 9),
     ('incumplimiento-desalojo', 10),
     ('uso-comercial', 11),
@@ -2920,8 +3055,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 14),
     ('g-modificaciones', 15),
     ('g-divisibilidad', 16),
-    ('notificaciones', 17),
-    ('ley-aplicable-jurisdiccion', 18),
+    ('g-notificaciones', 17),
+    ('g-ley-aplicable', 18),
     ('integridad-contractual', 19)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -2930,15 +3065,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('destino_uso', 2),
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -2989,8 +3129,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3000,16 +3140,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('deposito_letras', 2),
-    ('fecha_entrega_larga', 3),
-    ('monto_penalidad_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('monto_penalidad_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3059,8 +3200,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3072,15 +3213,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_registral', 3),
     ('direccion_inmueble', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('superficie_metros', 13)
+    ('distrito_judicial', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('superficie_metros', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3130,8 +3272,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3140,14 +3282,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3194,8 +3337,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3207,15 +3350,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_registral', 3),
     ('direccion_inmueble', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('superficie_metros', 13)
+    ('distrito_judicial', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('superficie_metros', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3264,8 +3408,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3277,16 +3421,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_registral', 3),
     ('direccion_inmueble', 4),
-    ('parte_paga_transferencia', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('superficie_metros', 14)
+    ('distrito_judicial', 5),
+    ('parte_paga_transferencia', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('superficie_metros', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3337,8 +3482,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3354,17 +3499,18 @@ _______________________________          _______________________________
     ('descripcion_registral', 6),
     ('dia_pago', 7),
     ('direccion_inmueble', 8),
-    ('interes_mora_porcentaje', 9),
-    ('monto_cuota_letras', 10),
-    ('parte_primera_cedula', 11),
-    ('parte_primera_domicilio', 12),
-    ('parte_primera_nacionalidad', 13),
-    ('parte_primera_nombre', 14),
-    ('parte_segunda_cedula', 15),
-    ('parte_segunda_domicilio', 16),
-    ('parte_segunda_nacionalidad', 17),
-    ('parte_segunda_nombre', 18),
-    ('superficie_metros', 19)
+    ('distrito_judicial', 9),
+    ('interes_mora_porcentaje', 10),
+    ('monto_cuota_letras', 11),
+    ('parte_primera_cedula', 12),
+    ('parte_primera_domicilio', 13),
+    ('parte_primera_nacionalidad', 14),
+    ('parte_primera_nombre', 15),
+    ('parte_segunda_cedula', 16),
+    ('parte_segunda_domicilio', 17),
+    ('parte_segunda_nacionalidad', 18),
+    ('parte_segunda_nombre', 19),
+    ('superficie_metros', 20)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3415,8 +3561,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3426,16 +3572,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('deposito_letras', 2),
-    ('fecha_entrega_larga', 3),
-    ('monto_penalidad_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('monto_penalidad_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3483,8 +3630,8 @@ _______________________________          _______________________________
     ('g-terminacion-mutuo-acuerdo', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3493,14 +3640,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3548,8 +3696,8 @@ _______________________________          _______________________________
     ('vigencia-arrendamiento', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3558,14 +3706,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3612,8 +3761,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3622,14 +3771,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3673,11 +3823,11 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('b-representacion', 1),
-    ('notificaciones', 2),
+    ('g-notificaciones', 2),
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3686,14 +3836,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3743,8 +3894,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3754,16 +3905,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('monto_penalidad_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('titular_propiedad_intelectual', 12)
+    ('distrito_judicial', 3),
+    ('monto_penalidad_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('titular_propiedad_intelectual', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3812,8 +3964,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3823,15 +3975,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('monto_penalidad_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_penalidad_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3881,8 +4034,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3893,15 +4046,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_penalidad_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_penalidad_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -3950,8 +4104,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -3961,15 +4115,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4017,8 +4172,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4027,14 +4182,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4082,8 +4238,8 @@ _______________________________          _______________________________
     ('g-buena-fe', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4093,14 +4249,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4149,8 +4306,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4160,17 +4317,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('monto_penalidad_letras', 3),
-    ('objeto_exclusividad', 4),
-    ('parte_exclusiva', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 3),
+    ('monto_penalidad_letras', 4),
+    ('objeto_exclusividad', 5),
+    ('parte_exclusiva', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4216,8 +4374,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 1),
     ('g-modificaciones', 2),
     ('g-divisibilidad', 3),
-    ('notificaciones', 4),
-    ('ley-aplicable-jurisdiccion', 5),
+    ('g-notificaciones', 4),
+    ('g-ley-aplicable', 5),
     ('integridad-contractual', 6)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4226,14 +4384,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4279,8 +4438,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 1),
     ('g-modificaciones', 2),
     ('g-divisibilidad', 3),
-    ('notificaciones', 4),
-    ('ley-aplicable-jurisdiccion', 5),
+    ('g-notificaciones', 4),
+    ('g-ley-aplicable', 5),
     ('integridad-contractual', 6)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4289,14 +4448,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4344,8 +4504,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4354,15 +4514,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('monto_total_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 2),
+    ('monto_total_letras', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4406,11 +4567,11 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('g-cesion-permitida', 1),
-    ('notificaciones', 2),
+    ('g-notificaciones', 2),
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4419,14 +4580,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4476,8 +4638,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4489,17 +4651,18 @@ _______________________________          _______________________________
     ('capital_letras', 2),
     ('ciudad_firma', 3),
     ('dia_pago', 4),
-    ('interes_mora_porcentaje', 5),
-    ('monto_cuota_letras', 6),
-    ('monto_penalidad_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15)
+    ('distrito_judicial', 5),
+    ('interes_mora_porcentaje', 6),
+    ('monto_cuota_letras', 7),
+    ('monto_penalidad_letras', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_nacionalidad', 15),
+    ('parte_segunda_nombre', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4546,8 +4709,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4556,14 +4719,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4610,8 +4774,8 @@ _______________________________          _______________________________
     ('g-terminacion-mutuo-acuerdo', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4620,14 +4784,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4676,8 +4841,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4687,16 +4852,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('deposito_letras', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4745,8 +4911,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4756,15 +4922,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('descripcion_garantia', 2),
-    ('monto_penalidad_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_penalidad_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4812,8 +4979,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4822,14 +4989,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4875,8 +5043,8 @@ _______________________________          _______________________________
     ('g-modificaciones', 1),
     ('g-declaraciones-partes', 2),
     ('g-divisibilidad', 3),
-    ('notificaciones', 4),
-    ('ley-aplicable-jurisdiccion', 5),
+    ('g-notificaciones', 4),
+    ('g-ley-aplicable', 5),
     ('integridad-contractual', 6)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4885,14 +5053,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -4936,12 +5105,12 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('g-intereses-moratorios', 1),
-    ('notificaciones', 2),
+    ('g-notificaciones', 2),
     ('g-penalidad', 3),
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -4950,16 +5119,17 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('interes_mora_porcentaje', 2),
-    ('monto_penalidad_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 2),
+    ('interes_mora_porcentaje', 3),
+    ('monto_penalidad_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5006,8 +5176,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5017,14 +5187,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('descripcion_garantia', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5073,8 +5244,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5083,15 +5254,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('monto_penalidad_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 2),
+    ('monto_penalidad_letras', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5140,8 +5312,8 @@ _______________________________          _______________________________
     ('g-arbitraje', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5151,14 +5323,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5209,8 +5382,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5220,15 +5393,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('meses_no_competencia', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('meses_no_competencia', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5277,8 +5451,8 @@ _______________________________          _______________________________
     ('b-no-competencia', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5289,16 +5463,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
     ('dias_pago', 3),
-    ('meses_no_competencia', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('precio_venta_letras', 13)
+    ('distrito_judicial', 4),
+    ('meses_no_competencia', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('precio_venta_letras', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5348,8 +5523,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5359,15 +5534,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('titular_propiedad_intelectual', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('titular_propiedad_intelectual', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5418,8 +5594,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5429,17 +5605,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('objeto_exclusividad', 3),
-    ('parte_exclusiva', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('territorio_contrato', 13)
+    ('distrito_judicial', 3),
+    ('objeto_exclusividad', 4),
+    ('parte_exclusiva', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('territorio_contrato', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5489,8 +5666,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5500,15 +5677,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('territorio_contrato', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('territorio_contrato', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5558,8 +5736,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5569,15 +5747,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('territorio_contrato', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('territorio_contrato', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5627,8 +5806,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5638,15 +5817,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('territorio_contrato', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('territorio_contrato', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5698,8 +5878,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5710,19 +5890,20 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('comision_porcentaje', 3),
-    ('meses_no_competencia', 4),
-    ('objeto_exclusividad', 5),
-    ('parte_exclusiva', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('territorio_contrato', 15),
-    ('titular_propiedad_intelectual', 16)
+    ('distrito_judicial', 4),
+    ('meses_no_competencia', 5),
+    ('objeto_exclusividad', 6),
+    ('parte_exclusiva', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15),
+    ('territorio_contrato', 16),
+    ('titular_propiedad_intelectual', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5773,8 +5954,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5784,18 +5965,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('penalidad_diaria_porcentaje', 14)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('penalidad_diaria_porcentaje', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5844,8 +6026,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5855,16 +6037,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5913,8 +6096,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5925,14 +6108,15 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('comision_referido_porcentaje', 2),
     ('dias_pago', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -5981,8 +6165,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -5992,15 +6176,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('titular_propiedad_intelectual', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('titular_propiedad_intelectual', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6050,8 +6235,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6061,18 +6246,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('objeto_exclusividad', 3),
-    ('parte_exclusiva', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('territorio_contrato', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('distrito_judicial', 3),
+    ('objeto_exclusividad', 4),
+    ('parte_exclusiva', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('territorio_contrato', 14),
+    ('titular_propiedad_intelectual', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6119,8 +6305,8 @@ _______________________________          _______________________________
     ('g-encabezados', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6129,14 +6315,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6183,8 +6370,8 @@ _______________________________          _______________________________
     ('g-encabezados', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6193,14 +6380,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6251,8 +6439,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6262,16 +6450,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('meses_no_competencia', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 3),
+    ('meses_no_competencia', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6322,8 +6511,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6335,15 +6524,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
     ('dias_pago', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6393,8 +6583,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6405,15 +6595,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6464,8 +6655,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6475,15 +6666,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6534,8 +6726,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6545,19 +6737,20 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('penalidad_diaria_porcentaje', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('penalidad_diaria_porcentaje', 15),
+    ('titular_propiedad_intelectual', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6603,12 +6796,12 @@ _______________________________          _______________________________
     ('e-precio-servicios', 1),
     ('c-entrega-bien', 2),
     ('e-penalidad-retraso', 3),
-    ('i-seguro-inmueble', 4),
+    ('g-seguro-bienes', 4),
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6617,18 +6810,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('penalidad_diaria_porcentaje', 13)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_responsable_seguro', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('penalidad_diaria_porcentaje', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6677,8 +6872,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6688,15 +6883,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('territorio_contrato', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('territorio_contrato', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6746,8 +6942,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6757,16 +6953,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('disponibilidad_porcentaje', 2),
-    ('monto_penalidad_letras', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 3),
+    ('monto_penalidad_letras', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6816,8 +7013,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6829,17 +7026,18 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 2),
     ('ciudad_firma', 3),
     ('descripcion_entregables', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_imagen', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_imagen', 15),
+    ('titular_propiedad_intelectual', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6889,8 +7087,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6900,19 +7098,20 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_uso_imagen', 1),
     ('ciudad_firma', 2),
-    ('monto_total_letras', 3),
-    ('objeto_exclusividad', 4),
-    ('parte_exclusiva', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_imagen', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('objeto_exclusividad', 5),
+    ('parte_exclusiva', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_imagen', 15),
+    ('titular_propiedad_intelectual', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -6962,8 +7161,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -6973,16 +7172,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('objeto_exclusividad', 3),
-    ('parte_exclusiva', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 3),
+    ('objeto_exclusividad', 4),
+    ('parte_exclusiva', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7031,8 +7231,8 @@ _______________________________          _______________________________
     ('e-forma-pago', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7043,15 +7243,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
     ('dias_pago', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('precio_venta_letras', 12)
+    ('distrito_judicial', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('precio_venta_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7101,8 +7302,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7113,15 +7314,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('meses_no_competencia', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('meses_no_competencia', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7170,8 +7372,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7180,14 +7382,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7241,8 +7444,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 9),
     ('g-modificaciones', 10),
     ('g-divisibilidad', 11),
-    ('notificaciones', 12),
-    ('ley-aplicable-jurisdiccion', 13),
+    ('g-notificaciones', 12),
+    ('g-ley-aplicable', 13),
     ('integridad-contractual', 14)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7251,17 +7454,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7314,8 +7518,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7324,17 +7528,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7387,8 +7592,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7397,18 +7602,19 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('plazo_obra_dias', 12),
-    ('salario_letras', 13)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('plazo_obra_dias', 13),
+    ('salario_letras', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7460,8 +7666,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7470,17 +7676,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7534,8 +7741,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 9),
     ('g-modificaciones', 10),
     ('g-divisibilidad', 11),
-    ('notificaciones', 12),
-    ('ley-aplicable-jurisdiccion', 13),
+    ('g-notificaciones', 12),
+    ('g-ley-aplicable', 13),
     ('integridad-contractual', 14)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7544,17 +7751,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7608,8 +7816,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 9),
     ('g-modificaciones', 10),
     ('g-divisibilidad', 11),
-    ('notificaciones', 12),
-    ('ley-aplicable-jurisdiccion', 13),
+    ('g-notificaciones', 12),
+    ('g-ley-aplicable', 13),
     ('integridad-contractual', 14)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7619,17 +7827,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_presenciales', 2),
-    ('horario_trabajo', 3),
-    ('horas_semanales', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('salario_letras', 13)
+    ('distrito_judicial', 3),
+    ('horario_trabajo', 4),
+    ('horas_semanales', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('salario_letras', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7682,8 +7891,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7693,17 +7902,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('horario_trabajo', 3),
-    ('horas_semanales', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('salario_letras', 13)
+    ('distrito_judicial', 3),
+    ('horario_trabajo', 4),
+    ('horas_semanales', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('salario_letras', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7753,8 +7963,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7763,16 +7973,17 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7822,8 +8033,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7832,17 +8043,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7892,8 +8104,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7902,17 +8114,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -7967,8 +8180,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 10),
     ('g-modificaciones', 11),
     ('g-divisibilidad', 12),
-    ('notificaciones', 13),
-    ('ley-aplicable-jurisdiccion', 14),
+    ('g-notificaciones', 13),
+    ('g-ley-aplicable', 14),
     ('integridad-contractual', 15)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -7977,18 +8190,19 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('meses_no_competencia', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('salario_letras', 13)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('meses_no_competencia', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('salario_letras', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8037,8 +8251,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8047,17 +8261,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8101,11 +8316,11 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('l-terminacion-laboral', 1),
-    ('notificaciones', 2),
+    ('g-notificaciones', 2),
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8114,14 +8329,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8165,11 +8381,11 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('l-terminacion-laboral', 1),
-    ('notificaciones', 2),
+    ('g-notificaciones', 2),
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8178,14 +8394,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8230,11 +8447,11 @@ _______________________________          _______________________________
   FROM (VALUES
     ('l-terminacion-laboral', 1),
     ('l-equipos-trabajo', 2),
-    ('notificaciones', 3),
+    ('g-notificaciones', 3),
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8243,14 +8460,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8299,8 +8517,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8309,14 +8527,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8365,8 +8584,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8375,14 +8594,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8431,8 +8651,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8441,15 +8661,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('monto_penalidad_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 2),
+    ('monto_penalidad_letras', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8498,8 +8719,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8508,16 +8729,17 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('meses_no_competencia', 2),
-    ('monto_penalidad_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 2),
+    ('meses_no_competencia', 3),
+    ('monto_penalidad_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8565,8 +8787,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8575,14 +8797,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8629,8 +8852,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8639,14 +8862,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8696,8 +8920,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8706,14 +8930,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8763,8 +8988,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8773,16 +8998,17 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8830,8 +9056,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8840,16 +9066,17 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8893,11 +9120,11 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('l-terminacion-laboral', 1),
-    ('notificaciones', 2),
+    ('g-notificaciones', 2),
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8906,14 +9133,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -8963,8 +9191,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -8975,15 +9203,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9031,8 +9260,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9041,15 +9270,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9),
-    ('salario_letras', 10)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10),
+    ('salario_letras', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9101,8 +9331,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9111,17 +9341,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9169,8 +9400,8 @@ _______________________________          _______________________________
     ('g-modificaciones', 3),
     ('g-declaraciones-partes', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9179,17 +9410,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_trabajo', 2),
-    ('horas_semanales', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('salario_letras', 12)
+    ('distrito_judicial', 2),
+    ('horario_trabajo', 3),
+    ('horas_semanales', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('salario_letras', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9235,8 +9467,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 1),
     ('g-modificaciones', 2),
     ('g-divisibilidad', 3),
-    ('notificaciones', 4),
-    ('ley-aplicable-jurisdiccion', 5),
+    ('g-notificaciones', 4),
+    ('g-ley-aplicable', 5),
     ('integridad-contractual', 6)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9245,14 +9477,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9305,8 +9538,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9318,15 +9551,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
     ('dias_pago', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9379,8 +9613,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9391,15 +9625,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9449,8 +9684,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9461,15 +9696,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9520,8 +9756,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9532,15 +9768,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9592,8 +9829,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9605,15 +9842,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
     ('dias_pago', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9666,8 +9904,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9678,16 +9916,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('dias_aceptacion', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('titular_propiedad_intelectual', 13)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('titular_propiedad_intelectual', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9737,8 +9976,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9749,15 +9988,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9809,8 +10049,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9822,16 +10062,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_entregables', 3),
     ('dias_pago', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_propiedad_intelectual', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9882,8 +10123,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9894,17 +10135,18 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('penalidad_diaria_porcentaje', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('penalidad_diaria_porcentaje', 14),
+    ('titular_propiedad_intelectual', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -9953,8 +10195,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -9965,15 +10207,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10023,8 +10266,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10034,15 +10277,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10092,8 +10336,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10105,16 +10349,17 @@ _______________________________          _______________________________
     ('cantidad_cuotas', 2),
     ('ciudad_firma', 3),
     ('dia_pago', 4),
-    ('monto_cuota_letras', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14)
+    ('distrito_judicial', 5),
+    ('monto_cuota_letras', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10163,8 +10408,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10174,15 +10419,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10235,8 +10481,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10247,17 +10493,18 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('dias_aceptacion', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('penalidad_diaria_porcentaje', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('penalidad_diaria_porcentaje', 14),
+    ('titular_propiedad_intelectual', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10309,8 +10556,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10321,16 +10568,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('dias_aceptacion', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('titular_propiedad_intelectual', 13)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('titular_propiedad_intelectual', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10380,8 +10628,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10391,15 +10639,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10449,8 +10698,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10460,15 +10709,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10518,8 +10768,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10529,16 +10779,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anticipo_porcentaje', 1),
     ('ciudad_firma', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('penalidad_diaria_porcentaje', 12)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('penalidad_diaria_porcentaje', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10591,8 +10842,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10605,16 +10856,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 3),
     ('descripcion_entregables', 4),
     ('dias_pago', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('penalidad_diaria_porcentaje', 15)
+    ('distrito_judicial', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15),
+    ('penalidad_diaria_porcentaje', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10665,8 +10917,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10679,17 +10931,18 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 3),
     ('ciudad_firma', 4),
     ('descripcion_entregables', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('titular_imagen', 15),
-    ('titular_propiedad_intelectual', 16)
+    ('distrito_judicial', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15),
+    ('titular_imagen', 16),
+    ('titular_propiedad_intelectual', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10742,8 +10995,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10756,17 +11009,18 @@ _______________________________          _______________________________
     ('ciudad_firma', 3),
     ('descripcion_entregables', 4),
     ('dias_pago', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('titular_imagen', 15),
-    ('titular_propiedad_intelectual', 16)
+    ('distrito_judicial', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15),
+    ('titular_imagen', 16),
+    ('titular_propiedad_intelectual', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10812,12 +11066,12 @@ _______________________________          _______________________________
     ('e-precio-servicios', 1),
     ('e-forma-pago', 2),
     ('b-relacion-independiente', 3),
-    ('i-seguro-inmueble', 4),
+    ('g-seguro-bienes', 4),
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10827,15 +11081,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_responsable_seguro', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10884,8 +11140,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10894,18 +11150,19 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('penalidad_diaria_porcentaje', 13)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('penalidad_diaria_porcentaje', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -10957,8 +11214,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -10969,15 +11226,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11027,8 +11285,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11039,16 +11297,17 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('comision_porcentaje', 3),
-    ('monto_penalidad_letras', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 4),
+    ('monto_penalidad_letras', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11098,8 +11357,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11111,16 +11370,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_entregables', 3),
     ('dias_aceptacion', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_propiedad_intelectual', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11170,8 +11430,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11182,16 +11442,17 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 1),
     ('ciudad_firma', 2),
     ('descripcion_entregables', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('titular_propiedad_intelectual', 13)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('titular_propiedad_intelectual', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11240,8 +11501,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11250,15 +11511,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('monto_total_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 2),
+    ('monto_total_letras', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11308,8 +11570,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11320,15 +11582,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11376,8 +11639,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11388,15 +11651,16 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 1),
     ('ciudad_firma', 2),
     ('descripcion_entregables', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11449,8 +11713,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11460,19 +11724,20 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('parte_suministra_materiales', 12),
-    ('penalidad_diaria_porcentaje', 13),
-    ('plazo_obra_dias', 14),
-    ('retencion_porcentaje', 15)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('parte_suministra_materiales', 13),
+    ('penalidad_diaria_porcentaje', 14),
+    ('plazo_obra_dias', 15),
+    ('retencion_porcentaje', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11524,8 +11789,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11536,17 +11801,18 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
     ('dias_recepcion_definitiva', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('parte_suministra_materiales', 12),
-    ('plazo_obra_dias', 13),
-    ('retencion_porcentaje', 14)
+    ('distrito_judicial', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('parte_suministra_materiales', 13),
+    ('plazo_obra_dias', 14),
+    ('retencion_porcentaje', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11594,12 +11860,12 @@ _______________________________          _______________________________
     ('o-recepcion-obra', 3),
     ('e-retencion-garantia', 4),
     ('e-precio-servicios', 5),
-    ('remodelaciones', 6),
+    ('o-alcance-obra', 6),
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11608,19 +11874,21 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('dias_recepcion_definitiva', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('parte_suministra_materiales', 12),
-    ('plazo_obra_dias', 13),
-    ('retencion_porcentaje', 14)
+    ('descripcion_obra', 2),
+    ('dias_recepcion_definitiva', 3),
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('parte_suministra_materiales', 14),
+    ('plazo_obra_dias', 15),
+    ('retencion_porcentaje', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11672,8 +11940,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11683,18 +11951,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('parte_suministra_materiales', 11),
-    ('penalidad_diaria_porcentaje', 12),
-    ('plazo_obra_dias', 13),
-    ('retencion_porcentaje', 14)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('parte_suministra_materiales', 12),
+    ('penalidad_diaria_porcentaje', 13),
+    ('plazo_obra_dias', 14),
+    ('retencion_porcentaje', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11744,8 +12013,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11756,15 +12025,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('dias_aceptacion', 2),
     ('dias_recepcion_definitiva', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11816,8 +12086,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11827,19 +12097,20 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('parte_suministra_materiales', 12),
-    ('plazo_obra_dias', 13),
-    ('retencion_porcentaje', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('parte_suministra_materiales', 13),
+    ('plazo_obra_dias', 14),
+    ('retencion_porcentaje', 15),
+    ('titular_propiedad_intelectual', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11890,8 +12161,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11901,17 +12172,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('parte_suministra_materiales', 11),
-    ('plazo_obra_dias', 12),
-    ('retencion_porcentaje', 13)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('parte_suministra_materiales', 12),
+    ('plazo_obra_dias', 13),
+    ('retencion_porcentaje', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -11962,8 +12234,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -11973,17 +12245,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('parte_suministra_materiales', 11),
-    ('plazo_obra_dias', 12),
-    ('retencion_porcentaje', 13)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('parte_suministra_materiales', 12),
+    ('plazo_obra_dias', 13),
+    ('retencion_porcentaje', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12033,8 +12306,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12043,18 +12316,19 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('horario_soporte', 3),
-    ('lugar_entrega', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('plazo_obra_dias', 13)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('horario_soporte', 4),
+    ('lugar_entrega', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('plazo_obra_dias', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12105,8 +12379,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12116,17 +12390,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('parte_suministra_materiales', 11),
-    ('plazo_obra_dias', 12),
-    ('retencion_porcentaje', 13)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('parte_suministra_materiales', 12),
+    ('plazo_obra_dias', 13),
+    ('retencion_porcentaje', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12176,8 +12451,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12187,17 +12462,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('parte_suministra_materiales', 12),
-    ('plazo_obra_dias', 13)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('parte_suministra_materiales', 13),
+    ('plazo_obra_dias', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12247,8 +12523,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12257,18 +12533,19 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('parte_suministra_materiales', 12),
-    ('plazo_obra_dias', 13)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('parte_suministra_materiales', 13),
+    ('plazo_obra_dias', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12318,8 +12595,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12328,18 +12605,19 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('parte_suministra_materiales', 12),
-    ('plazo_obra_dias', 13)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('parte_suministra_materiales', 13),
+    ('plazo_obra_dias', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12389,8 +12667,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12402,18 +12680,19 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_registral', 3),
     ('direccion_inmueble', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('penalidad_diaria_porcentaje', 14),
-    ('plazo_obra_dias', 15),
-    ('superficie_metros', 16)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('penalidad_diaria_porcentaje', 15),
+    ('plazo_obra_dias', 16),
+    ('superficie_metros', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12463,8 +12742,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12474,18 +12753,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('parte_suministra_materiales', 13),
-    ('penalidad_diaria_porcentaje', 14)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('parte_suministra_materiales', 14),
+    ('penalidad_diaria_porcentaje', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12532,8 +12812,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12542,15 +12822,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9),
-    ('plazo_obra_dias', 10)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10),
+    ('plazo_obra_dias', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12598,8 +12879,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12609,15 +12890,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('retencion_porcentaje', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('retencion_porcentaje', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12666,8 +12948,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12677,15 +12959,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('retencion_porcentaje', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('retencion_porcentaje', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12733,8 +13016,8 @@ _______________________________          _______________________________
     ('o-plazo-obra', 3),
     ('g-declaraciones-partes', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12743,16 +13026,17 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('monto_total_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('plazo_obra_dias', 11)
+    ('distrito_judicial', 2),
+    ('monto_total_letras', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('plazo_obra_dias', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12801,8 +13085,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12812,15 +13096,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_recepcion_definitiva', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('retencion_porcentaje', 11)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('retencion_porcentaje', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12874,8 +13159,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 9),
     ('g-modificaciones', 10),
     ('g-divisibilidad', 11),
-    ('notificaciones', 12),
-    ('ley-aplicable-jurisdiccion', 13),
+    ('g-notificaciones', 12),
+    ('g-ley-aplicable', 13),
     ('integridad-contractual', 14)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12887,15 +13172,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
     ('dias_pago', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -12945,8 +13231,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -12956,17 +13242,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('cantidad_usuarios', 1),
     ('ciudad_firma', 2),
-    ('horario_soporte', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('titular_propiedad_intelectual', 13)
+    ('distrito_judicial', 3),
+    ('horario_soporte', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('titular_propiedad_intelectual', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13020,8 +13307,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 9),
     ('g-modificaciones', 10),
     ('g-divisibilidad', 11),
-    ('notificaciones', 12),
-    ('ley-aplicable-jurisdiccion', 13),
+    ('g-notificaciones', 12),
+    ('g-ley-aplicable', 13),
     ('integridad-contractual', 14)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13032,15 +13319,16 @@ _______________________________          _______________________________
     ('cantidad_usuarios', 1),
     ('ciudad_firma', 2),
     ('disponibilidad_porcentaje', 3),
-    ('horario_soporte', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('horario_soporte', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13090,8 +13378,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13100,16 +13388,17 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_soporte', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 2),
+    ('horario_soporte', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13158,8 +13447,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13169,15 +13458,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('horario_soporte', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('horario_soporte', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13228,8 +13518,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13239,18 +13529,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('disponibilidad_porcentaje', 2),
-    ('frecuencia_respaldo', 3),
-    ('horas_perdida_datos', 4),
-    ('horas_recuperacion', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14)
+    ('distrito_judicial', 3),
+    ('frecuencia_respaldo', 4),
+    ('horas_perdida_datos', 5),
+    ('horas_recuperacion', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13303,8 +13594,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13314,17 +13605,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('disponibilidad_porcentaje', 2),
-    ('horario_soporte', 3),
-    ('horas_perdida_datos', 4),
-    ('horas_recuperacion', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 3),
+    ('horario_soporte', 4),
+    ('horas_perdida_datos', 5),
+    ('horas_recuperacion', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13374,8 +13666,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13384,15 +13676,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('monto_penalidad_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 2),
+    ('monto_penalidad_letras', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13442,8 +13735,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13453,16 +13746,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
-    ('horas_perdida_datos', 3),
-    ('horas_recuperacion', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 3),
+    ('horas_perdida_datos', 4),
+    ('horas_recuperacion', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13512,8 +13806,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13524,15 +13818,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13585,8 +13880,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13599,15 +13894,16 @@ _______________________________          _______________________________
     ('descripcion_entregables', 3),
     ('dias_aceptacion', 4),
     ('dias_pago', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14)
+    ('distrito_judicial', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13660,8 +13956,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13672,15 +13968,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('dias_aceptacion', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13733,8 +14030,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13746,16 +14043,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
     ('dias_pago', 4),
-    ('horario_soporte', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14)
+    ('distrito_judicial', 5),
+    ('horario_soporte', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13805,8 +14103,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13816,16 +14114,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_aceptacion', 2),
-    ('frecuencia_respaldo', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 3),
+    ('frecuencia_respaldo', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13878,8 +14177,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13889,16 +14188,17 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('titular_propiedad_intelectual', 12)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('titular_propiedad_intelectual', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -13948,8 +14248,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -13961,17 +14261,18 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 2),
     ('ciudad_firma', 3),
     ('descripcion_entregables', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_imagen', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_imagen', 15),
+    ('titular_propiedad_intelectual', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14017,10 +14318,10 @@ _______________________________          _______________________________
     ('t-licencia-uso', 1),
     ('t-proteccion-datos', 2),
     ('g-modificaciones', 3),
-    ('ley-aplicable-jurisdiccion', 4),
+    ('g-ley-aplicable', 4),
     ('g-declaraciones-partes', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
+    ('g-notificaciones', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14030,14 +14331,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('cantidad_usuarios', 1),
     ('ciudad_firma', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14086,8 +14388,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14096,14 +14398,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14152,8 +14455,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14163,14 +14466,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('deposito_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14223,8 +14527,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14236,15 +14540,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
     ('dias_pago', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14297,8 +14602,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 8),
     ('g-modificaciones', 9),
     ('g-divisibilidad', 10),
-    ('notificaciones', 11),
-    ('ley-aplicable-jurisdiccion', 12),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
     ('integridad-contractual', 13)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14310,16 +14615,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_entregables', 3),
     ('dias_pago', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_propiedad_intelectual', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14369,8 +14675,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14382,16 +14688,17 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 2),
     ('ciudad_firma', 3),
     ('descripcion_entregables', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_propiedad_intelectual', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14442,8 +14749,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14456,18 +14763,19 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 3),
     ('ciudad_firma', 4),
     ('descripcion_entregables', 5),
-    ('monto_total_letras', 6),
-    ('objeto_exclusividad', 7),
-    ('parte_exclusiva', 8),
-    ('parte_primera_cedula', 9),
-    ('parte_primera_domicilio', 10),
-    ('parte_primera_nacionalidad', 11),
-    ('parte_primera_nombre', 12),
-    ('parte_segunda_cedula', 13),
-    ('parte_segunda_domicilio', 14),
-    ('parte_segunda_nacionalidad', 15),
-    ('parte_segunda_nombre', 16),
-    ('titular_imagen', 17)
+    ('distrito_judicial', 6),
+    ('monto_total_letras', 7),
+    ('objeto_exclusividad', 8),
+    ('parte_exclusiva', 9),
+    ('parte_primera_cedula', 10),
+    ('parte_primera_domicilio', 11),
+    ('parte_primera_nacionalidad', 12),
+    ('parte_primera_nombre', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17),
+    ('titular_imagen', 18)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14517,8 +14825,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14529,18 +14837,19 @@ _______________________________          _______________________________
     ('anios_uso_imagen', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('meses_no_competencia', 4),
-    ('objeto_exclusividad', 5),
-    ('parte_exclusiva', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('titular_imagen', 15)
+    ('distrito_judicial', 4),
+    ('meses_no_competencia', 5),
+    ('objeto_exclusividad', 6),
+    ('parte_exclusiva', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15),
+    ('titular_imagen', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14589,8 +14898,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14600,17 +14909,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_uso_imagen', 1),
     ('ciudad_firma', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('territorio_contrato', 12),
-    ('titular_imagen', 13)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('territorio_contrato', 13),
+    ('titular_imagen', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14660,8 +14970,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14673,16 +14983,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_entregables', 3),
     ('dias_aceptacion', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_propiedad_intelectual', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14732,8 +15043,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14746,16 +15057,17 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 3),
     ('ciudad_firma', 4),
     ('descripcion_entregables', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_imagen', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('distrito_judicial', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('titular_imagen', 15),
+    ('titular_propiedad_intelectual', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14805,8 +15117,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14816,17 +15128,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('penalidad_diaria_porcentaje', 12),
-    ('territorio_contrato', 13)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('penalidad_diaria_porcentaje', 13),
+    ('territorio_contrato', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14878,8 +15191,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 7),
     ('g-modificaciones', 8),
     ('g-divisibilidad', 9),
-    ('notificaciones', 10),
-    ('ley-aplicable-jurisdiccion', 11),
+    ('g-notificaciones', 10),
+    ('g-ley-aplicable', 11),
     ('integridad-contractual', 12)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14890,15 +15203,16 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_pago', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -14947,8 +15261,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -14959,15 +15273,16 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 1),
     ('ciudad_firma', 2),
     ('descripcion_entregables', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15016,8 +15331,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15027,15 +15342,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_aceptacion', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15084,8 +15400,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15097,15 +15413,16 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('comision_porcentaje', 3),
     ('descripcion_entregables', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15155,8 +15472,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15167,16 +15484,17 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('ciudad_firma', 2),
     ('dias_aceptacion', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('titular_propiedad_intelectual', 13)
+    ('distrito_judicial', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('titular_propiedad_intelectual', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15225,8 +15543,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15235,17 +15553,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('monto_total_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('territorio_contrato', 11),
-    ('titular_propiedad_intelectual', 12)
+    ('distrito_judicial', 2),
+    ('monto_total_letras', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('territorio_contrato', 12),
+    ('titular_propiedad_intelectual', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15294,8 +15613,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15307,15 +15626,16 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 2),
     ('ciudad_firma', 3),
     ('descripcion_entregables', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('titular_propiedad_intelectual', 13)
+    ('distrito_judicial', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('titular_propiedad_intelectual', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15364,8 +15684,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15375,17 +15695,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_uso_imagen', 1),
     ('ciudad_firma', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('titular_imagen', 12),
-    ('titular_propiedad_intelectual', 13)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('titular_imagen', 13),
+    ('titular_propiedad_intelectual', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15434,8 +15755,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15445,17 +15766,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_uso_imagen', 1),
     ('ciudad_firma', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('territorio_contrato', 12),
-    ('titular_imagen', 13)
+    ('distrito_judicial', 3),
+    ('monto_total_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('territorio_contrato', 13),
+    ('titular_imagen', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15505,8 +15827,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15515,19 +15837,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('parte_suministra_materiales', 13),
-    ('penalidad_diaria_porcentaje', 14)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('parte_suministra_materiales', 14),
+    ('penalidad_diaria_porcentaje', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15570,15 +15893,15 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('objeto-arrendamiento', 1),
+    ('g-objeto-uso-bien', 1),
     ('e-precio-servicios', 2),
     ('e-pago-anticipado', 3),
     ('g-penalidad', 4),
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15588,16 +15911,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anticipo_porcentaje', 1),
     ('ciudad_firma', 2),
-    ('monto_penalidad_letras', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('destino_uso', 3),
+    ('distrito_judicial', 4),
+    ('monto_penalidad_letras', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15646,8 +15971,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15658,15 +15983,16 @@ _______________________________          _______________________________
     ('cantidad_revisiones', 1),
     ('ciudad_firma', 2),
     ('descripcion_entregables', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('titular_propiedad_intelectual', 12)
+    ('distrito_judicial', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('titular_propiedad_intelectual', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15716,8 +16042,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15728,17 +16054,18 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
     ('dias_pago', 3),
-    ('fecha_entrega_larga', 4),
-    ('lugar_entrega', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('precio_venta_letras', 14)
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('lugar_entrega', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('precio_venta_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15788,8 +16115,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15802,17 +16129,18 @@ _______________________________          _______________________________
     ('descripcion_bien', 3),
     ('descripcion_garantia', 4),
     ('dia_pago', 5),
-    ('interes_mora_porcentaje', 6),
-    ('monto_cuota_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15),
-    ('precio_venta_letras', 16)
+    ('distrito_judicial', 6),
+    ('interes_mora_porcentaje', 7),
+    ('monto_cuota_letras', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_nacionalidad', 15),
+    ('parte_segunda_nombre', 16),
+    ('precio_venta_letras', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15862,8 +16190,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15876,18 +16204,19 @@ _______________________________          _______________________________
     ('descripcion_bien', 3),
     ('descripcion_garantia', 4),
     ('dia_pago', 5),
-    ('fecha_entrega_larga', 6),
-    ('lugar_entrega', 7),
-    ('monto_cuota_letras', 8),
-    ('parte_primera_cedula', 9),
-    ('parte_primera_domicilio', 10),
-    ('parte_primera_nacionalidad', 11),
-    ('parte_primera_nombre', 12),
-    ('parte_segunda_cedula', 13),
-    ('parte_segunda_domicilio', 14),
-    ('parte_segunda_nacionalidad', 15),
-    ('parte_segunda_nombre', 16),
-    ('precio_venta_letras', 17)
+    ('distrito_judicial', 6),
+    ('fecha_entrega_larga', 7),
+    ('lugar_entrega', 8),
+    ('monto_cuota_letras', 9),
+    ('parte_primera_cedula', 10),
+    ('parte_primera_domicilio', 11),
+    ('parte_primera_nacionalidad', 12),
+    ('parte_primera_nombre', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17),
+    ('precio_venta_letras', 18)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -15938,8 +16267,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -15949,18 +16278,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('moneda_contrato', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('precio_venta_letras', 14)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('moneda_contrato', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('precio_venta_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16009,8 +16339,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16020,17 +16350,18 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('precio_venta_letras', 13)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('precio_venta_letras', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16080,8 +16411,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16092,18 +16423,19 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
     ('dias_pago', 3),
-    ('fecha_entrega_larga', 4),
-    ('lugar_entrega', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('penalidad_diaria_porcentaje', 14),
-    ('precio_venta_letras', 15)
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('lugar_entrega', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('penalidad_diaria_porcentaje', 15),
+    ('precio_venta_letras', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16152,8 +16484,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16164,17 +16496,18 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
     ('dias_pago', 3),
-    ('fecha_entrega_larga', 4),
-    ('lugar_entrega', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('precio_venta_letras', 14)
+    ('distrito_judicial', 4),
+    ('fecha_entrega_larga', 5),
+    ('lugar_entrega', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('precio_venta_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16223,8 +16556,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16233,17 +16566,18 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16292,8 +16626,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16302,15 +16636,16 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('horario_soporte', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 2),
+    ('horario_soporte', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16359,8 +16694,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16369,16 +16704,17 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16427,8 +16763,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16438,14 +16774,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16496,8 +16833,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16507,18 +16844,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('moneda_contrato', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('precio_venta_letras', 14)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('moneda_contrato', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('precio_venta_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16568,8 +16906,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16579,18 +16917,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('moneda_contrato', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('precio_venta_letras', 14)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('moneda_contrato', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('precio_venta_letras', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16635,13 +16974,13 @@ _______________________________          _______________________________
   FROM (VALUES
     ('e-deposito-general', 1),
     ('e-precio-servicios', 2),
-    ('i-seguro-inmueble', 3),
+    ('g-seguro-bienes', 3),
     ('c-entrega-bien', 4),
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16651,17 +16990,19 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('deposito_letras', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_responsable_seguro', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16708,8 +17049,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16719,14 +17060,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16777,8 +17119,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16789,23 +17131,24 @@ _______________________________          _______________________________
     ('ciudad_firma', 1),
     ('descripcion_bien', 2),
     ('dias_pago', 3),
-    ('parte_paga_traspaso', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('precio_venta_letras', 13),
-    ('vehiculo_anio', 14),
-    ('vehiculo_chasis', 15),
-    ('vehiculo_color', 16),
-    ('vehiculo_marca', 17),
-    ('vehiculo_matricula', 18),
-    ('vehiculo_modelo', 19),
-    ('vehiculo_placa', 20)
+    ('distrito_judicial', 4),
+    ('parte_paga_traspaso', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('precio_venta_letras', 14),
+    ('vehiculo_anio', 15),
+    ('vehiculo_chasis', 16),
+    ('vehiculo_color', 17),
+    ('vehiculo_marca', 18),
+    ('vehiculo_matricula', 19),
+    ('vehiculo_modelo', 20),
+    ('vehiculo_placa', 21)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16855,8 +17198,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16868,23 +17211,24 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_garantia', 3),
     ('dia_pago', 4),
-    ('monto_cuota_letras', 5),
-    ('parte_paga_traspaso', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('vehiculo_anio', 15),
-    ('vehiculo_chasis', 16),
-    ('vehiculo_color', 17),
-    ('vehiculo_marca', 18),
-    ('vehiculo_matricula', 19),
-    ('vehiculo_modelo', 20),
-    ('vehiculo_placa', 21)
+    ('distrito_judicial', 5),
+    ('monto_cuota_letras', 6),
+    ('parte_paga_traspaso', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15),
+    ('vehiculo_anio', 16),
+    ('vehiculo_chasis', 17),
+    ('vehiculo_color', 18),
+    ('vehiculo_marca', 19),
+    ('vehiculo_matricula', 20),
+    ('vehiculo_modelo', 21),
+    ('vehiculo_placa', 22)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -16928,15 +17272,15 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('v-descripcion-vehiculo', 1),
-    ('precio-renta', 2),
+    ('e-precio-alquiler', 2),
     ('e-deposito-general', 3),
-    ('i-seguro-inmueble', 4),
-    ('devolucion-inmueble', 5),
+    ('g-seguro-bienes', 4),
+    ('g-devolucion-bien', 5),
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -16946,21 +17290,26 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('deposito_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('vehiculo_anio', 11),
-    ('vehiculo_chasis', 12),
-    ('vehiculo_color', 13),
-    ('vehiculo_marca', 14),
-    ('vehiculo_matricula', 15),
-    ('vehiculo_modelo', 16),
-    ('vehiculo_placa', 17)
+    ('dia_pago', 3),
+    ('distrito_judicial', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_responsable_seguro', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('periodo_alquiler', 14),
+    ('precio_alquiler_letras', 15),
+    ('vehiculo_anio', 16),
+    ('vehiculo_chasis', 17),
+    ('vehiculo_color', 18),
+    ('vehiculo_marca', 19),
+    ('vehiculo_matricula', 20),
+    ('vehiculo_modelo', 21),
+    ('vehiculo_placa', 22)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17006,12 +17355,12 @@ _______________________________          _______________________________
     ('v-descripcion-vehiculo', 1),
     ('e-pago-cuotas', 2),
     ('v-traspaso-vehiculo', 3),
-    ('i-seguro-inmueble', 4),
+    ('g-seguro-bienes', 4),
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17022,23 +17371,25 @@ _______________________________          _______________________________
     ('cantidad_cuotas', 1),
     ('ciudad_firma', 2),
     ('dia_pago', 3),
-    ('monto_cuota_letras', 4),
-    ('parte_paga_traspaso', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('vehiculo_anio', 14),
-    ('vehiculo_chasis', 15),
-    ('vehiculo_color', 16),
-    ('vehiculo_marca', 17),
-    ('vehiculo_matricula', 18),
-    ('vehiculo_modelo', 19),
-    ('vehiculo_placa', 20)
+    ('distrito_judicial', 4),
+    ('monto_cuota_letras', 5),
+    ('parte_paga_traspaso', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_responsable_seguro', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15),
+    ('vehiculo_anio', 16),
+    ('vehiculo_chasis', 17),
+    ('vehiculo_color', 18),
+    ('vehiculo_marca', 19),
+    ('vehiculo_matricula', 20),
+    ('vehiculo_modelo', 21),
+    ('vehiculo_placa', 22)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17087,8 +17438,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17098,23 +17449,24 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('vehiculo_anio', 13),
-    ('vehiculo_chasis', 14),
-    ('vehiculo_color', 15),
-    ('vehiculo_marca', 16),
-    ('vehiculo_matricula', 17),
-    ('vehiculo_modelo', 18),
-    ('vehiculo_placa', 19)
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('lugar_entrega', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13),
+    ('vehiculo_anio', 14),
+    ('vehiculo_chasis', 15),
+    ('vehiculo_color', 16),
+    ('vehiculo_marca', 17),
+    ('vehiculo_matricula', 18),
+    ('vehiculo_modelo', 19),
+    ('vehiculo_placa', 20)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17162,8 +17514,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17172,23 +17524,24 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11),
-    ('vehiculo_anio', 12),
-    ('vehiculo_chasis', 13),
-    ('vehiculo_color', 14),
-    ('vehiculo_marca', 15),
-    ('vehiculo_matricula', 16),
-    ('vehiculo_modelo', 17),
-    ('vehiculo_placa', 18)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12),
+    ('vehiculo_anio', 13),
+    ('vehiculo_chasis', 14),
+    ('vehiculo_color', 15),
+    ('vehiculo_marca', 16),
+    ('vehiculo_matricula', 17),
+    ('vehiculo_modelo', 18),
+    ('vehiculo_placa', 19)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17236,8 +17589,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17246,21 +17599,22 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9),
-    ('vehiculo_anio', 10),
-    ('vehiculo_chasis', 11),
-    ('vehiculo_color', 12),
-    ('vehiculo_marca', 13),
-    ('vehiculo_matricula', 14),
-    ('vehiculo_modelo', 15),
-    ('vehiculo_placa', 16)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10),
+    ('vehiculo_anio', 11),
+    ('vehiculo_chasis', 12),
+    ('vehiculo_color', 13),
+    ('vehiculo_marca', 14),
+    ('vehiculo_matricula', 15),
+    ('vehiculo_modelo', 16),
+    ('vehiculo_placa', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17310,8 +17664,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17320,23 +17674,24 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('monto_total_letras', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('penalidad_diaria_porcentaje', 11),
-    ('vehiculo_anio', 12),
-    ('vehiculo_chasis', 13),
-    ('vehiculo_color', 14),
-    ('vehiculo_marca', 15),
-    ('vehiculo_matricula', 16),
-    ('vehiculo_modelo', 17),
-    ('vehiculo_placa', 18)
+    ('distrito_judicial', 2),
+    ('monto_total_letras', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('penalidad_diaria_porcentaje', 12),
+    ('vehiculo_anio', 13),
+    ('vehiculo_chasis', 14),
+    ('vehiculo_color', 15),
+    ('vehiculo_marca', 16),
+    ('vehiculo_matricula', 17),
+    ('vehiculo_modelo', 18),
+    ('vehiculo_placa', 19)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17381,13 +17736,13 @@ _______________________________          _______________________________
   FROM (VALUES
     ('e-precio-servicios', 1),
     ('c-entrega-bien', 2),
-    ('i-seguro-inmueble', 3),
+    ('g-seguro-bienes', 3),
     ('e-penalidad-retraso', 4),
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17396,18 +17751,20 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('fecha_entrega_larga', 2),
-    ('lugar_entrega', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('penalidad_diaria_porcentaje', 13)
+    ('distrito_judicial', 2),
+    ('fecha_entrega_larga', 3),
+    ('lugar_entrega', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_responsable_seguro', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14),
+    ('penalidad_diaria_porcentaje', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17455,8 +17812,8 @@ _______________________________          _______________________________
     ('v-traspaso-vehiculo', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17465,22 +17822,23 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_paga_traspaso', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10),
-    ('vehiculo_anio', 11),
-    ('vehiculo_chasis', 12),
-    ('vehiculo_color', 13),
-    ('vehiculo_marca', 14),
-    ('vehiculo_matricula', 15),
-    ('vehiculo_modelo', 16),
-    ('vehiculo_placa', 17)
+    ('distrito_judicial', 2),
+    ('parte_paga_traspaso', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11),
+    ('vehiculo_anio', 12),
+    ('vehiculo_chasis', 13),
+    ('vehiculo_color', 14),
+    ('vehiculo_marca', 15),
+    ('vehiculo_matricula', 16),
+    ('vehiculo_modelo', 17),
+    ('vehiculo_placa', 18)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17530,8 +17888,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17544,16 +17902,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 3),
     ('descripcion_garantia', 4),
     ('dia_pago', 5),
-    ('interes_mora_porcentaje', 6),
-    ('monto_cuota_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15)
+    ('distrito_judicial', 6),
+    ('interes_mora_porcentaje', 7),
+    ('monto_cuota_letras', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_nacionalidad', 15),
+    ('parte_segunda_nombre', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17604,8 +17963,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
-    ('notificaciones', 9),
-    ('ley-aplicable-jurisdiccion', 10),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
     ('integridad-contractual', 11)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17621,17 +17980,18 @@ _______________________________          _______________________________
     ('descripcion_registral', 6),
     ('dia_pago', 7),
     ('direccion_inmueble', 8),
-    ('interes_mora_porcentaje', 9),
-    ('monto_cuota_letras', 10),
-    ('parte_primera_cedula', 11),
-    ('parte_primera_domicilio', 12),
-    ('parte_primera_nacionalidad', 13),
-    ('parte_primera_nombre', 14),
-    ('parte_segunda_cedula', 15),
-    ('parte_segunda_domicilio', 16),
-    ('parte_segunda_nacionalidad', 17),
-    ('parte_segunda_nombre', 18),
-    ('superficie_metros', 19)
+    ('distrito_judicial', 9),
+    ('interes_mora_porcentaje', 10),
+    ('monto_cuota_letras', 11),
+    ('parte_primera_cedula', 12),
+    ('parte_primera_domicilio', 13),
+    ('parte_primera_nacionalidad', 14),
+    ('parte_primera_nombre', 15),
+    ('parte_segunda_cedula', 16),
+    ('parte_segunda_domicilio', 17),
+    ('parte_segunda_nacionalidad', 18),
+    ('parte_segunda_nombre', 19),
+    ('superficie_metros', 20)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17681,8 +18041,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17695,16 +18055,17 @@ _______________________________          _______________________________
     ('ciudad_firma', 3),
     ('descripcion_garantia', 4),
     ('dia_pago', 5),
-    ('interes_mora_porcentaje', 6),
-    ('monto_cuota_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15)
+    ('distrito_judicial', 6),
+    ('interes_mora_porcentaje', 7),
+    ('monto_cuota_letras', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_nacionalidad', 15),
+    ('parte_segunda_nombre', 16)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17749,11 +18110,11 @@ _______________________________          _______________________________
   FROM (VALUES
     ('p-capital-prestamo', 1),
     ('g-intereses-moratorios', 2),
-    ('notificaciones', 3),
+    ('g-notificaciones', 3),
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17763,15 +18124,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('capital_letras', 1),
     ('ciudad_firma', 2),
-    ('interes_mora_porcentaje', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('interes_mora_porcentaje', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17821,8 +18183,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17833,15 +18195,16 @@ _______________________________          _______________________________
     ('capital_letras', 1),
     ('ciudad_firma', 2),
     ('descripcion_garantia', 3),
-    ('interes_mora_porcentaje', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('distrito_judicial', 4),
+    ('interes_mora_porcentaje', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_nacionalidad', 8),
+    ('parte_primera_nombre', 9),
+    ('parte_segunda_cedula', 10),
+    ('parte_segunda_domicilio', 11),
+    ('parte_segunda_nacionalidad', 12),
+    ('parte_segunda_nombre', 13)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17886,11 +18249,11 @@ _______________________________          _______________________________
   FROM (VALUES
     ('g-cesion-permitida', 1),
     ('e-comision-porcentaje', 2),
-    ('notificaciones', 3),
+    ('g-notificaciones', 3),
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17900,14 +18263,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('comision_porcentaje', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -17956,8 +18320,8 @@ _______________________________          _______________________________
     ('g-arbitraje', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -17968,14 +18332,15 @@ _______________________________          _______________________________
     ('anios_confidencialidad', 1),
     ('capital_letras', 2),
     ('ciudad_firma', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -18024,8 +18389,8 @@ _______________________________          _______________________________
     ('g-terminacion-mutuo-acuerdo', 4),
     ('g-declaraciones-partes', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -18036,16 +18401,17 @@ _______________________________          _______________________________
     ('cantidad_cuotas', 1),
     ('ciudad_firma', 2),
     ('dia_pago', 3),
-    ('interes_mora_porcentaje', 4),
-    ('monto_cuota_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 4),
+    ('interes_mora_porcentaje', 5),
+    ('monto_cuota_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -18094,8 +18460,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -18105,15 +18471,16 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('descripcion_garantia', 2),
-    ('monto_penalidad_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('distrito_judicial', 3),
+    ('monto_penalidad_letras', 4),
+    ('parte_primera_cedula', 5),
+    ('parte_primera_domicilio', 6),
+    ('parte_primera_nacionalidad', 7),
+    ('parte_primera_nombre', 8),
+    ('parte_segunda_cedula', 9),
+    ('parte_segunda_domicilio', 10),
+    ('parte_segunda_nacionalidad', 11),
+    ('parte_segunda_nombre', 12)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -18160,8 +18527,8 @@ _______________________________          _______________________________
     ('g-terminacion-mutuo-acuerdo', 2),
     ('g-modificaciones', 3),
     ('g-divisibilidad', 4),
-    ('notificaciones', 5),
-    ('ley-aplicable-jurisdiccion', 6),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
     ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -18170,14 +18537,15 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('ciudad_firma', 1),
-    ('parte_primera_cedula', 2),
-    ('parte_primera_domicilio', 3),
-    ('parte_primera_nacionalidad', 4),
-    ('parte_primera_nombre', 5),
-    ('parte_segunda_cedula', 6),
-    ('parte_segunda_domicilio', 7),
-    ('parte_segunda_nacionalidad', 8),
-    ('parte_segunda_nombre', 9)
+    ('distrito_judicial', 2),
+    ('parte_primera_cedula', 3),
+    ('parte_primera_domicilio', 4),
+    ('parte_primera_nacionalidad', 5),
+    ('parte_primera_nombre', 6),
+    ('parte_segunda_cedula', 7),
+    ('parte_segunda_domicilio', 8),
+    ('parte_segunda_nacionalidad', 9),
+    ('parte_segunda_nombre', 10)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -18221,12 +18589,12 @@ _______________________________          _______________________________
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
     ('g-cesion-permitida', 1),
-    ('notificaciones', 2),
+    ('g-notificaciones', 2),
     ('e-forma-pago', 3),
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -18236,14 +18604,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('dias_pago', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -18289,12 +18658,12 @@ _______________________________          _______________________________
     ('e-pago-cuotas', 1),
     ('c-entrega-bien', 2),
     ('p-garantia-prestamo', 3),
-    ('i-seguro-inmueble', 4),
+    ('g-seguro-bienes', 4),
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
-    ('notificaciones', 8),
-    ('ley-aplicable-jurisdiccion', 9),
+    ('g-notificaciones', 8),
+    ('g-ley-aplicable', 9),
     ('integridad-contractual', 10)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -18306,17 +18675,19 @@ _______________________________          _______________________________
     ('ciudad_firma', 2),
     ('descripcion_garantia', 3),
     ('dia_pago', 4),
-    ('fecha_entrega_larga', 5),
-    ('lugar_entrega', 6),
-    ('monto_cuota_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15)
+    ('distrito_judicial', 5),
+    ('fecha_entrega_larga', 6),
+    ('lugar_entrega', 7),
+    ('monto_cuota_letras', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_responsable_seguro', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -18365,8 +18736,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -18378,16 +18749,17 @@ _______________________________          _______________________________
     ('capital_letras', 2),
     ('ciudad_firma', 3),
     ('dia_pago', 4),
-    ('interes_mora_porcentaje', 5),
-    ('monto_cuota_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14)
+    ('distrito_judicial', 5),
+    ('interes_mora_porcentaje', 6),
+    ('monto_cuota_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_nacionalidad', 14),
+    ('parte_segunda_nombre', 15)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -18436,8 +18808,8 @@ _______________________________          _______________________________
     ('g-declaraciones-partes', 4),
     ('g-modificaciones', 5),
     ('g-divisibilidad', 6),
-    ('notificaciones', 7),
-    ('ley-aplicable-jurisdiccion', 8),
+    ('g-notificaciones', 7),
+    ('g-ley-aplicable', 8),
     ('integridad-contractual', 9)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -18448,16 +18820,17 @@ _______________________________          _______________________________
     ('cantidad_cuotas', 1),
     ('ciudad_firma', 2),
     ('dia_pago', 3),
-    ('interes_mora_porcentaje', 4),
-    ('monto_cuota_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('distrito_judicial', 4),
+    ('interes_mora_porcentaje', 5),
+    ('monto_cuota_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_segunda_cedula', 11),
+    ('parte_segunda_domicilio', 12),
+    ('parte_segunda_nacionalidad', 13),
+    ('parte_segunda_nombre', 14)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
@@ -18505,8 +18878,8 @@ _______________________________          _______________________________
     ('g-obligaciones-partes', 3),
     ('g-modificaciones', 4),
     ('g-divisibilidad', 5),
-    ('notificaciones', 6),
-    ('ley-aplicable-jurisdiccion', 7),
+    ('g-notificaciones', 6),
+    ('g-ley-aplicable', 7),
     ('integridad-contractual', 8)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
@@ -18516,14 +18889,15 @@ _______________________________          _______________________________
   FROM (VALUES
     ('ciudad_firma', 1),
     ('descripcion_garantia', 2),
-    ('parte_primera_cedula', 3),
-    ('parte_primera_domicilio', 4),
-    ('parte_primera_nacionalidad', 5),
-    ('parte_primera_nombre', 6),
-    ('parte_segunda_cedula', 7),
-    ('parte_segunda_domicilio', 8),
-    ('parte_segunda_nacionalidad', 9),
-    ('parte_segunda_nombre', 10)
+    ('distrito_judicial', 3),
+    ('parte_primera_cedula', 4),
+    ('parte_primera_domicilio', 5),
+    ('parte_primera_nacionalidad', 6),
+    ('parte_primera_nombre', 7),
+    ('parte_segunda_cedula', 8),
+    ('parte_segunda_domicilio', 9),
+    ('parte_segunda_nacionalidad', 10),
+    ('parte_segunda_nombre', 11)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;

@@ -69,6 +69,36 @@ export const CLAUSES: ClauseSeed[] = [
   description: 'Si una cláusula es nula, el resto del contrato sigue vigente.',
   body: 'DIVISIBILIDAD. Si alguna disposición del presente contrato fuera declarada nula, inválida o inejecutable por autoridad competente, dicha declaración no afectará la validez de las restantes disposiciones, que continuarán vigentes. Las partes se obligan a sustituir la disposición afectada por otra válida que se aproxime en lo posible a la finalidad económica perseguida.' },
 
+{ slug: 'g-seguro-bienes', title: 'Seguro de los bienes', family: 'Generales',
+  description: 'Quién asegura los bienes que cubre el contrato y hasta dónde responde cada parte.',
+  body: 'SEGURO. {{parte_responsable_seguro}} mantendrá vigente, durante toda la vigencia del presente contrato y a su exclusivo costo, una póliza de seguro que cubra los bienes objeto del mismo contra los riesgos habituales de pérdida, daño, incendio y robo, así como la responsabilidad civil frente a terceros derivada de su uso u operación. La otra parte podrá exigir en cualquier momento la exhibición de la póliza y de los recibos de prima al día. La existencia del seguro no libera a la parte responsable de los daños que excedan la cobertura contratada ni de los causados por dolo o falta grave.',
+  legal_reference: 'Ley 146-02 sobre Seguros y Fianzas de la República Dominicana' },
+
+{ slug: 'g-devolucion-bien', title: 'Devolución del bien', family: 'Generales',
+  description: 'Cómo y en qué estado se devuelve el bien al terminar el contrato.',
+  body: 'DEVOLUCIÓN. Al vencimiento del presente contrato o al producirse su terminación por cualquier causa, la parte que tenga el bien en su poder se obliga a devolverlo de inmediato en el mismo estado en que lo recibió, salvo el desgaste normal derivado del uso convenido, con todos sus accesorios, documentos y llaves, y libre de gravámenes, multas o cargos generados durante el período de uso. Las partes levantarán un acta de devolución en la que se hará constar el estado del bien; los daños que consten en dicha acta serán de cargo de la parte que lo devuelve.',
+  legal_reference: 'Código Civil Dominicano, artículos 1730 y 1731' },
+
+{ slug: 'g-objeto-uso-bien', title: 'Objeto y uso del bien', family: 'Generales',
+  description: 'Qué bien se cede y para qué puede usarse, sin suponer que es un inmueble.',
+  body: 'OBJETO. Por el presente contrato, LA PRIMERA PARTE cede a LA SEGUNDA PARTE el uso del bien descrito en este documento, en adelante EL BIEN, el cual será destinado exclusivamente a {{destino_uso}}. LA SEGUNDA PARTE declara recibir EL BIEN en buen estado de conservación y funcionamiento, y se obliga a emplearlo conforme a su naturaleza y al destino convenido, sin poder cambiarlo ni cederlo a terceros sin autorización previa y por escrito de LA PRIMERA PARTE.',
+  legal_reference: 'Código Civil Dominicano, artículos 1709 y siguientes' },
+
+{ slug: 'e-precio-alquiler', title: 'Precio del alquiler', family: 'Económicas',
+  description: 'Cuánto se paga por el uso del bien y cuándo, sin suponer que es un inmueble.',
+  body: 'PRECIO. El precio por el uso de EL BIEN se fija en la suma de {{precio_alquiler_letras}} por cada {{periodo_alquiler}}, que LA SEGUNDA PARTE se obliga a pagar por adelantado, a más tardar el día {{dia_pago}} de cada período, mediante transferencia a la cuenta que LA PRIMERA PARTE indique o en el domicilio de esta. El pago deberá hacerse sin necesidad de requerimiento previo y no podrá compensarse ni retenerse por reclamaciones pendientes entre las partes.',
+  legal_reference: 'Código Civil Dominicano, artículo 1728' },
+
+{ slug: 'g-notificaciones', title: 'Notificaciones', family: 'Generales',
+  description: 'Dónde y cómo se notifican las partes, sin atarlo a un inmueble.',
+  body: 'NOTIFICACIONES. Para todos los fines del presente contrato, LA PRIMERA PARTE elige domicilio en {{parte_primera_domicilio}} y LA SEGUNDA PARTE en {{parte_segunda_domicilio}}. Toda notificación, requerimiento o comunicación relacionada con este contrato se reputará válidamente hecha si se entrega en dichos domicilios mediante acto de alguacil, correo certificado con acuse de recibo o entrega personal con constancia escrita. Cualquier cambio de domicilio deberá comunicarse a la otra parte por escrito dentro de los diez (10) días siguientes; mientras no se comunique, las notificaciones hechas al domicilio anterior conservarán plena validez.',
+  legal_reference: 'Código de Procedimiento Civil Dominicano, artículos 68 y siguientes' },
+
+{ slug: 'g-ley-aplicable', title: 'Ley aplicable y jurisdicción', family: 'Generales',
+  description: 'Ley dominicana y tribunales competentes, sin atarlo a un inmueble.',
+  body: 'LEY APLICABLE Y JURISDICCIÓN. El presente contrato se rige por las leyes de la República Dominicana. Para el conocimiento de cualquier controversia derivada de su interpretación, ejecución o terminación, las partes se someten voluntariamente a la competencia de los tribunales del Distrito Judicial de {{distrito_judicial}}, renunciando expresamente a cualquier otro fuero que pudiera corresponderles.',
+  legal_reference: 'Código de Procedimiento Civil Dominicano; Ley 834 de 1978' },
+
 { slug: 'g-cesion-prohibida', title: 'Prohibición de cesión', family: 'Generales',
   description: 'Impide traspasar el contrato a un tercero.',
   body: 'CESIÓN. Ninguna de las partes podrá ceder, transferir ni delegar, total ni parcialmente, los derechos y obligaciones derivados del presente contrato sin el consentimiento previo y por escrito de la otra parte. Toda cesión realizada en contravención de esta cláusula será nula y de ningún efecto.' },
@@ -260,6 +290,11 @@ export const CLAUSES: ClauseSeed[] = [
   description: 'Compromiso de no incurrir en prácticas corruptas.',
   body: 'CUMPLIMIENTO NORMATIVO. Las partes declaran no haber ofrecido ni prometido, directa o indirectamente, ventaja alguna a funcionario público o particular para obtener la celebración del presente contrato, y se obligan a cumplir la legislación dominicana en materia de prevención de lavado de activos y de actos de corrupción.',
   legal_reference: 'Ley 155-17 contra el Lavado de Activos' },
+
+{ slug: 'o-alcance-obra', title: 'Alcance de la obra', family: 'Inmobiliarias',
+  description: 'Qué trabajos comprende la obra y qué queda expresamente fuera.',
+  body: 'ALCANCE DE LA OBRA. EL CONTRATISTA ejecutará los trabajos descritos en {{descripcion_obra}}, conforme a los planos, especificaciones técnicas y presupuesto que las partes suscriben y que forman parte integrante del presente contrato. Todo trabajo no comprendido expresamente en dichos documentos constituirá una obra extraordinaria y requerirá acuerdo previo y por escrito sobre su alcance, precio y plazo, sin que su ejecución pueda presumirse por el solo hecho de haberse iniciado. EL CONTRATISTA suministrará la mano de obra, dirección técnica, herramientas y equipos necesarios; los materiales correrán a cargo de {{parte_suministra_materiales}}.',
+  legal_reference: 'Código Civil Dominicano, artículos 1787 y siguientes' },
 
 { slug: 'o-plazo-obra', title: 'Plazo de ejecución de la obra', family: 'Empresariales',
   description: 'Tiempo comprometido para terminar la obra.',
