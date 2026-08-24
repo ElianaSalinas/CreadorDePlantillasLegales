@@ -1,587 +1,709 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import {
+  FileText,
+  Braces,
+  ClipboardList,
+  CheckCheck,
+  Upload,
+  BadgeCheck,
+  ListPlus,
+  Users,
+  ShieldCheck,
+  Scale,
+  Home,
+  Building2,
+  User,
+  ArrowRight,
+  PlayCircle,
+  Download,
+} from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: { absolute: 'SAVE Documentos — Crea documentos. Automatiza tu trabajo.' },
+  description:
+    'SAVE convierte los contratos que ya usas en plantillas inteligentes. Rellenas un formulario, ajustas en el editor y exportas en Word o PDF. Hecho para República Dominicana.',
+  alternates: { canonical: 'https://savedocumentos.com' },
+  openGraph: {
+    type: 'website',
+    locale: 'es_DO',
+    url: 'https://savedocumentos.com',
+    siteName: 'SAVE Documentos',
+    title: 'SAVE Documentos — Crea documentos. Automatiza tu trabajo.',
+    description:
+      'Convierte los contratos que ya usas en plantillas inteligentes. Sin volver a empezar de cero.',
+  },
+}
+
+/* Le dice a Google cómo se llama el sitio, para que al buscar "savedocumentos"
+   muestre "SAVE Documentos" y no la URL pelada. */
+const SITE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'SAVE Documentos',
+  alternateName: ['SAVE', 'Save Documentos'],
+  url: 'https://savedocumentos.com',
+}
+
+const NAV_LINKS = [
+  { href: '#como-funciona', label: 'Cómo funciona' },
+  { href: '#automatizacion', label: 'Automatización' },
+  { href: '#para-quien', label: 'Para quién es' },
+  { href: '#plantillas', label: 'Plantillas' },
+]
+
+const PIPELINE = [
+  {
+    Icon: FileText,
+    title: 'Plantilla',
+    body: 'Tu contrato de siempre, o uno de la biblioteca. También puedes subir un Word que ya usas.',
+  },
+  {
+    Icon: Braces,
+    title: 'Variables',
+    body: 'Nombres, cédulas, montos y fechas dejan de ser texto suelto y pasan a ser campos.',
+  },
+  {
+    Icon: ClipboardList,
+    title: 'Formulario',
+    body: 'Rellenas los datos una vez. El documento se arma solo, sin buscar ni reemplazar.',
+  },
+]
+
+const STEPS = [
+  {
+    n: '01',
+    title: 'Elige o importa',
+    body: 'Toma una plantilla de la biblioteca o sube el Word que llevas años usando. SAVE lo lee y te propone las variables.',
+  },
+  {
+    n: '02',
+    title: 'Rellena el formulario',
+    body: 'Un campo por dato. Si el cliente ya está guardado, sus datos entran solos y no los escribes otra vez.',
+  },
+  {
+    n: '03',
+    title: 'Ajusta en el editor',
+    body: 'Ningún caso es idéntico. Cambias lo que haga falta, añades una cláusula, y el resto queda intacto.',
+  },
+  {
+    n: '04',
+    title: 'Exporta y guarda',
+    body: 'Word o PDF, con el formato limpio y sin marcas de agua. Queda archivado en tu bóveda privada.',
+  },
+]
+
+const AUTOMATION = [
+  {
+    Icon: Upload,
+    title: 'Sube tu Word y listo',
+    body: 'No empiezas desde una plantilla ajena. Importas tus propios documentos y SAVE los convierte en plantillas editables.',
+  },
+  {
+    Icon: BadgeCheck,
+    title: 'Detecta lo dominicano',
+    body: 'Reconoce y valida cédulas y RNC, entiende montos en RD$ y lee las fechas notariales escritas en letras.',
+  },
+  {
+    Icon: ListPlus,
+    title: 'Cláusulas reutilizables',
+    body: 'Guarda la cláusula que siempre añades y colócala en cualquier documento sin buscarla en otro archivo.',
+  },
+  {
+    Icon: User,
+    title: 'Clientes y propiedades',
+    body: 'Los datos que ya registraste se rellenan solos la próxima vez. El mismo inquilino no se escribe dos veces.',
+  },
+  {
+    Icon: Users,
+    title: 'Tu equipo, con control',
+    body: 'El paralegal redacta, el titular aprueba. Cada cambio queda registrado con nombre y fecha.',
+  },
+  {
+    Icon: ShieldCheck,
+    title: 'Bóveda privada',
+    body: 'Todo lo que generas queda guardado y cifrado, accesible solo para ti y las personas de tu despacho.',
+  },
+]
+
+const AUDIENCES = [
+  {
+    Icon: Scale,
+    title: 'Abogados y notarías',
+    body: 'Poderes, actos, contratos y demandas con la formalidad que exige la práctica dominicana.',
+  },
+  {
+    Icon: Home,
+    title: 'Inmobiliarias',
+    body: 'Alquileres, promesas de venta y recibos. La propiedad se guarda una vez y se reutiliza siempre.',
+  },
+  {
+    Icon: Building2,
+    title: 'Empresas',
+    body: 'Contratos laborales, acuerdos comerciales y NDA sin pasar por el departamento legal cada vez.',
+  },
+  {
+    Icon: User,
+    title: 'Profesionales independientes',
+    body: 'Propuestas, contratos de servicio y facturas con aspecto profesional, sin rehacerlos desde cero cada vez.',
+  },
+]
+
+const CATEGORIES = [
+  'Legal',
+  'Inmobiliario',
+  'Empresarial',
+  'Laboral',
+  'Financiero',
+  'Comercial',
+  'Administrativo',
+  'Personal',
+  'Vehículos',
+  'Construcción',
+]
+
+const FAQ = [
+  {
+    q: '¿De verdad puedo empezar gratis?',
+    a: 'Sí. Creas tu cuenta y generas tus primeros documentos sin poner una tarjeta. Cuando el volumen crezca, ahí hablamos de un plan.',
+  },
+  {
+    q: '¿Tengo que usar sus plantillas?',
+    a: 'No. Puedes subir los documentos que ya usas y convertirlos en plantillas tuyas. La biblioteca es un punto de partida, no una obligación.',
+  },
+  {
+    q: '¿Los documentos salen con marca de SAVE?',
+    a: 'Nunca. Salen limpios, sin marcas de agua ni logotipos. El documento es tuyo y se ve como tuyo.',
+  },
+  {
+    q: '¿Quién puede ver lo que guardo?',
+    a: 'Solo tú y las personas que invites a tu despacho. Tu bóveda es privada y cada acceso queda registrado.',
+  },
+  {
+    q: '¿SAVE reemplaza a mi abogado?',
+    a: 'No, y no pretende hacerlo. SAVE es la herramienta con la que un profesional trabaja más rápido, no un sustituto del criterio jurídico.',
+  },
+]
 
 export default function HomePage() {
   return (
-    <>
-      {/* Fonts & Styles */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+    <div className="w-full bg-[#fcf9f8] text-[#1A1A1A]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_SCHEMA) }}
+      />
 
-        :root {
-          --color-primary: #001610;
-          --color-primary-container: #0d2c24;
-          --color-on-primary: #ffffff;
-          --color-primary-fixed: #c8eadd;
-          --color-primary-fixed-dim: #adcec1;
-          --color-surface: #fcf9f8;
-          --color-surface-container: #f0eded;
-          --color-surface-container-high: #eae7e7;
-          --color-surface-container-lowest: #ffffff;
-          --color-on-surface: #1c1b1b;
-          --color-on-surface-variant: #414845;
-          --color-outline-variant: #c1c8c4;
-          --color-tertiary-container: #352400;
-          --color-on-tertiary-container: #ac8944;
-          --color-tertiary-fixed-dim: #e9c176;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          background: var(--color-surface);
-          color: var(--color-on-surface);
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          -webkit-font-smoothing: antialiased;
-        }
-
-        /* NAV */
-        nav.topbar {
-          position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-          background: rgba(252,249,248,0.85);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(193,200,196,0.3);
-          box-shadow: 0 1px 8px rgba(0,0,0,0.05);
-        }
-        .nav-inner {
-          display: flex; align-items: center; justify-content: space-between;
-          max-width: 1280px; margin: 0 auto;
-          padding: 16px 48px;
-        }
-        @media (max-width: 768px) { .nav-inner { padding: 16px; } }
-
-        .logo-link {
-          display: flex; align-items: center; gap: 10px;
-          text-decoration: none;
-        }
-        .logo-icon {
-          width: 36px; height: 36px;
-          background: var(--color-primary);
-          border-radius: 8px;
-          display: flex; align-items: center; justify-content: center;
-          color: #ffffff;
-          font-family: 'Libre Caslon Text', serif;
-          font-weight: 700; font-size: 18px;
-          transition: transform 0.2s;
-        }
-        .logo-icon:hover { transform: scale(1.05); }
-        .logo-text {
-          font-family: 'Libre Caslon Text', serif;
-          font-size: 22px; font-weight: 700;
-          color: var(--color-primary);
-          letter-spacing: -0.02em;
-        }
-
-        .nav-links {
-          display: flex; gap: 32px; list-style: none;
-        }
-        @media (max-width: 768px) { .nav-links { display: none; } }
-        .nav-links a {
-          font-size: 16px; font-weight: 400;
-          color: var(--color-on-surface-variant);
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .nav-links a:hover { color: var(--color-primary); }
-
-        .nav-actions { display: flex; align-items: center; gap: 16px; }
-        .btn-ghost {
-          background: none; border: none; cursor: pointer;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 14px; font-weight: 600;
-          color: var(--color-primary);
-          padding: 8px 16px; border-radius: 9999px;
-          transition: background 0.2s; text-decoration: none;
-          display: none;
-        }
-        @media (min-width: 768px) { .btn-ghost { display: block; } }
-        .btn-ghost:hover { background: var(--color-surface-container); }
-
-        .btn-primary {
-          background: var(--color-primary);
-          color: var(--color-on-primary);
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 14px; font-weight: 600;
-          padding: 10px 24px; border-radius: 9999px;
-          border: none; cursor: pointer;
-          transition: all 0.3s;
-          box-shadow: 0 2px 8px rgba(0,22,16,0.2);
-          text-decoration: none; display: inline-block;
-          text-align: center;
-        }
-        .btn-primary:hover:not(:disabled) {
-          background: var(--color-primary-container);
-          box-shadow: 0 4px 16px rgba(0,22,16,0.25);
-        }
-
-        .btn-secondary {
-          background: #ffffff;
-          color: var(--color-primary);
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 14px; font-weight: 600;
-          padding: 14px 32px; border-radius: 9999px;
-          border: 1px solid var(--color-outline-variant);
-          cursor: pointer; transition: all 0.3s;
-          text-decoration: none; display: inline-block;
-          text-align: center;
-        }
-        .btn-secondary:hover:not(:disabled) { background: var(--color-surface-container); }
-
-        /* SECTIONS COMMON */
-        main { flex: 1; padding-top: 80px; }
-        .section-padding { padding: 100px 48px; }
-        @media (max-width: 768px) { .section-padding { padding: 60px 16px; } }
-        .section-inner { max-width: 1280px; margin: 0 auto; }
-        .section-title {
-          font-family: 'Libre Caslon Text', serif;
-          font-size: clamp(32px, 4vw, 44px);
-          font-weight: 700;
-          color: var(--color-primary);
-          text-align: center;
-          margin-bottom: 56px;
-          letter-spacing: -0.01em;
-        }
-
-        .badge {
-          display: flex; align-items: center; gap: 8px;
-          padding: 6px 14px; border-radius: 9999px;
-          background: var(--color-surface-container-high);
-          border: 1px solid rgba(193,200,196,0.5);
-          font-size: 12px; font-weight: 600;
-          color: var(--color-on-surface-variant);
-          width: fit-content;
-        }
-        .badge-dot {
-          width: 8px; height: 8px;
-          border-radius: 50%;
-          background: var(--color-primary);
-        }
-
-        /* HERO */
-        .hero {
-          position: relative; overflow: hidden;
-          padding: 80px 48px;
-          max-width: 1280px; margin: 0 auto;
-          display: flex; align-items: center; gap: 48px;
-        }
-        @media (max-width: 1024px) {
-          .hero { flex-direction: column; padding: 60px 16px; gap: 40px; }
-        }
-
-        .blob {
-          position: absolute; border-radius: 9999px;
-          filter: blur(80px); pointer-events: none; z-index: 0;
-        }
-        .blob-1 {
-          top: -10%; right: -5%;
-          width: 500px; height: 500px;
-          background: rgba(200,234,221,0.25);
-        }
-        .blob-2 {
-          bottom: -10%; left: -10%;
-          width: 400px; height: 400px;
-          background: rgba(233,193,118,0.2);
-          filter: blur(100px);
-        }
-
-        .hero-content {
-          flex: 1; z-index: 1;
-          display: flex; flex-direction: column; gap: 24px;
-        }
-
-        .hero-title {
-          font-family: 'Libre Caslon Text', serif;
-          font-size: clamp(36px, 5vw, 52px);
-          font-weight: 700; line-height: 1.1;
-          letter-spacing: -0.02em;
-          color: var(--color-primary);
-          max-width: 560px;
-        }
-        .hero-title .accent {
-          color: var(--color-tertiary-container);
-          position: relative;
-        }
-
-        .hero-body {
-          font-size: 18px; line-height: 1.7; font-weight: 400;
-          color: var(--color-on-surface-variant);
-          max-width: 480px;
-        }
-
-        .hero-cta {
-          display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px;
-        }
-
-        .btn-hero {
-          padding: 14px 32px;
-          font-size: 14px; font-weight: 600;
-          display: inline-flex; align-items: center; gap: 8px;
-        }
-
-        /* HERO IMAGE */
-        .hero-image-wrap {
-          flex: 1; z-index: 1; position: relative;
-          border-radius: 20px; overflow: hidden;
-          aspect-ratio: 4/3;
-          box-shadow: 0 20px 50px -10px rgba(13,44,36,0.15), 0 8px 16px -8px rgba(13,44,36,0.1);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .hero-image-wrap:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 30px 60px -10px rgba(13,44,36,0.2), 0 12px 24px -8px rgba(13,44,36,0.12);
-        }
-        .hero-image-wrap img {
-          width: 100%; height: 100%; object-fit: cover; display: block;
-        }
-
-        .floating-card {
-          position: absolute; bottom: 24px; left: 24px; right: 24px;
-          max-width: 280px;
-          background: rgba(255,255,255,0.9);
-          backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255,255,255,0.5);
-          border-radius: 14px; padding: 16px;
-          display: flex; align-items: center; gap: 16px;
-          box-shadow: 0 8px 24px rgba(0,22,16,0.12);
-        }
-        .floating-card-icon {
-          width: 44px; height: 44px; border-radius: 50%;
-          background: var(--color-primary-fixed);
-          display: flex; align-items: center; justify-content: center;
-          color: var(--color-primary); flex-shrink: 0;
-          font-size: 22px;
-        }
-        .floating-card-title {
-          font-size: 14px; font-weight: 600;
-          color: var(--color-on-surface);
-        }
-        .floating-card-sub {
-          font-size: 13px; font-weight: 400;
-          color: var(--color-on-surface-variant);
-          margin-top: 2px;
-        }
-
-        /* COMO FUNCIONA (HOW IT WORKS) */
-        .features-grid {
-          display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 32px;
-        }
-        .feature-card {
-          background: var(--color-surface-container-lowest);
-          padding: 36px 32px; border-radius: 20px;
-          border: 1px solid var(--color-outline-variant);
-          transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .feature-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 16px 32px -8px rgba(0,22,16,0.08);
-        }
-        .feature-icon {
-          width: 60px; height: 60px; border-radius: 16px;
-          background: var(--color-primary-fixed); color: var(--color-primary-container);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 32px; margin-bottom: 24px;
-        }
-        .feature-title {
-          font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--color-primary);
-        }
-        .feature-desc {
-          font-size: 15px; color: var(--color-on-surface-variant); line-height: 1.6;
-        }
-
-        /* PRICING */
-        .pricing-header-text {
-          text-align: center; color: var(--color-on-surface-variant);
-          max-width: 600px; margin: 0 auto 56px; font-size: 18px; line-height: 1.6;
-        }
-        .pricing-grid {
-          display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: 32px; max-width: 900px; margin: 0 auto;
-        }
-        .pricing-card {
-          background: var(--color-surface-container-lowest);
-          padding: 48px 40px; border-radius: 24px;
-          border: 1px solid var(--color-outline-variant);
-          display: flex; flex-direction: column; position: relative;
-          transition: box-shadow 0.3s;
-        }
-        .pricing-card.featured {
-          border-color: var(--color-primary-fixed-dim);
-          box-shadow: 0 24px 48px -12px rgba(13,44,36,0.12);
-        }
-        .pricing-badge {
-          position: absolute; top: 24px; right: 24px;
-          background: var(--color-tertiary-fixed-dim); color: var(--color-tertiary-container);
-          font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 9999px;
-        }
-        .pricing-price {
-          font-family: 'Libre Caslon Text', serif; font-size: 56px; font-weight: 700;
-          color: var(--color-primary); margin: 24px 0; display: flex; align-items: baseline; gap: 8px;
-        }
-        .pricing-price span {
-          font-size: 16px; color: var(--color-on-surface-variant);
-          font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500;
-        }
-        .pricing-features { list-style: none; margin-bottom: 40px; flex: 1; display: flex; flex-direction: column; gap: 16px;}
-        .pricing-features li {
-          display: flex; align-items: flex-start; gap: 12px;
-          font-size: 15px; color: var(--color-on-surface-variant); line-height: 1.5;
-        }
-        .pricing-features .material-symbols-outlined {
-          color: var(--color-primary-fixed-dim); font-size: 22px; flex-shrink: 0;
-        }
-
-        /* FOOTER */
-        footer {
-          background: var(--color-surface-container-lowest);
-          border-top: 1px solid var(--color-outline-variant);
-          margin-top: auto;
-        }
-        .footer-inner {
-          max-width: 1280px; margin: 0 auto;
-          padding: 64px 48px;
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr;
-          gap: 48px;
-        }
-        @media (max-width: 768px) {
-          .footer-inner {
-            grid-template-columns: 1fr; padding: 48px 24px;
-          }
-        }
-        .footer-brand { display: flex; flex-direction: column; gap: 20px; }
-        .footer-tagline {
-          font-size: 15px; line-height: 1.6;
-          color: var(--color-on-surface-variant);
-          max-width: 320px;
-        }
-        .footer-col { display: flex; flex-direction: column; gap: 16px; }
-        .footer-col-title {
-          font-size: 15px; font-weight: 700;
-          color: var(--color-primary); margin-bottom: 8px;
-        }
-        .footer-col a {
-          font-size: 15px; color: var(--color-on-surface-variant);
-          text-decoration: none; transition: color 0.2s;
-          width: fit-content;
-        }
-        .footer-col a:hover { color: var(--color-primary); text-decoration: underline; }
-      `}</style>
-
-      {/* NAV */}
-      <nav className="topbar">
-        <div className="nav-inner">
-          <Link href="/" className="logo-link">
-            <div className="logo-icon">S</div>
-            <span className="logo-text">Save Documentos</span>
+      {/* ═══════════ NAVBAR ═══════════ */}
+      <header className="sticky top-0 z-50 border-b border-[#e8e5df] bg-[#fcf9f8]/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-8 px-6 py-4 md:px-12">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[7px] bg-[#0D2C24] font-serif text-base font-bold text-white">
+              S
+            </span>
+            <span className="font-serif text-[23px] font-bold tracking-tight text-[#0D2C24]">
+              SAVE
+            </span>
           </Link>
 
-          <ul className="nav-links">
-            <li><a href="#como-funciona">Cómo funciona</a></li>
-            <li><a href="#precios">Precios</a></li>
-          </ul>
+          <nav className="hidden items-center gap-8 lg:flex">
+            {NAV_LINKS.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-[#0D2C24]"
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
 
-          <div className="nav-actions">
-            <Link href="/login" className="btn-ghost">Iniciar sesión</Link>
-            <Link href="/register" className="btn-primary" style={{ padding: '10px 24px' }}>Comenzar</Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/login"
+              className="hidden px-4 py-2.5 text-sm font-semibold text-[#0D2C24] transition-colors hover:text-[#164E3E] sm:block"
+            >
+              Iniciar sesión
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-full bg-[#0D2C24] px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#164E3E]"
+            >
+              Empieza gratis
+            </Link>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* MAIN */}
-      <main>
-        {/* HERO */}
-        <section className="hero">
-          <div className="blob blob-1" aria-hidden="true" />
-          <div className="blob blob-2" aria-hidden="true" />
+      {/* ═══════════ HÉROE ═══════════ */}
+      <section className="relative overflow-hidden">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-44 -right-28 h-[620px] w-[620px] rounded-full bg-[#c8eadd] opacity-35 blur-[90px]" />
+          <div className="absolute -bottom-52 -left-40 h-[520px] w-[520px] rounded-full bg-[#ffdea5] opacity-40 blur-[100px]" />
+        </div>
 
-          <div className="hero-content">
-            <div className="badge">
-              <span className="badge-dot" />
-              Tecnología Legal Moderna
+        <div className="relative mx-auto grid max-w-[1200px] items-center gap-16 px-6 py-20 md:px-12 lg:grid-cols-2 lg:py-24">
+          <div className="flex flex-col items-start gap-6">
+            <div className="flex items-center gap-2.5 rounded-full border border-[#e8e5df] bg-white px-4 py-1.5 shadow-sm">
+              <span className="h-[7px] w-[7px] rounded-full bg-[#C5A059]" />
+              <span className="text-xs font-bold tracking-wide text-slate-600">
+                Hecho para República Dominicana
+              </span>
             </div>
 
-            <h1 className="hero-title">
-              Documentos legales,{' '}
-              <span className="accent">
-                simplificados.
+            <h1 className="font-serif text-[42px] leading-[1.06] font-bold tracking-tight text-balance text-[#0D2C24] sm:text-[52px] lg:text-[62px]">
+              Crea documentos.
+              <br />
+              <span className="relative inline-block">
+                Automatiza tu trabajo.
                 <svg
-                  style={{ position: 'absolute', bottom: '-8px', left: 0, width: '100%', height: '12px', color: '#e9c176' }}
                   viewBox="0 0 100 10"
                   preserveAspectRatio="none"
-                  aria-hidden="true"
+                  aria-hidden
+                  className="absolute -bottom-1.5 left-0 h-[11px] w-full text-[#C5A059]"
                 >
-                  <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" strokeWidth="3" />
+                  <path
+                    d="M0 6 Q 50 11 100 5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </span>
             </h1>
 
-            <p className="hero-body">
-              Plantillas legales de alta calidad, revisadas por expertos, diseñadas para el profesional moderno. Redacta, firma y ejecuta con total confianza y precisión.
+            <p className="max-w-[520px] text-lg leading-relaxed text-slate-600 md:text-[19px]">
+              Convierte los contratos que ya usas en plantillas inteligentes. Rellenas un
+              formulario, ajustas lo que haga falta en el editor y exportas en Word o PDF. Sin
+              volver a empezar de cero.
             </p>
 
-            <div className="hero-cta">
-              <Link href="/register" className="btn-primary btn-hero" style={{ padding: '16px 36px', fontSize: '15px' }}>
-                Explorar Plantillas
-                <span style={{ fontSize: '20px', fontFamily: 'Material Symbols Outlined', fontWeight: '300' }}>arrow_forward</span>
+            <div className="mt-1 flex flex-col gap-3.5 sm:flex-row sm:items-center">
+              <Link
+                href="/register"
+                className="flex items-center justify-center gap-2.5 rounded-full bg-[#0D2C24] px-8 py-4 text-[15px] font-bold text-white shadow-lg shadow-[#0D2C24]/20 transition-colors hover:bg-[#164E3E]"
+              >
+                Empieza gratis
+                <ArrowRight size={17} />
               </Link>
-              <a href="#precios" className="btn-secondary" style={{ padding: '16px 36px', fontSize: '15px' }}>
-                Ver Precios
+              <a
+                href="#como-funciona"
+                className="flex items-center justify-center gap-2.5 rounded-full border border-[#e8e5df] bg-white px-7 py-4 text-[15px] font-semibold text-[#0D2C24] transition-colors hover:bg-[#F5F2ED]"
+              >
+                <PlayCircle size={17} />
+                Ver cómo funciona
               </a>
             </div>
+
+            <p className="text-[13px] text-slate-500">Gratis para empezar. Sin tarjeta de crédito.</p>
           </div>
 
-          <div className="hero-image-wrap">
-            <img
-              src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=900&q=80"
-              alt="Oficina moderna con laptop mostrando Save Documentos"
-            />
-            <div className="floating-card">
-              <div className="floating-card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                  <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
+          {/* Escenario de la animación */}
+          <div className="relative flex h-[470px] items-center justify-center">
+            <div className="save-sheet relative w-[372px] max-w-full rounded-2xl border border-[#e8e5df] bg-white px-8 pt-7 pb-8 shadow-[0_26px_60px_-20px_rgba(13,44,36,0.28)]">
+              <div className="flex items-center justify-between border-b border-[#f1efe9] pb-4">
+                <span className="font-serif text-sm font-bold text-[#0D2C24]">
+                  Contrato de Alquiler
+                </span>
+                <span className="rounded-full bg-[#FDE8B5] px-2.5 py-1 text-[11px] font-bold tracking-wider text-[#8E6D29]">
+                  PLANTILLA
+                </span>
               </div>
-              <div>
-                <p className="floating-card-title">Plantilla de Contrato</p>
-                <p className="floating-card-sub">Revisada y Lista para Firmar</p>
+
+              <div className="flex flex-col gap-3.5 pt-5">
+                <SkeletonLines widths={['100%', '84%']} />
+
+                <VariableRow
+                  placeholder="{{ arrendatario_nombre }}"
+                  value="María Fernández Peralta"
+                />
+                <VariableRow placeholder="{{ cedula }}" value="001-1847362-4" delay={0.5} check />
+
+                <SkeletonLines widths={['96%', '72%']} />
+
+                <VariableRow
+                  placeholder="{{ monto_mensual }}"
+                  value="RD$ 32,000.00 mensuales"
+                  delay={1}
+                />
+
+                <SkeletonLines widths={['90%', '58%']} />
               </div>
+            </div>
+
+            {/* El sello en que se convierte el documento */}
+            <div className="save-seal absolute flex flex-col items-center gap-4">
+              <div className="flex h-[106px] w-[106px] items-center justify-center rounded-[26px] bg-[#0D2C24] shadow-[0_22px_44px_-14px_rgba(13,44,36,0.5)]">
+                <span className="font-serif text-[54px] leading-none font-bold text-white">S</span>
+              </div>
+              <span className="font-serif text-[27px] font-bold tracking-tight text-[#0D2C24]">
+                SAVE
+              </span>
+            </div>
+
+            <div className="save-export absolute bottom-6 flex gap-2.5">
+              {['Word', 'PDF'].map((f) => (
+                <span
+                  key={f}
+                  className="flex items-center gap-1.5 rounded-full border border-[#e8e5df] bg-white px-4 py-2.5 text-xs font-bold text-[#0D2C24] shadow-sm"
+                >
+                  <Download size={13} />
+                  {f}
+                </span>
+              ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* COMO FUNCIONA */}
-        <section id="como-funciona" className="section-padding" style={{ background: 'var(--color-surface-container)' }}>
-          <div className="section-inner">
-            <div className="badge mx-auto mb-4" style={{ margin: '0 auto 24px' }}>
-              <span className="badge-dot" />
-              Flujo de trabajo simple
-            </div>
-            <h2 className="section-title">Cómo funciona Save Documentos</h2>
-            
-            <div className="features-grid">
-              <div className="feature-card">
-                <div className="feature-icon">
-                  <span className="material-symbols-outlined">description</span>
-                </div>
-                <h3 className="feature-title">1. Elige tu plantilla</h3>
-                <p className="feature-desc">Selecciona entre decenas de contratos y documentos legales diseñados y validados por expertos legales.</p>
-              </div>
-              
-              <div className="feature-card">
-                <div className="feature-icon">
-                  <span className="material-symbols-outlined">edit_document</span>
-                </div>
-                <h3 className="feature-title">2. Completa los datos</h3>
-                <p className="feature-desc">Responde a un formulario inteligente e intuitivo. El documento se autocompletará sin que tengas que editar párrafos complejos.</p>
-              </div>
-              
-              <div className="feature-card">
-                <div className="feature-icon">
-                  <span className="material-symbols-outlined">gavel</span>
-                </div>
-                <h3 className="feature-title">3. Revisa y aprueba</h3>
-                <p className="feature-desc">Obtén un documento final en segundos con un formato impecable, listo para ser utilizado legalmente.</p>
-              </div>
-              
-              <div className="feature-card">
-                <div className="feature-icon">
-                  <span className="material-symbols-outlined">download</span>
-                </div>
-                <h3 className="feature-title">4. Descarga seguro</h3>
-                <p className="feature-desc">Guárdalo temporalmente en tu bóveda segura o descárgalo inmediatamente en formato PDF listo para firmar.</p>
-              </div>
-            </div>
+      {/* ═══════════ EL DOLOR ═══════════ */}
+      <section className="bg-[#0D2C24]">
+        <div className="mx-auto max-w-[900px] px-6 py-20 text-center md:px-12 md:py-24">
+          <p className="font-serif text-xl leading-relaxed text-[#c8eadd] md:text-[26px]">
+            Abrir el contrato del mes pasado, cambiar los nombres a mano, revisar tres veces que no
+            quedó una cédula vieja escondida en la cláusula seis.
+          </p>
+          <p className="mt-7 font-serif text-2xl leading-snug font-bold text-white md:text-[30px]">
+            Así se sigue trabajando en demasiados despachos del país.
+          </p>
+          <div className="mx-auto mt-9 h-[3px] w-14 rounded-full bg-[#C5A059]" />
+        </div>
+      </section>
+
+      {/* ═══════════ QUÉ ES SAVE ═══════════ */}
+      <section className="bg-[#fcf9f8]">
+        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+          <SectionHead
+            eyebrow="QUÉ ES SAVE"
+            title="Un documento deja de ser un archivo y pasa a ser un sistema"
+            body="En vez de guardar cien versiones de un mismo contrato, guardas una plantilla que sabe qué datos necesita. Cada documento nuevo sale de ahí, completo y consistente."
+          />
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {PIPELINE.map(({ Icon, title, body }) => (
+              <article
+                key={title}
+                className="flex flex-col gap-3.5 rounded-[18px] border border-[#e8e5df] bg-white p-7"
+              >
+                <span className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-[#F5F2ED] text-[#0D2C24]">
+                  <Icon size={21} strokeWidth={1.8} />
+                </span>
+                <h3 className="font-serif text-lg font-bold text-[#0D2C24]">{title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500">{body}</p>
+              </article>
+            ))}
+
+            <article className="flex flex-col gap-3.5 rounded-[18px] border border-[#0D2C24] bg-[#0D2C24] p-7">
+              <span className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-white/10 text-[#FDE8B5]">
+                <CheckCheck size={21} strokeWidth={1.8} />
+              </span>
+              <h3 className="font-serif text-lg font-bold text-white">Documento</h3>
+              <p className="text-sm leading-relaxed text-[#c8eadd]">
+                Listo para revisar, firmar y archivar. En Word o en PDF, como lo necesites.
+              </p>
+            </article>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* PRECIOS */}
-        <section id="precios" className="section-padding">
-          <div className="section-inner">
-            <div className="badge mx-auto" style={{ margin: '0 auto 24px' }}>
-              <span className="badge-dot" style={{ background: 'var(--color-tertiary-container)' }} />
-              Sin tarjetas de crédito
+      {/* ═══════════ CÓMO FUNCIONA ═══════════ */}
+      <section
+        id="como-funciona"
+        className="scroll-mt-20 border-y border-[#e8e5df] bg-[#F5F2ED]"
+      >
+        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+          <SectionHead eyebrow="CÓMO FUNCIONA" title="Cuatro pasos. Ninguno técnico." />
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map(({ n, title, body }) => (
+              <div key={n} className="flex flex-col gap-4">
+                <span className="font-serif text-[44px] leading-none font-bold text-[#8E6D29]">
+                  {n}
+                </span>
+                <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
+                <p className="text-sm leading-relaxed text-slate-600">{body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ AUTOMATIZACIÓN ═══════════ */}
+      <section id="automatizacion" className="scroll-mt-20 bg-[#fcf9f8]">
+        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+          <SectionHead
+            eyebrow="AUTOMATIZACIÓN"
+            title="La diferencia está en lo que no tienes que hacer"
+            body="Cualquiera puede venderte plantillas. SAVE se ocupa del trabajo repetitivo que viene después."
+          />
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {AUTOMATION.map(({ Icon, title, body }) => (
+              <article
+                key={title}
+                className="flex flex-col gap-4 rounded-[18px] border border-[#e8e5df] bg-white p-8"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#c8eadd] text-[#0D2C24]">
+                  <Icon size={22} strokeWidth={1.8} />
+                </span>
+                <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
+                <p className="text-[14.5px] leading-relaxed text-slate-500">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ PARA QUIÉN ES ═══════════ */}
+      <section id="para-quien" className="scroll-mt-20 border-t border-[#e8e5df] bg-[#F5F2ED]">
+        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+          <SectionHead
+            eyebrow="PARA QUIÉN ES"
+            title="Si redactas lo mismo cada semana, es para ti"
+          />
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {AUDIENCES.map(({ Icon, title, body }) => (
+              <article
+                key={title}
+                className="flex flex-col gap-3 rounded-[18px] border border-[#e8e5df] bg-white p-7"
+              >
+                <Icon size={24} strokeWidth={1.7} className="text-[#0D2C24]" />
+                <h3 className="font-serif text-[17px] font-bold text-[#0D2C24]">{title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ PLANTILLAS ═══════════ */}
+      <section id="plantillas" className="scroll-mt-20 bg-[#fcf9f8]">
+        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+          <SectionHead
+            eyebrow="PLANTILLAS"
+            title="Diez categorías, un mismo motor"
+            body="SAVE no está encerrado en lo legal. Cualquier documento que repitas puede volverse una plantilla."
+          />
+
+          <div className="mx-auto flex max-w-[860px] flex-wrap justify-center gap-3">
+            {CATEGORIES.map((c) => (
+              <span
+                key={c}
+                className="rounded-full border border-[#e8e5df] bg-white px-6 py-3 text-[15px] font-semibold text-[#0D2C24]"
+              >
+                {c}
+              </span>
+            ))}
+          </div>
+
+          <p className="mt-8 text-center text-sm text-slate-500">
+            [NÚMERO] plantillas listas desde el primer día, y las tuyas propias sin límite.
+          </p>
+        </div>
+      </section>
+
+      {/* ═══════════ FAQ ═══════════ */}
+      <section className="border-t border-[#e8e5df] bg-[#F5F2ED]">
+        <div className="mx-auto max-w-[840px] px-6 py-24 md:px-12">
+          <h2 className="mb-12 text-center font-serif text-3xl leading-tight font-bold tracking-tight text-[#0D2C24] md:text-[38px]">
+            Antes de que preguntes
+          </h2>
+
+          <div className="flex flex-col gap-1">
+            {FAQ.map(({ q, a }) => (
+              <div
+                key={q}
+                className="flex flex-col gap-2.5 rounded-2xl border border-[#e8e5df] bg-white px-7 py-6"
+              >
+                <h3 className="font-serif text-[17px] font-bold text-[#0D2C24]">{q}</h3>
+                <p className="text-[15px] leading-relaxed text-slate-600">{a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ CTA FINAL ═══════════ */}
+      <section className="relative overflow-hidden bg-[#0D2C24]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-36 -right-20 h-[460px] w-[460px] rounded-full bg-[#C5A059] opacity-15 blur-[90px]"
+        />
+
+        <div className="relative mx-auto flex max-w-[800px] flex-col items-center gap-6 px-6 py-24 text-center md:px-12 md:py-28">
+          <h2 className="font-serif text-4xl leading-[1.12] font-bold tracking-tight text-balance text-white md:text-[50px]">
+            Tu tiempo vale más que redactar papeles
+          </h2>
+          <p className="max-w-[560px] text-lg leading-relaxed text-[#c8eadd]">
+            Por eso existe SAVE. Empieza gratis hoy y recupera las horas que se te van escribiendo lo
+            mismo de siempre.
+          </p>
+          <Link
+            href="/register"
+            className="mt-2 flex items-center gap-2.5 rounded-full bg-white px-10 py-5 text-base font-bold text-[#0D2C24] shadow-2xl transition-transform hover:scale-[1.02]"
+          >
+            Empieza gratis
+            <ArrowRight size={18} />
+          </Link>
+          <p className="text-[13px] text-[#c8eadd]/75">
+            Sin tarjeta. Sin instalar nada. En español y pensado para RD.
+          </p>
+        </div>
+      </section>
+
+      {/* ═══════════ FOOTER ═══════════ */}
+      <footer className="border-t border-[#e8e5df] bg-[#fcf9f8]">
+        <div className="mx-auto grid max-w-[1200px] gap-10 px-6 pt-14 pb-10 md:px-12 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+          <div className="flex flex-col gap-3.5">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#0D2C24] font-serif text-sm font-bold text-white">
+                S
+              </span>
+              <span className="font-serif text-xl font-bold text-[#0D2C24]">SAVE</span>
             </div>
-            <h2 className="section-title">Planes y Precios</h2>
-            <p className="pricing-header-text">
-              Comienza hoy mismo sin compromisos. No requerimos ningún método de pago para que inicies tu prueba gratuita y conozcas la plataforma.
+            <p className="max-w-[280px] text-[13.5px] leading-relaxed text-slate-500">
+              Creación y automatización de documentos profesionales. Hecho en República Dominicana.
             </p>
-            
-            <div className="pricing-grid">
-              {/* Free Trial Card */}
-              <div className="pricing-card featured">
-                <div className="pricing-badge">Recomendado</div>
-                <h3 className="feature-title" style={{ fontSize: '24px', marginBottom: '8px' }}>Prueba Gratis</h3>
-                <p className="feature-desc" style={{ fontSize: '16px' }}>Perfecto para conocer la plataforma.</p>
-                <div className="pricing-price">
-                  $0 <span>/ 30 días</span>
-                </div>
-                <ul className="pricing-features">
-                  <li><span className="material-symbols-outlined">check_circle</span> Acceso a todas las plantillas básicas</li>
-                  <li><span className="material-symbols-outlined">check_circle</span> Límite de 5 documentos generados</li>
-                  <li><span className="material-symbols-outlined">check_circle</span> Descarga en formato PDF alta calidad</li>
-                  <li><span className="material-symbols-outlined">check_circle</span> Almacenamiento en Bóveda temporal</li>
-                </ul>
-                <Link href="/register" className="btn-primary" style={{ padding: '16px', fontSize: '16px' }}>
-                  Comenzar prueba gratis
-                </Link>
-              </div>
-
-              {/* Premium Card (Coming Soon) */}
-              <div className="pricing-card" style={{ opacity: 0.85, background: 'var(--color-surface-container-high)' }}>
-                <h3 className="feature-title" style={{ fontSize: '24px', marginBottom: '8px' }}>Plan Premium</h3>
-                <p className="feature-desc" style={{ fontSize: '16px' }}>Para despachos y profesionales independientes.</p>
-                <div className="pricing-price">
-                  -- <span>/ mes</span>
-                </div>
-                <ul className="pricing-features">
-                  <li><span className="material-symbols-outlined">check_circle</span> Generación de documentos ilimitada</li>
-                  <li><span className="material-symbols-outlined">check_circle</span> Plantillas premium exclusivas</li>
-                  <li><span className="material-symbols-outlined">check_circle</span> Descarga en Word editable (.docx)</li>
-                  <li><span className="material-symbols-outlined">check_circle</span> Bóveda permanente y gestión de clientes</li>
-                </ul>
-                <button className="btn-secondary" disabled style={{ padding: '16px', fontSize: '16px', cursor: 'not-allowed', opacity: 0.8 }}>
-                  Próximamente
-                </button>
-              </div>
-            </div>
           </div>
-        </section>
-      </main>
 
-      {/* FOOTER */}
-      <footer>
-        <div className="footer-inner">
-          <div className="footer-brand">
-            <Link href="/" className="logo-link">
-              <div className="logo-icon" style={{ filter: 'grayscale(0.3)', opacity: 0.85 }}>S</div>
-              <span className="logo-text">Save Documentos</span>
-            </Link>
-            <p className="footer-tagline">
-              © 2026 Save Documentos. Todos los derechos reservados.<br />
-              Soluciones legales modernas para profesionales dominicanos.
+          <FooterCol
+            title="PRODUCTO"
+            links={[
+              { href: '#como-funciona', label: 'Cómo funciona' },
+              { href: '#automatizacion', label: 'Automatización' },
+              { href: '#plantillas', label: 'Plantillas' },
+            ]}
+          />
+          <FooterCol
+            title="CUENTA"
+            links={[
+              { href: '/register', label: 'Empieza gratis' },
+              { href: '/login', label: 'Iniciar sesión' },
+            ]}
+          />
+          <FooterCol
+            title="LEGAL"
+            links={[
+              { href: '/terminos', label: 'Términos' },
+              { href: '/privacidad', label: 'Privacidad' },
+              { href: '/contacto', label: 'Contacto' },
+            ]}
+          />
+        </div>
+
+        <div className="mx-auto max-w-[1200px] px-6 pb-11 md:px-12">
+          <div className="flex flex-col justify-between gap-3 border-t border-[#e8e5df] pt-6 sm:flex-row">
+            <p className="text-[12.5px] text-slate-500">
+              © 2026 SA&amp;VE Comercial, S.R.L. · RNC 132-28618-9 · savedocumentos.com
             </p>
-          </div>
-
-          <div className="footer-col">
-            <span className="footer-col-title">Legal</span>
-            <a href="#">Política de Privacidad</a>
-            <a href="#">Términos de Servicio</a>
-            <a href="#">Política de Cookies</a>
-          </div>
-
-          <div className="footer-col">
-            <span className="footer-col-title">Contacto</span>
-            <a href="#">LinkedIn</a>
-            <a href="#">Twitter</a>
-            <a href="#">Facebook</a>
+            <p className="text-[12.5px] text-slate-500">Santo Domingo, República Dominicana</p>
           </div>
         </div>
       </footer>
-    </>
+    </div>
+  )
+}
+
+/* ─────────────────────── piezas reutilizadas ─────────────────────── */
+
+function SectionHead({
+  eyebrow,
+  title,
+  body,
+}: {
+  eyebrow: string
+  title: string
+  body?: string
+}) {
+  return (
+    <div className="mx-auto mb-14 flex max-w-[660px] flex-col gap-4 text-center">
+      <span className="text-xs font-extrabold tracking-[0.14em] text-[#8E6D29]">{eyebrow}</span>
+      <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-balance text-[#0D2C24] md:text-[42px]">
+        {title}
+      </h2>
+      {body && <p className="text-[17px] leading-relaxed text-slate-600">{body}</p>}
+    </div>
+  )
+}
+
+function FooterCol({
+  title,
+  links,
+}: {
+  title: string
+  links: { href: string; label: string }[]
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="text-xs font-extrabold tracking-wider text-[#0D2C24]">{title}</span>
+      {links.map((l) =>
+        l.href.startsWith('#') ? (
+          <a
+            key={l.href}
+            href={l.href}
+            className="text-[13.5px] text-slate-500 transition-colors hover:text-[#0D2C24]"
+          >
+            {l.label}
+          </a>
+        ) : (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="text-[13.5px] text-slate-500 transition-colors hover:text-[#0D2C24]"
+          >
+            {l.label}
+          </Link>
+        )
+      )}
+    </div>
+  )
+}
+
+function SkeletonLines({ widths }: { widths: string[] }) {
+  return (
+    <div className="flex flex-col gap-[7px]">
+      {widths.map((w, i) => (
+        <div
+          key={i}
+          className="h-[7px] rounded-full bg-[#eef1ee]"
+          style={{ width: w }}
+          aria-hidden
+        />
+      ))}
+    </div>
+  )
+}
+
+/** Una línea del contrato: primero la variable sin rellenar, luego el dato real. */
+function VariableRow({
+  placeholder,
+  value,
+  delay = 0,
+  check = false,
+}: {
+  placeholder: string
+  value: string
+  delay?: number
+  check?: boolean
+}) {
+  const style = delay ? { animationDelay: `${delay}s` } : undefined
+
+  return (
+    <div className="relative h-[26px]">
+      <span
+        className="save-ghost absolute inset-0 flex items-center rounded-[7px] border border-dashed border-slate-300 bg-slate-50 px-2.5 font-mono text-xs text-slate-500"
+        style={style}
+      >
+        {placeholder}
+      </span>
+      <span
+        className="save-chip absolute inset-0 flex items-center gap-1.5 rounded-[7px] bg-[#c8eadd] px-2.5 text-[13px] font-semibold text-[#0D2C24]"
+        style={style}
+      >
+        {value}
+        {check && <CheckCheck size={12} strokeWidth={2.4} />}
+      </span>
+    </div>
   )
 }

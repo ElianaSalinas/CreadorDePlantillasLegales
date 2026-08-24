@@ -84,3 +84,70 @@
 .text-save-dark {
   color: #1A1A1A;
 }
+
+/* SAVE — animación del héroe de la Welcome Page */
+/* La hoja cae, se asienta, las variables se rellenan solas, la hoja gira
+   y se encoge, y aparece el sello SAVE. Ciclo de 14s; todas las piezas
+   comparten esa duración para no desincronizarse nunca. */
+
+@keyframes save-sheet-cycle {
+  0%   { transform: translateY(-56px) rotate(-4deg) scale(0.94); opacity: 0; }
+  7%   { transform: translateY(0) rotate(-1.2deg) scale(1); opacity: 1; }
+  46%  { transform: translateY(0) rotate(-1.2deg) scale(1); opacity: 1; }
+  58%  { transform: translateY(-6px) rotate(4deg) scale(0.99); opacity: 1; }
+  70%  { transform: translateY(-10px) rotate(-2deg) scale(0.82); opacity: 0.16; }
+  88%  { transform: translateY(-10px) rotate(-2deg) scale(0.82); opacity: 0.16; }
+  100% { transform: translateY(-56px) rotate(-4deg) scale(0.94); opacity: 0; }
+}
+
+@keyframes save-chip-fill {
+  0%, 16%   { opacity: 0; transform: translateX(-6px); }
+  21%       { opacity: 1; transform: translateX(0); }
+  52%       { opacity: 1; transform: translateX(0); }
+  62%, 100% { opacity: 0; transform: translateX(0); }
+}
+
+@keyframes save-chip-ghost {
+  0%, 12% { opacity: 1; }
+  15%     { opacity: 0; }
+  100%    { opacity: 0; }
+}
+
+@keyframes save-seal-in {
+  0%, 66%   { opacity: 0; transform: scale(0.72) rotate(-8deg); }
+  76%       { opacity: 1; transform: scale(1) rotate(0deg); }
+  88%       { opacity: 1; transform: scale(1) rotate(0deg); }
+  96%, 100% { opacity: 0; transform: scale(1.06) rotate(0deg); }
+}
+
+@keyframes save-export-in {
+  0%, 56%   { opacity: 0; transform: translateY(8px); }
+  64%       { opacity: 1; transform: translateY(0); }
+  88%       { opacity: 1; transform: translateY(0); }
+  94%, 100% { opacity: 0; transform: translateY(0); }
+}
+
+.save-sheet  { animation: save-sheet-cycle 14s cubic-bezier(0.22, 1, 0.36, 1) infinite; transform-origin: 50% 40%; }
+.save-chip   { animation: save-chip-fill 14s ease-in-out infinite; }
+.save-ghost  { animation: save-chip-ghost 14s ease-in-out infinite; }
+.save-seal   { animation: save-seal-in 14s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+.save-export { animation: save-export-in 14s ease-out infinite; }
+
+/* Quien tenga las animaciones desactivadas en su sistema ve la hoja quieta
+   y ya rellena, sin el sello encima tapándola. */
+@media (prefers-reduced-motion: reduce) {
+  .save-sheet,
+  .save-chip,
+  .save-ghost,
+  .save-seal,
+  .save-export {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .save-ghost,
+  .save-seal {
+    display: none;
+  }
+}
