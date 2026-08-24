@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FileText, FileSignature, Archive, Building2, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, FileText, FileSignature, Scale, Archive, Building2, ShieldCheck } from 'lucide-react'
 
 const BASE_LINKS = [
   { href: '/app/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
   { href: '/app/templates', label: 'Plantillas', Icon: FileText },
   { href: '/app/documents', label: 'Documentos', Icon: FileSignature },
+  { href: '/app/clauses', label: 'Cláusulas', Icon: Scale },
   { href: '/app/vault', label: 'Bóveda', Icon: Archive },
   { href: '/app/settings', label: 'Mi Despacho', Icon: Building2 },
 ]

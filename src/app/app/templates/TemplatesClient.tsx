@@ -162,16 +162,12 @@ export default function TemplatesClient({
                   </button>
                 ) : (
                   <>
-                    <button
-                      onClick={() => {
-                        setEditing(row)
-                        setCreating(false)
-                        setError(null)
-                      }}
+                    <Link
+                      href={`/app/templates/${row.id}/edit`}
                       className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                     >
                       <Pencil size={15} /> Editar
-                    </button>
+                    </Link>
                     <button
                       onClick={() => handleDelete(row)}
                       disabled={pending}
