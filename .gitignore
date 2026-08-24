@@ -9,3 +9,5 @@ coverage/
 .next/
 # Salida temporal de npm run verify:engine
 .tmp-verify/
+.tmp-catalog/
+_to_delete/

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "verify:engine": "tsc scripts/verify-engine.ts --outDir .tmp-verify --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-verify/scripts/verify-engine.js"
+    "verify:engine": "tsc scripts/verify-engine.ts --outDir .tmp-verify --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-verify/scripts/verify-engine.js",
+    "catalog:build": "tsc scripts/generate-catalog.ts --outDir .tmp-catalog --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-catalog/scripts/generate-catalog.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
