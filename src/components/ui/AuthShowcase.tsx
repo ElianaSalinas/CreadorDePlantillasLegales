@@ -30,7 +30,7 @@ export default function AuthShowcase() {
             <div className="flex flex-col gap-3 pt-4">
               <Lines widths={['100%', '84%']} />
               <Row placeholder="{{ arrendatario_nombre }}" value="María Fernández Peralta" />
-              <Row placeholder="{{ cedula }}" value="001-1847362-4" delay={0.5} check />
+              <Row placeholder="{{ cedula }}" value="001-1847362-8" delay={0.5} check />
               <Lines widths={['96%', '72%']} />
               <Row placeholder="{{ monto_mensual }}" value="RD$ 32,000.00 mensuales" delay={1} />
               <Lines widths={['90%', '58%']} />

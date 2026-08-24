@@ -317,7 +317,7 @@ export default function HomePage() {
                   placeholder="{{ arrendatario_nombre }}"
                   value="María Fernández Peralta"
                 />
-                <VariableRow placeholder="{{ cedula }}" value="001-1847362-4" delay={0.5} check />
+                <VariableRow placeholder="{{ cedula }}" value="001-1847362-8" delay={0.5} check />
 
                 <SkeletonLines widths={['96%', '72%']} />
 

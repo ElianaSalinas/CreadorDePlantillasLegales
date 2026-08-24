@@ -7,3 +7,5 @@ coverage/
 .env*
 !.env.example
 .next/
+# Salida temporal de npm run verify:engine
+.tmp-verify/
