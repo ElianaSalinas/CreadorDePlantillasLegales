@@ -60,33 +60,54 @@ export async function requireSession() {
     redirect('/login?message=' + encodeURIComponent('Tu cuenta está desactivada. Contacta al administrador.'))
   }
 
-  // Organización propia (owner) o aquella en la que es miembro.
-  const { data: ownedOrg } = await supabase
-    .from('organizations')
-    .select('*')
-    .eq('owner_id', user.id)
-    .maybeSingle<Organization>()
-
-  let org: Organization | null = ownedOrg ?? null
-  let memberRole: 'OWNER' | 'PARALEGAL' | 'ASSISTANT' | null = ownedOrg ? 'OWNER' : null
-  let storedPermissions: unknown = null
-
-  if (!org) {
-    const { data: membership } = await supabase
-      .from('org_members')
-      .select('role, permissions, organizations(*)')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle<{
+  // Qué despacho es el activo.
+  //
+  // El trigger handle_new_user le crea un espacio propio a TODO el que
+  // se registra, así que un paralegal siempre tendrá uno. Si además lo
+  // invitaron a un despacho ajeno, es ese el que tiene que ver: de lo
+  // contrario entraría a su espacio vacío y no vería ni un caso del
+  // despacho al que pertenece.
+  //
+  // Regla: gana el despacho del que NO eres dueño. El titular de un
+  // despacho solo es miembro del suyo, así que para él no cambia nada.
+  //
+  // Pendiente de la Fase 1: un selector para quien pertenezca a más de
+  // un despacho. Hasta entonces se elige el más antiguo, que es estable
+  // entre peticiones.
+  const { data: memberships } = await supabase
+    .from('org_members')
+    .select('role, permissions, created_at, organizations(*)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: true })
+    .returns<
+      Array<{
         role: 'OWNER' | 'PARALEGAL' | 'ASSISTANT'
         permissions: unknown
-        organizations: Organization
-      }>()
+        created_at: string
+        organizations: Organization | null
+      }>
+    >()
 
-    if (membership?.organizations) {
-      org = membership.organizations
-      memberRole = membership.role
-      storedPermissions = membership.permissions
+  const conOrg = (memberships ?? []).filter((m) => m.organizations)
+  const elegida =
+    conOrg.find((m) => m.organizations!.owner_id !== user.id) ?? conOrg[0] ?? null
+
+  let org: Organization | null = elegida?.organizations ?? null
+  let memberRole: 'OWNER' | 'PARALEGAL' | 'ASSISTANT' | null = elegida?.role ?? null
+  let storedPermissions: unknown = elegida?.permissions ?? null
+
+  // Red de seguridad: si por lo que sea no hay fila en org_members pero
+  // sí es dueño de un despacho, no lo dejamos sin espacio de trabajo.
+  if (!org) {
+    const { data: ownedOrg } = await supabase
+      .from('organizations')
+      .select('*')
+      .eq('owner_id', user.id)
+      .maybeSingle<Organization>()
+
+    if (ownedOrg) {
+      org = ownedOrg
+      memberRole = 'OWNER'
     }
   }
 

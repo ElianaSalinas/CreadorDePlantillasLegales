@@ -146,13 +146,55 @@ export async function addMember(formData: FormData): Promise<SettingsResult> {
 
   if (target.id === user.id) return { ok: false, error: 'Ya eres el titular de este despacho.' }
 
-  const { data: already } = await admin
+  // El trigger handle_new_user le crea un espacio propio a TODO el que se
+  // registra. La comprobación anterior rechazaba a cualquiera que tuviera
+  // ALGUNA fila en org_members, así que se cumplía siempre y no se podía
+  // añadir a nadie, nunca. Ahora hay que distinguir tres casos.
+  const { data: memberships } = await admin
     .from('org_members')
-    .select('id')
+    .select('id, org_id, organizations(id, owner_id, is_firm, name)')
     .eq('user_id', target.id)
-    .maybeSingle()
+    .returns<
+      Array<{
+        id: string
+        org_id: string
+        organizations: { id: string; owner_id: string; is_firm: boolean; name: string } | null
+      }>
+    >()
 
-  if (already) return { ok: false, error: 'Esa persona ya pertenece a un despacho.' }
+  const filas = memberships ?? []
+
+  // 1. Ya está en este despacho.
+  if (filas.some((m) => m.org_id === org.id)) {
+    return { ok: false, error: `${email} ya forma parte de tu despacho.` }
+  }
+
+  // 2. Pertenece al despacho de otra persona, o dirige uno propio.
+  //    Eso sí es motivo para no dejar añadirla.
+  const ajeno = filas.find(
+    (m) => m.organizations && m.organizations.owner_id !== target.id
+  )
+  if (ajeno) {
+    return {
+      ok: false,
+      error: `${email} ya pertenece a otro despacho. Debe salir de él antes de unirse al tuyo.`,
+    }
+  }
+
+  const despachoPropio = filas.find(
+    (m) => m.organizations && m.organizations.owner_id === target.id && m.organizations.is_firm
+  )
+  if (despachoPropio) {
+    return {
+      ok: false,
+      error: `${email} dirige su propio despacho («${despachoPropio.organizations!.name}»). No puede ser miembro del tuyo.`,
+    }
+  }
+
+  // 3. Solo tiene el espacio personal que el sistema le creó al
+  //    registrarse. Ese no estorba: se queda donde está y, a partir de
+  //    ahora, al entrar verá tu despacho (ver la regla de despacho activo
+  //    en src/lib/session.ts).
 
   const { count: before } = await admin
     .from('org_members')
