@@ -40,14 +40,14 @@ export async function uploadToVault(formData: FormData): Promise<VaultResult> {
   }
 
   if (file.size > MAX_BYTES) {
-    return { ok: false, error: 'El archivo supera el lÃ­mite de 25 MB.' }
+    return { ok: false, error: 'El archivo supera el límite de 25 MB.' }
   }
 
   if (file.type && !ALLOWED.has(file.type)) {
     return { ok: false, error: 'Solo se aceptan archivos PDF o Word (.doc, .docx).' }
   }
 
-  // LÃ­mite de la bÃ³veda (30 por defecto segÃºn el PRD).
+  // Límite de la bóveda (30 por defecto según el PRD).
   const { data: existing, error: listError } = await supabase.storage
     .from(VAULT_BUCKET)
     .list(org.id, { limit: 1000 })
@@ -58,7 +58,7 @@ export async function uploadToVault(formData: FormData): Promise<VaultResult> {
   if (used >= org.vault_limit) {
     return {
       ok: false,
-      error: `Tu bÃ³veda estÃ¡ llena (${used}/${org.vault_limit}). Elimina un documento o solicita ampliar el lÃ­mite.`,
+      error: `Tu bóveda está llena (${used}/${org.vault_limit}). Elimina un documento o solicita ampliar el límite.`,
     }
   }
 
@@ -79,7 +79,7 @@ export async function uploadToVault(formData: FormData): Promise<VaultResult> {
     orgId: org.id,
     userId: user.id,
     action: 'VAULT_UPLOAD',
-    description: `Documento subido a la bÃ³veda: ${file.name}`,
+    description: `Documento subido a la bóveda: ${file.name}`,
   })
 
   revalidatePath('/app/vault')
@@ -126,7 +126,7 @@ export async function deleteFromVault(path: string): Promise<VaultResult> {
     orgId: org.id,
     userId: user.id,
     action: 'VAULT_DELETE',
-    description: `Documento eliminado de la bÃ³veda: ${path.split('__').slice(1).join('__')}`,
+    description: `Documento eliminado de la bóveda: ${path.split('__').slice(1).join('__')}`,
   })
 
   revalidatePath('/app/vault')

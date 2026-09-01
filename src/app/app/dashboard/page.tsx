@@ -45,14 +45,14 @@ export default async function DashboardPage() {
             Privilegios de Super Administrador
           </h2>
           <p className="mb-3 text-sm text-amber-700 dark:text-amber-400">
-            Puedes gestionar las cuentas de toda la plataforma, ajustar los lÃ­mites de cada despacho
+            Puedes gestionar las cuentas de toda la plataforma, ajustar los límites de cada despacho
             y publicar plantillas maestras.
           </p>
           <Link
             href="/app/admin"
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-800 hover:underline dark:text-amber-400"
           >
-            Ir al panel de administraciÃ³n <ArrowRight size={15} />
+            Ir al panel de administración <ArrowRight size={15} />
           </Link>
         </div>
       )}
@@ -63,12 +63,12 @@ export default async function DashboardPage() {
           icon={<FileText size={18} />}
           label="Plantillas del despacho"
           value={`${templateCount}`}
-          detail={`LÃ­mite gratuito: ${org?.free_limit ?? 10}`}
+          detail={`Límite gratuito: ${org?.free_limit ?? 10}`}
         />
         <StatCard
           href="/app/vault"
           icon={<Archive size={18} />}
-          label="Tu bÃ³veda"
+          label="Tu bóveda"
           value={`${vaultCount} / ${org?.vault_limit ?? 30}`}
           detail="Documentos almacenados"
         />
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
           icon={<Users size={18} />}
           label={org?.is_firm ? 'Miembros del despacho' : 'Modo de trabajo'}
           value={org?.is_firm ? `${memberCount}` : 'Individual'}
-          detail={org?.is_firm ? 'Usuarios activos' : 'ActÃ­valo si trabajas con equipo'}
+          detail={org?.is_firm ? 'Usuarios activos' : 'Actívalo si trabajas con equipo'}
         />
       </div>
     </div>

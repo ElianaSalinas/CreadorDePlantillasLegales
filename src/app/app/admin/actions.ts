@@ -12,7 +12,7 @@ const ADMIN_ROLES = ['SUPER_ADMIN', 'CONTENT', 'FINANCE'] as const
 const MISSING_KEY =
   'Falta configurar SUPABASE_SERVICE_ROLE_KEY en las Variables de Railway. Sin esa llave el panel no puede modificar cuentas.'
 
-/** Toda acciÃ³n de este panel pasa por aquÃ­: verifica que quien llama es admin de SA&VE. */
+/** Toda acción de este panel pasa por aquí: verifica que quien llama es admin de SA&VE. */
 async function requireAdmin() {
   const session = await requireSession()
   if (!session.isAdmin) {
@@ -126,7 +126,7 @@ export async function setAdminRole(userId: string, role: string | null): Promise
       if (error) return { ok: false, error: error.message }
     } else {
       if (!ADMIN_ROLES.includes(role as any)) {
-        return { ok: false, error: 'Rol de administrador no vÃ¡lido.' }
+        return { ok: false, error: 'Rol de administrador no válido.' }
       }
       const { error } = await admin
         .from('save_admins')
@@ -150,7 +150,7 @@ export async function setAdminRole(userId: string, role: string | null): Promise
   }
 }
 
-/* ---------------- LÃ­mites de la organizaciÃ³n ---------------- */
+/* ---------------- Límites de la organización ---------------- */
 
 export async function updateOrgLimits(
   orgId: string,
@@ -167,10 +167,10 @@ export async function updateOrgLimits(
     const seat_price_dop = Number(formData.get('seat_price_dop'))
 
     if (!Number.isFinite(free_limit) || free_limit < 0) {
-      return { ok: false, error: 'El lÃ­mite de plantillas debe ser un nÃºmero vÃ¡lido.' }
+      return { ok: false, error: 'El límite de plantillas debe ser un número válido.' }
     }
     if (!Number.isFinite(vault_limit) || vault_limit < 0) {
-      return { ok: false, error: 'El lÃ­mite de bÃ³veda debe ser un nÃºmero vÃ¡lido.' }
+      return { ok: false, error: 'El límite de bóveda debe ser un número válido.' }
     }
     if (!Number.isFinite(included_members) || included_members < 0) {
       return { ok: false, error: 'Los miembros incluidos deben ser un número válido.' }
@@ -179,7 +179,7 @@ export async function updateOrgLimits(
       return { ok: false, error: 'El precio por miembro debe ser un número válido.' }
     }
     if (!['FREE', 'PREMIUM', 'BUSINESS', 'CANCELLED'].includes(sub_status)) {
-      return { ok: false, error: 'Estado de suscripciÃ³n no vÃ¡lido.' }
+      return { ok: false, error: 'Estado de suscripción no válido.' }
     }
 
     const { error } = await admin
@@ -194,12 +194,12 @@ export async function updateOrgLimits(
         orgId: org.id,
         userId: user.id,
         action: 'ADMIN_LIMITS_UPDATED',
-        description: `Despacho ${orgId}: ${sub_status}, plantillas ${free_limit}, bÃ³veda ${vault_limit}`,
+        description: `Despacho ${orgId}: ${sub_status}, plantillas ${free_limit}, bóveda ${vault_limit}`,
       })
     }
 
     revalidatePath('/app/admin')
-    return { ok: true, notice: 'LÃ­mites actualizados.' }
+    return { ok: true, notice: 'Límites actualizados.' }
   } catch (err) {
     return wrap(err)
   }

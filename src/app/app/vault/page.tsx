@@ -20,7 +20,7 @@ export default async function VaultPage() {
       listError = error.message
     } else {
       files = (data ?? [])
-        // Supabase devuelve un placeholder con id null para carpetas vacÃ­as.
+        // Supabase devuelve un placeholder con id null para carpetas vacías.
         .filter((f) => f.id !== null)
         .map((f) => ({
           path: `${org.id}/${f.name}`,
@@ -34,14 +34,14 @@ export default async function VaultPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader
-        title="BÃ³veda"
+        title="Bóveda"
         subtitle="Tus documentos finales, guardados de forma privada y accesibles solo para tu despacho."
       />
 
       {listError && (
         <p className="mb-4 rounded-lg bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-          No se pudo leer la bÃ³veda: {listError}. Si es la primera vez, verifica que la migraciÃ³n{' '}
-          <code>20260822000001_vault_storage_bucket.sql</code> ya se ejecutÃ³ en Supabase.
+          No se pudo leer la bóveda: {listError}. Si es la primera vez, verifica que la migración{' '}
+          <code>20260822000001_vault_storage_bucket.sql</code> ya se ejecutó en Supabase.
         </p>
       )}
 

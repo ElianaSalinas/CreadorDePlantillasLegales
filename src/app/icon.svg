@@ -1,5 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#059669"/>
-  <text x="16" y="22" font-family="Georgia, serif" font-size="19" font-weight="700"
-        fill="#ffffff" text-anchor="middle">S</text>
+  <!--
+    Fondo transparente a propósito: sin rectángulo no hay esquinas
+    blancas en la pestaña, ni en modo claro ni en oscuro.
+    El verde de marca se aclara en oscuro porque a 16px queda apagado.
+    Si un navegador no entiende la media query, se queda con el verde
+    base, que también se lee sobre fondo oscuro.
+  -->
+  <style>
+    .marca { fill: #059669; }
+    @media (prefers-color-scheme: dark) {
+      .marca { fill: #34d399; }
+    }
+  </style>
+  <text class="marca" x="16" y="25" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700">S</text>
 </svg>
