@@ -15,6 +15,18 @@
 # funcionan.
 # ============================================================
 
+param(
+  # PropioDominio  el enlace va a savedocumentos.com/auth/confirm?token_hash=...
+  #                El usuario solo toca tu dominio; quien habla con Supabase
+  #                es tu servidor. Es lo recomendable aqui: hay proveedores
+  #                dominicanos que no resuelven *.supabase.co.
+  # Supabase       el enlace va a supabase.co/auth/v1/verify y de ahi rebota.
+  #                Mas estandar, pero obliga al navegador del usuario a
+  #                resolver supabase.co.
+  [ValidateSet("PropioDominio","Supabase")]
+  [string]$Enlace = "PropioDominio"
+)
+
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $proyecto = "fzuojuoopngcqrdozvpw"
@@ -31,10 +43,26 @@ SAVE Documentos &middot; SA&amp;VE Comercial, S.R.L. &middot; Punta Cana, Rep&ua
 </p>
 "@
 
+$hrefConfirmar = if ($Enlace -eq "PropioDominio") {
+  '{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=signup'
+} else { '{{ .ConfirmationURL }}' }
+
+$hrefRecuperar = if ($Enlace -eq "PropioDominio") {
+  '{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=recovery'
+} else { '{{ .ConfirmationURL }}' }
+
+Write-Host ""
+Write-Host ("Modo de enlace: $Enlace") -ForegroundColor Cyan
+if ($Enlace -eq "PropioDominio") {
+  Write-Host "  Los enlaces apuntaran a savedocumentos.com" -ForegroundColor DarkGray
+} else {
+  Write-Host "  Los enlaces pasaran por supabase.co" -ForegroundColor DarkGray
+}
+
 $confirmacion = @"
 <h2>Confirma tu cuenta en SAVE Documentos</h2>
 <p>Ya casi est&aacute;. Haz clic para verificar tu correo y entrar:</p>
-<p><a href="{{ .ConfirmationURL }}"
+<p><a href="$hrefConfirmar"
    style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Verificar mi cuenta</a></p>
 <p style="color:#6b7280;font-size:13px">Si no creaste esta cuenta, ignora este mensaje.</p>
 $pie
@@ -43,7 +71,7 @@ $pie
 $recuperacion = @"
 <h2>Restablece tu contrase&ntilde;a</h2>
 <p>Haz clic para elegir una nueva contrase&ntilde;a:</p>
-<p><a href="{{ .ConfirmationURL }}"
+<p><a href="$hrefRecuperar"
    style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Cambiar mi contrase&ntilde;a</a></p>
 <p style="color:#6b7280;font-size:13px">Si no lo pediste t&uacute;, ignora este mensaje: tu contrase&ntilde;a no cambiar&aacute;.</p>
 $pie
@@ -117,8 +145,9 @@ foreach ($par in @(
     @("confirmacion", $cfg.mailer_templates_confirmation_content),
     @("recuperacion", $cfg.mailer_templates_recovery_content),
     @("invitacion",   $cfg.mailer_templates_invite_content))) {
-  if ($par[1] -like "*ConfirmationURL*" -and $par[1] -like "*SAVE Documentos*") {
-    Write-Host ("  {0,-14} en espanol y usando ConfirmationURL" -f $par[0]) -ForegroundColor Green
+  $esperado = if ($Enlace -eq "PropioDominio" -and $par[0] -ne "invitacion") { "auth/confirm" } else { "ConfirmationURL" }
+  if ($par[1] -like "*$esperado*" -and $par[1] -like "*SAVE Documentos*") {
+    Write-Host ("  {0,-14} en espanol, enlace via $esperado" -f $par[0]) -ForegroundColor Green
   } else {
     Write-Host ("  {0,-14} NO quedo bien" -f $par[0]) -ForegroundColor Red
     $ok = $false
