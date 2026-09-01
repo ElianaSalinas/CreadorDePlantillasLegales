@@ -6,21 +6,26 @@ import { getSiteUrl } from '@/lib/siteUrl'
 /**
  * Aterrizaje de los enlaces que Supabase envía por correo.
  *
- * Las plantillas de correo deben apuntar aquí con el token:
- *   {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup
+ * Acepta las DOS formas que puede tomar un enlace, a propósito:
  *
- * Aquí se canjea ese token por una sesión real y se redirige a destino.
+ *   1. ?code=...                        cuando la plantilla usa
+ *                                       {{ .ConfirmationURL }}, que es lo
+ *                                       recomendado: Supabase verifica en
+ *                                       su servidor y nos manda aquí con
+ *                                       un código que se canjea.
+ *
+ *   2. ?token_hash=...&type=signup      cuando la plantilla arma la URL a
+ *                                       mano con {{ .TokenHash }}.
+ *
+ * Soportar las dos evita que un cambio de plantilla rompa el registro, y
+ * cubre los correos que ya estén en el buzón de alguien cuando se cambie.
  */
 
 /**
  * Lee un parámetro tolerando que el enlace llegue con las entidades HTML
- * sin decodificar.
- *
- * Cuando un cliente de correo no decodifica el &amp; del href, la URL
- * acaba con "?token_hash=X&amp;type=signup" y entonces el parámetro no se
- * llama "type" sino "amp;type". El usuario ve "el enlace no es válido" y
- * no hay forma de que adivine por qué. Aceptar las dos grafías cuesta una
- * línea y evita ese callejón.
+ * sin decodificar. Si un cliente de correo no convierte el &amp; del href,
+ * la URL acaba con "?code=X&amp;type=signup" y el parámetro pasa a
+ * llamarse "amp;type". Aceptar las dos grafías cuesta una línea.
  */
 function leerParam(sp: URLSearchParams, nombre: string): string | null {
   return sp.get(nombre) ?? sp.get(`amp;${nombre}`)
@@ -30,10 +35,27 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
 
   // El origin de request.url es la dirección interna del contenedor
-  // (0.0.0.0:3000) cuando se está detrás del proxy de Railway, así que
-  // los redirects acababan en una dirección a la que no se puede llegar.
+  // (0.0.0.0:3000) detrás del proxy de Railway, así que los redirects
+  // acababan en una dirección inalcanzable.
   const base = await getSiteUrl()
 
+  const irALogin = (mensaje: string) =>
+    NextResponse.redirect(`${base}/login?message=${encodeURIComponent(mensaje)}`)
+
+  // Supabase puede devolver el error en la propia URL, por ejemplo cuando
+  // el enlace caducó antes de abrirlo.
+  const errorUrl = leerParam(searchParams, 'error_description') ?? leerParam(searchParams, 'error')
+  if (errorUrl) {
+    console.error('[auth/confirm] Supabase devolvió error en la URL:', errorUrl)
+    const caducado = /expired|invalid/i.test(errorUrl)
+    return irALogin(
+      caducado
+        ? 'El enlace expiró o ya fue usado. Solicita uno nuevo.'
+        : 'No se pudo validar el enlace del correo.'
+    )
+  }
+
+  const code = leerParam(searchParams, 'code')
   const token_hash = leerParam(searchParams, 'token_hash')
   const type = leerParam(searchParams, 'type') as EmailOtpType | null
   const next = leerParam(searchParams, 'next')
@@ -42,31 +64,36 @@ export async function GET(request: NextRequest) {
   // rebote al usuario hacia un dominio ajeno.
   const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null
 
-  if (!token_hash || !type) {
-    // Sin el token no hay nada que canjear. Se deja constancia de qué
-    // llegó -sin el valor del token- para poder diagnosticarlo desde los
-    // logs en vez de adivinando.
+  const supabase = await createClient()
+  let fallo: string | null = null
+
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    fallo = error?.message ?? null
+  } else if (token_hash && type) {
+    const { error } = await supabase.auth.verifyOtp({ type, token_hash })
+    fallo = error?.message ?? null
+  } else {
+    // Sin código ni token no hay nada que canjear. Se deja constancia de
+    // qué llegó -sin valores- para poder diagnosticarlo desde los logs.
     console.error(
       '[auth/confirm] enlace incompleto. Parámetros recibidos:',
-      [...searchParams.keys()].join(', ') || '(ninguno)',
-      '| token_hash presente:', Boolean(token_hash),
-      '| type:', type ?? '(ausente)'
+      [...searchParams.keys()].join(', ') || '(ninguno)'
     )
-    return NextResponse.redirect(
-      `${base}/login?message=${encodeURIComponent('El enlace del correo no es válido.')}`
-    )
+    return irALogin('El enlace del correo no es válido.')
   }
 
-  const supabase = await createClient()
-  const { error } = await supabase.auth.verifyOtp({ type, token_hash })
-
-  if (error) {
-    console.error('[auth/confirm] verifyOtp falló:', error.message)
-    const reason =
-      error.message.toLowerCase().includes('expired') || error.message.includes('403')
+  if (fallo) {
+    console.error('[auth/confirm] no se pudo canjear el enlace:', fallo)
+    const caducado =
+      fallo.toLowerCase().includes('expired') ||
+      fallo.toLowerCase().includes('invalid') ||
+      fallo.includes('403')
+    return irALogin(
+      caducado
         ? 'El enlace expiró o ya fue usado. Solicita uno nuevo.'
         : 'No se pudo validar el enlace del correo.'
-    return NextResponse.redirect(`${base}/login?message=${encodeURIComponent(reason)}`)
+    )
   }
 
   if (safeNext) {
