@@ -11,7 +11,7 @@ import {
   removeMember,
   type SettingsResult,
 } from './actions'
-import { MEMBER_ROLE_LABEL } from '@/lib/labels'
+import { MEMBER_ROLE_LABEL, PROF_ROLE_OPTIONS } from '@/lib/labels'
 import {
   BUSINESS_BASE_DOP,
   formatDOP,
@@ -206,10 +206,10 @@ function ProfileForm({ profile }: { profile: any }) {
           <input name="phone" type="tel" placeholder="809-000-0000" defaultValue={profile?.phone ?? ''} className={inputClass} />
         </Field>
         <Field label="Perfil profesional">
-          <select name="prof_role" defaultValue={profile?.prof_role ?? 'ABOGADO'} className={inputClass}>
-            <option value="ABOGADO">Abogado</option>
-            <option value="NOTARIO">Notario</option>
-            <option value="AMBOS">Abogado y Notario</option>
+          <select name="prof_role" defaultValue={profile?.prof_role ?? 'INDEPENDIENTE'} className={inputClass}>
+            {PROF_ROLE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
           </select>
         </Field>
         <Field label="Matrícula CARD">

@@ -8,7 +8,7 @@ export type Profile = {
   first_name: string | null
   last_name: string | null
   phone: string | null
-  prof_role: 'ABOGADO' | 'NOTARIO' | 'AMBOS' | null
+  prof_role: 'ABOGADO' | 'NOTARIO' | 'AMBOS' | 'INDEPENDIENTE' | 'PARALEGAL' | null
   card_number: string | null
   is_verified: boolean
   is_active: boolean

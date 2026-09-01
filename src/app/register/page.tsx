@@ -2,6 +2,7 @@ import Link from 'next/link'
 import PasswordInput from '@/components/ui/PasswordInput'
 import AuthShowcase from '@/components/ui/AuthShowcase'
 import { register } from './actions'
+import { PROF_ROLE_OPTIONS } from '@/lib/labels'
 
 export const metadata = { title: 'Crear cuenta' }
 
@@ -68,30 +69,36 @@ export default async function RegisterPage({
             <PasswordInput autoComplete="new-password" hint="Mínimo 6 caracteres." />
 
             <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
-              <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                Perfil Profesional
+              <p className="mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                ¿Cómo trabajas?
               </p>
-              <div className="flex items-center gap-5">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="is_lawyer"
-                    className="rounded border-slate-300 bg-slate-100 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800"
-                  />
-                  <span className="text-sm text-slate-700 dark:text-slate-300">Abogado</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="is_notary"
-                    className="rounded border-slate-300 bg-slate-100 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800"
-                  />
-                  <span className="text-sm text-slate-700 dark:text-slate-300">Notario</span>
-                </label>
+              <p className="mb-3 text-xs text-slate-500">
+                Puedes cambiarlo después en Mi Despacho.
+              </p>
+              <div className="flex flex-col gap-1">
+                {PROF_ROLE_OPTIONS.map((o, i) => (
+                  <label
+                    key={o.value}
+                    className="flex cursor-pointer items-start gap-3 rounded-lg border border-transparent p-2.5 transition-colors hover:border-slate-200 hover:bg-slate-50 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 dark:hover:border-slate-700 dark:hover:bg-slate-800/50 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-900/20"
+                  >
+                    <input
+                      type="radio"
+                      name="prof_role"
+                      value={o.value}
+                      defaultChecked={i === 0}
+                      className="mt-0.5 border-slate-300 bg-slate-100 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800"
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                        {o.label}
+                      </span>
+                      <span className="block text-xs text-slate-500 dark:text-slate-400">
+                        {o.hint}
+                      </span>
+                    </span>
+                  </label>
+                ))}
               </div>
-              <p className="mt-2 text-xs text-slate-500">
-                Solo un abogado o notario puede sumar paralegales y asistentes a su despacho.
-              </p>
             </div>
 
             {params?.message && (
