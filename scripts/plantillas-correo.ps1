@@ -51,6 +51,13 @@ $hrefRecuperar = if ($Enlace -eq "PropioDominio") {
   '{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=recovery'
 } else { '{{ .ConfirmationURL }}' }
 
+# La invitacion lleva ademas next=/definir-password: es donde la persona
+# elige su contrasena. La membresia en el despacho ya se la dio el trigger
+# al crearse la cuenta, asi que ahi solo falta eso.
+$hrefInvitar = if ($Enlace -eq "PropioDominio") {
+  '{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=invite&amp;next=/definir-password'
+} else { '{{ .ConfirmationURL }}' }
+
 Write-Host ""
 Write-Host ("Modo de enlace: $Enlace") -ForegroundColor Cyan
 if ($Enlace -eq "PropioDominio") {
@@ -79,8 +86,9 @@ $pie
 
 $invitacion = @"
 <h2>Te han invitado a un despacho en SAVE Documentos</h2>
-<p>Haz clic para crear tu cuenta y unirte:</p>
-<p><a href="{{ .ConfirmationURL }}"
+<p>Haz clic para elegir tu contrase&ntilde;a y entrar. Tu cuenta es tuya:
+si alg&uacute;n d&iacute;a sales del despacho, la conservas.</p>
+<p><a href="$hrefInvitar"
    style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Aceptar la invitaci&oacute;n</a></p>
 <p style="color:#6b7280;font-size:13px">Si no esperabas esta invitaci&oacute;n, ignora este mensaje.</p>
 $pie
@@ -145,7 +153,7 @@ foreach ($par in @(
     @("confirmacion", $cfg.mailer_templates_confirmation_content),
     @("recuperacion", $cfg.mailer_templates_recovery_content),
     @("invitacion",   $cfg.mailer_templates_invite_content))) {
-  $esperado = if ($Enlace -eq "PropioDominio" -and $par[0] -ne "invitacion") { "auth/confirm" } else { "ConfirmationURL" }
+  $esperado = if ($Enlace -eq "PropioDominio") { "auth/confirm" } else { "ConfirmationURL" }
   if ($par[1] -like "*$esperado*" -and $par[1] -like "*SAVE Documentos*") {
     Write-Host ("  {0,-14} en espanol, enlace via $esperado" -f $par[0]) -ForegroundColor Green
   } else {

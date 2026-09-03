@@ -299,8 +299,11 @@ function OrgForm({
         </span>
       </label>
 
-      <div className="grid gap-4 text-sm sm:grid-cols-3">
-        <Stat label="Plan" value={PLAN_NAME[org.sub_status] ?? org.sub_status} />
+      {/* El plan es informacion de cobro y solo le incumbe al titular. Un
+          paralegal ve sus limites de trabajo, que si necesita conocer, pero
+          nada sobre lo que se paga ni quien lo paga. */}
+      <div className={`grid gap-4 text-sm ${isOwner ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
+        {isOwner && <Stat label="Plan" value={PLAN_NAME[org.sub_status] ?? org.sub_status} />}
         <Stat label="Límite de plantillas" value={String(org.free_limit)} />
         <Stat label="Límite de bóveda" value={String(org.vault_limit)} />
       </div>

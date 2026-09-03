@@ -6,6 +6,7 @@ import { createAdminClient, hasAdminCredentials } from '@/utils/supabase/admin'
 import { logAudit } from '@/lib/audit'
 import { planAllowsTeam, roleCanLeadTeam, seatMath, formatDOP } from '@/lib/billing'
 import { sanitizePermissions, PERMISSION_LIST } from '@/lib/permissions'
+import { getSiteUrl } from '@/lib/siteUrl'
 
 export type SettingsResult = { ok: boolean; error?: string; notice?: string }
 
@@ -137,10 +138,68 @@ export async function addMember(formData: FormData): Promise<SettingsResult> {
 
   if (lookupError) return { ok: false, error: lookupError.message }
 
+  // Todavía no tiene cuenta: se le invita. La invitación se guarda en la
+  // tabla invitaciones y el trigger handle_new_user la consume cuando la
+  // persona acepta y crea su contraseña. El despacho de destino sale de
+  // esa tabla, nunca de los metadatos del usuario: esos los controla
+  // quien llama a la API y serían una puerta para colarse en un despacho.
   if (!target) {
+    const { count: antesDeInvitar } = await admin
+      .from('org_members')
+      .select('id', { count: 'exact', head: true })
+      .eq('org_id', org.id)
+
+    const { data: yaInvitado } = await admin
+      .from('invitaciones')
+      .select('id, created_at')
+      .eq('org_id', org.id)
+      .eq('email', email)
+      .eq('estado', 'PENDIENTE')
+      .maybeSingle()
+
+    if (!yaInvitado) {
+      const { error: errInv } = await admin.from('invitaciones').insert({
+        org_id: org.id,
+        email,
+        role,
+        permissions: {},
+        invited_by: user.id,
+      })
+      if (errInv) return { ok: false, error: errInv.message }
+    }
+
+    const siteUrl = await getSiteUrl()
+    const { error: errCorreo } = await admin.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${siteUrl}/auth/confirm?next=/definir-password`,
+      data: {
+        // Solo para rellenar el perfil. El despacho NO viaja por aquí.
+        prof_role: 'PARALEGAL',
+        invitado_por: profile?.first_name ?? null,
+      },
+    })
+
+    if (errCorreo) {
+      // La invitación queda pendiente aunque el correo falle: si la
+      // persona se registra por su cuenta, igualmente entrará al despacho.
+      return {
+        ok: false,
+        error: `La invitación quedó registrada, pero no se pudo enviar el correo: ${errCorreo.message}`,
+      }
+    }
+
+    const cuenta = seatMath((antesDeInvitar ?? 1) + 1, org.included_members, org.seat_price_dop)
+
+    await logAudit(supabase, {
+      orgId: org.id,
+      userId: user.id,
+      action: 'MEMBER_INVITED',
+      description: `Invitación enviada a ${email} como ${role}.`,
+    })
+
+    revalidatePath('/app/settings')
     return {
-      ok: false,
-      error: `No existe ninguna cuenta con el correo ${email}. Pídele que se registre primero en savedocumentos.com/register y vuelve a añadirla.`,
+      ok: true,
+      notice: `Invitación enviada a ${email}. Cuando acepte y cree su contraseña entrará al despacho, y tu factura pasará a ${formatDOP(cuenta.total)}.`,
     }
   }
 
