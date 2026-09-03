@@ -22,7 +22,15 @@
 -- quedará en su propio espacio.
 -- ==========================================================
 
-CREATE TYPE invitacion_estado AS ENUM ('PENDIENTE', 'ACEPTADA', 'CANCELADA');
+-- Repetible a proposito: si esta migracion ya se aplico a medias, volver a
+-- lanzarla no debe estrellarse en la primera linea.
+DO $crear_tipo$
+BEGIN
+  CREATE TYPE invitacion_estado AS ENUM ('PENDIENTE', 'ACEPTADA', 'CANCELADA');
+EXCEPTION WHEN duplicate_object THEN
+  NULL;
+END
+$crear_tipo$;
 
 CREATE TABLE IF NOT EXISTS invitaciones (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -63,6 +71,11 @@ ALTER TABLE invitaciones ENABLE ROW LEVEL SECURITY;
 
 -- Solo el titular del despacho gestiona sus invitaciones. Nadie más
 -- puede insertar, que es lo que hace segura la consulta del trigger.
+DROP POLICY IF EXISTS "invitaciones_select" ON invitaciones;
+DROP POLICY IF EXISTS "invitaciones_insert" ON invitaciones;
+DROP POLICY IF EXISTS "invitaciones_update" ON invitaciones;
+DROP POLICY IF EXISTS "invitaciones_delete" ON invitaciones;
+
 CREATE POLICY "invitaciones_select" ON invitaciones FOR SELECT
   USING (
     public.is_save_admin(auth.uid())

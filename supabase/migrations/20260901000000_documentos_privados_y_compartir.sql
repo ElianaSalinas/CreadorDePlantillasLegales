@@ -124,6 +124,10 @@ ALTER TABLE document_shares ENABLE ROW LEVEL SECURITY;
 
 -- Ve los repartos quien puede repartir, y también la persona con quien se
 -- compartió: le sirve para saber por qué tiene acceso.
+DROP POLICY IF EXISTS "document_shares_select" ON document_shares;
+DROP POLICY IF EXISTS "document_shares_insert" ON document_shares;
+DROP POLICY IF EXISTS "document_shares_delete" ON document_shares;
+
 CREATE POLICY "document_shares_select" ON document_shares FOR SELECT
   USING (
     public.is_save_admin(auth.uid())
