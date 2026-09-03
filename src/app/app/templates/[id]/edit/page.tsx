@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function EditTemplatePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { supabase, org, isAdmin, permissions } = await requireSession()
+  const { supabase, org, isAdmin, esRevisor, permissions } = await requireSession()
 
   if (!permissions.templates) redirect('/app/templates')
 
@@ -23,9 +23,11 @@ export default async function EditTemplatePage({ params }: { params: Promise<{ i
 
   if (!meta) notFound()
 
-  // Una plantilla maestra solo la edita SA&VE; la del despacho, su despacho.
+  // Una plantilla maestra la edita SA&VE o la abogada que revisa el
+  // catálogo; la del despacho, su despacho.
   const owned = meta.org_id === org?.id
-  if (!owned && !isAdmin) redirect('/app/templates')
+  const revisandoCatalogo = meta.is_master === true && esRevisor
+  if (!owned && !isAdmin && !revisandoCatalogo) redirect('/app/templates')
 
   const bundle = await loadTemplateBundle(id)
   if (!bundle) notFound()

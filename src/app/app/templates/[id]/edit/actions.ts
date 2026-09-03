@@ -12,7 +12,15 @@ export type EditorResult = { ok: boolean; error?: string; notice?: string; id?: 
 
 const NO_PERMISSION = 'No tienes permiso para editar plantillas.'
 
-/** Solo el dueño de la plantilla —o un admin de SA&VE— puede tocarla. */
+/**
+ * Quién puede tocar esta plantilla: su despacho, un admin de SA&VE, o —si
+ * es del catálogo maestro— la abogada que lo revisa. Ese tercer caso es lo
+ * que hace posible la revisión legal sin repartir permisos de administrador.
+ *
+ * Las políticas de la base de datos dicen exactamente lo mismo. Esto es la
+ * primera puerta, no la única: si alguien se saltara la aplicación, la fila
+ * seguiría sin dejarse tocar.
+ */
 async function guard(templateId: string) {
   const session = await requireSession()
   if (!session.org) throw new Error('No tienes un espacio de trabajo asignado.')
@@ -27,7 +35,11 @@ async function guard(templateId: string) {
   if (!template) throw new Error('No se encontró la plantilla.')
 
   const owned = template.org_id === session.org.id
-  if (!owned && !session.isAdmin) throw new Error('Esta plantilla no es de tu despacho.')
+  const revisandoCatalogo = template.is_master === true && session.esRevisor
+
+  if (!owned && !session.isAdmin && !revisandoCatalogo) {
+    throw new Error('Esta plantilla no es de tu despacho.')
+  }
 
   return { ...session, template }
 }
@@ -313,7 +325,17 @@ export async function publishTemplate(templateId: string, versionNote: string): 
       .eq('id', templateId)
       .maybeSingle()
 
-    const report = checkTemplateQuality(bundle, meta ?? {})
+    // Publicar una plantilla maestra ES el acto de revisión legal: quien
+    // la publica la firma. Sin esto la revisión no arrancaría nunca —
+    // checkTemplateQuality bloquea por falta de firma, y la firma solo se
+    // ponía al publicar—, así que se cuenta como firmada desde ya y la
+    // comprobación se hace sobre esa versión.
+    const firma =
+      meta?.is_master && !meta?.reviewed_by
+        ? { reviewed_by: user.id, reviewed_at: new Date().toISOString() }
+        : null
+
+    const report = checkTemplateQuality(bundle, { ...(meta ?? {}), ...(firma ?? {}) })
 
     if (!report.canPublish) {
       const first = report.issues.find((i) => i.level === 'blocker')
@@ -339,7 +361,7 @@ export async function publishTemplate(templateId: string, versionNote: string): 
 
     const { error } = await supabase
       .from('templates')
-      .update({ status: 'PUBLISHED', version: nextVersion })
+      .update({ status: 'PUBLISHED', version: nextVersion, ...(firma ?? {}) })
       .eq('id', templateId)
 
     if (error) return { ok: false, error: error.message }

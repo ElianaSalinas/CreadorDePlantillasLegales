@@ -111,11 +111,23 @@ export async function requireSession() {
     }
   }
 
-  const { data: admin } = await supabase
-    .from('save_admins')
-    .select('id, admin_role')
-    .eq('id', user.id)
-    .maybeSingle<{ id: string; admin_role: string }>()
+  // Dos permisos que no dependen del despacho: administrar la plataforma
+  // y revisar el catálogo maestro. Son cosas distintas a propósito —
+  // revisar textos legales no debe traer consigo el panel de cuentas—
+  // así que se consultan por separado.
+  const [{ data: admin }, { data: revisor }] = await Promise.all([
+    supabase
+      .from('save_admins')
+      .select('id, admin_role')
+      .eq('id', user.id)
+      .maybeSingle<{ id: string; admin_role: string }>(),
+    supabase
+      .from('revisores_contenido')
+      .select('email')
+      .eq('user_id', user.id)
+      .eq('activo', true)
+      .maybeSingle<{ email: string }>(),
+  ])
 
   // El titular lo puede todo; el resto parte de su rol y encima se
   // aplica lo que el titular haya marcado a mano.
@@ -130,6 +142,7 @@ export async function requireSession() {
     permissions,
     isAdmin: Boolean(admin),
     adminRole: admin?.admin_role ?? null,
+    esRevisor: Boolean(revisor),
   }
 }
 

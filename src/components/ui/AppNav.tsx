@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FileText, FileSignature, Scale, Archive, Building2, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, FileText, FileSignature, Scale, Archive, Building2, ShieldCheck, BadgeCheck } from 'lucide-react'
 
 const BASE_LINKS = [
   { href: '/app/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
@@ -13,12 +13,24 @@ const BASE_LINKS = [
   { href: '/app/settings', label: 'Mi Despacho', Icon: Building2 },
 ]
 
-export default function AppNav({ isAdmin = false }: { isAdmin?: boolean }) {
+export default function AppNav({
+  isAdmin = false,
+  esRevisor = false,
+}: {
+  isAdmin?: boolean
+  esRevisor?: boolean
+}) {
   const pathname = usePathname()
 
-  const links = isAdmin
-    ? [...BASE_LINKS, { href: '/app/admin', label: 'Administración', Icon: ShieldCheck }]
-    : BASE_LINKS
+  // Revisar el catálogo y administrar la plataforma son permisos distintos.
+  // La abogada que revisa no tiene por qué ver el panel de cuentas.
+  const links = [
+    ...BASE_LINKS,
+    ...(esRevisor || isAdmin
+      ? [{ href: '/app/revision', label: 'Revisión', Icon: BadgeCheck }]
+      : []),
+    ...(isAdmin ? [{ href: '/app/admin', label: 'Administración', Icon: ShieldCheck }] : []),
+  ]
 
   return (
     <nav className="space-y-1">

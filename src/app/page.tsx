@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { contarCatalogoPublicado, fraseDelCatalogo } from '@/lib/catalogo'
 import {
   FileText,
   Braces,
@@ -185,7 +186,13 @@ const FAQ = [
   },
 ]
 
-export default function HomePage() {
+/* El número del catálogo se refresca cada cinco minutos. La portada sigue
+   sirviéndose cacheada: nadie espera a la base de datos para verla. */
+export const revalidate = 300
+
+export default async function HomePage() {
+  const { plantillas } = await contarCatalogoPublicado()
+
   return (
     <div className="w-full bg-[#fcf9f8] text-[#1A1A1A]">
       <script
@@ -498,7 +505,7 @@ export default function HomePage() {
           </div>
 
           <p className="mt-8 text-center text-sm text-slate-500">
-            [NÚMERO] plantillas listas desde el primer día, y las tuyas propias sin límite.
+            {fraseDelCatalogo(plantillas)}
           </p>
         </div>
       </section>

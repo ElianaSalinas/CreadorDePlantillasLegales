@@ -8,7 +8,7 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { profile, user, isAdmin, org } = await requireSession()
+  const { profile, user, isAdmin, esRevisor, org } = await requireSession()
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
@@ -47,7 +47,7 @@ export default async function AppLayout({
 
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hidden md:block">
-          <AppNav isAdmin={isAdmin} />
+          <AppNav isAdmin={isAdmin} esRevisor={esRevisor} />
         </aside>
 
         <main className="flex-1 overflow-y-auto p-8">{children}</main>
