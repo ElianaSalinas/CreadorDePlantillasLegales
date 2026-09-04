@@ -795,7 +795,22 @@ Lo que implica:
 - [ ] El botón Compartir solo aparece en los documentos privados
 - [ ] Rehacer la prueba de los tres perfiles sobre el modelo nuevo
 
-**Merece una conversación antes de escribirlo.** Los dos modelos son defendibles; lo que no conviene es alternar entre ellos. Y hay un matiz importante: **quien ya tiene documentos creados los verá cambiar de visibilidad el día del despliegue**. Conviene decidir si los existentes nacen privados o compartidos.
+**Decidido el 4 de septiembre: los documentos que ya existen nacen privados.**
+
+Es la opción correcta y conviene entender por qué. La migración que active el modelo nuevo tiene que poner `es_privado = true` en todo lo anterior, no dejarlo al valor por defecto:
+
+```sql
+ALTER TABLE documents ADD COLUMN es_privado BOOLEAN NOT NULL DEFAULT false;
+
+-- Lo que ya existía se creó bajo la promesa de que solo lo veía su autor.
+-- Cambiar esa promesa por sorpresa, con el despliegue, sería enseñar a
+-- todo el despacho documentos que nadie decidió compartir.
+UPDATE documents SET es_privado = true;
+```
+
+Es una línea, y sin ella el día del despliegue todo el despacho vería documentos que se escribieron creyendo que eran privados. De ahí en adelante, lo nuevo nace visible para el despacho y quien quiera lo marca como privado.
+
+Los dos modelos son defendibles; lo que no conviene es alternar entre ellos.
 
 ## BLOQUE 3 — SEO técnico
 
