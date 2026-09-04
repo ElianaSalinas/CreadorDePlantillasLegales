@@ -9,7 +9,7 @@ export default async function TemplatesPage() {
 
   const { data: all } = await supabase
     .from('templates')
-    .select('id, title, category, is_master, version, content, created_at, org_id')
+    .select('id, title, description, category, is_master, version, content, created_at, org_id')
     .order('created_at', { ascending: false })
 
   const rows = (all ?? []) as (TemplateRow & { org_id: string | null })[]

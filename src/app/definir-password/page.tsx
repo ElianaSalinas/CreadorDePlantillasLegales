@@ -3,7 +3,12 @@ import PasswordInput from '@/components/ui/PasswordInput'
 import { createClient } from '@/utils/supabase/server'
 import { definirPassword } from './actions'
 
-export const metadata = { title: 'Crea tu contraseña' }
+// No tiene nada que hacer en Google, y además heredaba la
+// descripción del layout raíz, duplicándola en cada pantalla.
+export const metadata = {
+  title: 'Crea tu contraseña',
+  robots: { index: false, follow: false },
+}
 export const dynamic = 'force-dynamic'
 
 /**

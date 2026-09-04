@@ -17,6 +17,7 @@ export type TemplateRow = {
   id: string
   title: string
   category: string
+  description: string | null
   is_master: boolean
   version: string | null
   content: any
@@ -141,7 +142,7 @@ export default function TemplatesClient({
               </div>
 
               <p className="mb-4 line-clamp-3 flex-1 text-sm text-slate-500">
-                {previewOf(row.content) || 'Sin contenido todavía.'}
+                {row.description?.trim() || previewOf(row.content) || 'Sin descripción todavía.'}
               </p>
 
               <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
@@ -296,13 +297,25 @@ function TabButton({
   )
 }
 
+/**
+ * Vista previa del texto de una plantilla.
+ *
+ * Antes, cuando no había texto que enseñar, esto caía en
+ * JSON.stringify(content) y pintaba {"engine":"v2"} en la tarjeta. Las
+ * 251 plantillas del catálogo son de motor v2 —su texto vive en las
+ * secciones, no en esta columna—, así que ese literal salía 251 veces
+ * en pantalla. Si no hay texto de verdad, no se enseña nada.
+ */
 function previewOf(content: any, full = false): string {
   if (!content) return ''
+
   const text =
     typeof content === 'string'
       ? content
       : typeof content?.body === 'string'
         ? content.body
-        : JSON.stringify(content)
+        : ''
+
+  if (!text.trim()) return ''
   return full ? text : text.slice(0, 220)
 }

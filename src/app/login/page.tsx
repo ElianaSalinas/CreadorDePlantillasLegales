@@ -3,7 +3,12 @@ import PasswordInput from '@/components/ui/PasswordInput'
 import AuthShowcase from '@/components/ui/AuthShowcase'
 import { login } from './actions'
 
-export const metadata = { title: 'Iniciar sesión' }
+// No tiene nada que hacer en Google, y además heredaba la
+// descripción del layout raíz, duplicándola en cada pantalla.
+export const metadata = {
+  title: 'Iniciar sesión',
+  robots: { index: false, follow: false },
+}
 
 export default async function LoginPage({
   searchParams,

@@ -3,7 +3,12 @@ import PasswordInput from '@/components/ui/PasswordInput'
 import { createClient } from '@/utils/supabase/server'
 import { updatePassword } from './actions'
 
-export const metadata = { title: 'Nueva contraseña' }
+// No tiene nada que hacer en Google, y además heredaba la
+// descripción del layout raíz, duplicándola en cada pantalla.
+export const metadata = {
+  title: 'Nueva contraseña',
+  robots: { index: false, follow: false },
+}
 export const dynamic = 'force-dynamic'
 
 export default async function ResetPasswordPage({

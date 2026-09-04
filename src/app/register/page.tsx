@@ -4,7 +4,12 @@ import AuthShowcase from '@/components/ui/AuthShowcase'
 import { register } from './actions'
 import { PROF_ROLE_OPTIONS } from '@/lib/labels'
 
-export const metadata = { title: 'Crear cuenta' }
+// No tiene nada que hacer en Google, y además heredaba la
+// descripción del layout raíz, duplicándola en cada pantalla.
+export const metadata = {
+  title: 'Crear cuenta',
+  robots: { index: false, follow: false },
+}
 
 const inputClass =
   'w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white'

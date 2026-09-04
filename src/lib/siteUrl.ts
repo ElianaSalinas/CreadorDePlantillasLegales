@@ -45,3 +45,23 @@ export async function getSiteUrl(): Promise<string> {
 
   return 'http://localhost:3000'
 }
+
+/**
+ * La misma URL, pero sin leer cabeceras.
+ *
+ * robots.txt y sitemap.xml se generan en el build, donde no hay petición
+ * que consultar. Y da igual: son ficheros del sitio entero, no de una
+ * visita concreta, así que el dominio canónico es exactamente lo que
+ * deben llevar. Leer cabeceras aquí, además, obligaría a generarlos en
+ * cada visita.
+ */
+export const DOMINIO_CANONICO = 'https://savedocumentos.com'
+
+export function getSiteUrlEstatico(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  if (configured) {
+    const limpia = urlValida(configured)
+    if (limpia) return limpia
+  }
+  return DOMINIO_CANONICO
+}
