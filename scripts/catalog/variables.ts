@@ -29,6 +29,19 @@ export const VARIABLE_META: Record<string, VarMeta> = {
   parte_segunda_nacionalidad: { label: 'Nacionalidad de la segunda parte', type: 'text', default: 'dominicana' },
   parte_segunda_domicilio: { label: 'Domicilio de la segunda parte', type: 'address' },
 
+  /* Firma. El texto de todas las plantillas usa {{fecha_firma_notarial}},
+     que es el alias derivado de fecha_firma, no una variable propia. */
+  ciudad_firma: { label: 'Ciudad de firma', question: '¿Dónde se firma?', type: 'text', default: 'Punta Cana' },
+  fecha_firma: {
+    label: 'Fecha de firma',
+    question: '¿Cuándo se firma?',
+    type: 'date',
+    derived: { transform: 'fecha_notarial', as: 'fecha_firma_notarial' },
+  },
+
+  dia_pago: { label: 'Día de pago', question: '¿Qué día de cada mes se paga?', help: 'Un número del 1 al 31.', type: 'number' },
+  direccion_inmueble: { label: 'Dirección del inmueble', question: '¿Dónde está el inmueble?', type: 'address' },
+
   distrito_judicial: { label: 'Distrito Judicial competente', question: '¿Qué Distrito Judicial conoce las controversias?', type: 'text', default: 'La Altagracia' },
 
   parte_responsable_seguro: { label: 'Parte que contrata el seguro', question: '¿Quién contrata y paga la póliza?', type: 'text', default: 'LA PRIMERA PARTE' },

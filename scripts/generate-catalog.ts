@@ -112,15 +112,24 @@ function tagsOf(text: string): string[] {
   return out
 }
 
-/** Etiquetas que ya existen por la migración del arrendamiento. */
+/**
+ * Etiquetas que ya existen por la migración del arrendamiento.
+ *
+ * Dar esto por sentado costó caro: las cuatro que el catálogo general
+ * usa de verdad —ciudad_firma, fecha_firma, dia_pago, direccion_inmueble—
+ * estaban en esta lista, así que no se creaban, y si aquel seed no se
+ * había ejecutado no existían en ninguna parte. Ahora se declaran
+ * siempre; el ON CONFLICT DO NOTHING hace que no pase nada si ya están.
+ *
+ * Lo que queda aquí es solo lo que el catálogo general NO usa.
+ */
 const VARS_EXISTENTES = new Set([
   'arrendador_nombre','arrendador_cedula','arrendador_nacionalidad','arrendador_estado_civil','arrendador_domicilio',
   'arrendatario_nombre','arrendatario_cedula','arrendatario_nacionalidad','arrendatario_estado_civil','arrendatario_domicilio',
-  'direccion_inmueble','tipo_inmueble','habitaciones','banos','parqueos','amueblado',
-  'precio_renta','deposito_garantia','dia_pago','mora_porcentaje',
+  'tipo_inmueble','habitaciones','banos','parqueos','amueblado',
+  'precio_renta','deposito_garantia','mora_porcentaje',
   'fecha_inicio','duracion_meses','fecha_finalizacion',
   'mascotas','mantenimiento_incluido','subarriendo_permitido','servicios_incluidos','inventario_descripcion',
-  'ciudad_firma','fecha_firma',
 ])
 
 /** Alias que produce una transformación; no son variables propias. */
@@ -136,7 +145,13 @@ for (const c of CLAUSES) tagsPorClausula.set(c.slug, tagsOf(c.body))
 const TAGS_SECCIONES = [
   'parte_primera_nombre','parte_primera_nacionalidad','parte_primera_cedula','parte_primera_domicilio',
   'parte_segunda_nombre','parte_segunda_nacionalidad','parte_segunda_cedula','parte_segunda_domicilio',
-  'ciudad_firma','fecha_firma_notarial',
+  // Va 'fecha_firma', NO 'fecha_firma_notarial'. El texto usa el alias,
+  // pero lo que se engancha a la plantilla es la variable que lo produce.
+  // Poner el alias aquí lo eliminaba el filtro de DERIVADAS de más abajo,
+  // y la plantilla se quedaba sin la variable de la fecha: eso bloqueó
+  // la publicación de las 250, porque quality.ts solo reconoce los alias
+  // de las variables que la plantilla tiene enganchadas.
+  'ciudad_firma','fecha_firma',
 ]
 
 const todasLasTags = new Set<string>(TAGS_SECCIONES)
