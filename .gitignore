@@ -11,3 +11,14 @@ coverage/
 .tmp-verify/
 .tmp-catalog/
 _to_delete/
+
+# Caché incremental de TypeScript: se regenera en cada compilación.
+tsconfig.tsbuildinfo
+
+# Empaquetados temporales que se crearon para mover archivos durante el
+# desarrollo. No son parte del proyecto.
+_*.tar.gz
+
+# Sobras de git tras una operación interrumpida en la carpeta montada,
+# donde no se pueden borrar sobre la marcha.
+trash-*.old

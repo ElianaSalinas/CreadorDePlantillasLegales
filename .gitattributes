@@ -1,0 +1,57 @@
+# ==========================================================
+# Finales de línea
+#
+# Sin esto, 29 archivos aparecían SIEMPRE como modificados en
+# `git status` sin que nadie los hubiera tocado: Windows escribe CRLF,
+# el repositorio guardaba LF, y cada uno veía al otro como un cambio.
+# Además llegó a impedir una reescritura del historial, porque git se
+# niega a trabajar con el árbol sucio.
+#
+# `text=auto` normaliza a LF dentro del repositorio y deja que cada
+# sistema use lo suyo en el disco.
+# ==========================================================
+
+* text=auto
+
+# ---------- Casos donde el final de línea SÍ importa ----------
+
+# Un script de shell con CRLF no arranca: bash intenta ejecutar el
+# intérprete "/usr/bin/env bash\r" y no lo encuentra. El error que da
+# —"bad interpreter"— no menciona los finales de línea por ningún lado.
+*.sh    text eol=lf
+
+# PowerShell es al revés: es lo nativo de Windows y se queda en CRLF.
+*.ps1   text eol=crlf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# ---------- Texto, explícitamente ----------
+*.ts    text
+*.tsx   text
+*.js    text
+*.jsx   text
+*.json  text
+*.css   text
+*.html  text
+*.md    text
+*.sql   text
+*.yml   text
+*.yaml  text
+*.toml  text
+*.svg   text
+
+# ---------- Binarios: que git no los toque ----------
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.pdf   binary
+*.docx  binary
+*.xlsx  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.zip   binary
+*.gz    binary
