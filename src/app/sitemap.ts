@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getSiteUrlEstatico } from '@/lib/siteUrl'
+import { getSiteUrlEstatico } from '@/lib/dominio'
 
 /**
  * sitemap.xml

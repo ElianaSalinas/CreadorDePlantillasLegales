@@ -1,4 +1,5 @@
 import { headers } from 'next/headers'
+import { urlValida } from './dominio'
 
 /**
  * URL pública del sitio, para construir los enlaces que viajan por correo.
@@ -13,17 +14,6 @@ import { headers } from 'next/headers'
  * y nada en la interfaz decía por qué. Ahora un valor mal puesto degrada a
  * las cabeceras y deja un aviso en los logs, en vez de romper el alta.
  */
-function urlValida(valor: string): string | null {
-  try {
-    const u = new URL(valor)
-    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null
-    // Sin barra final, para poder concatenar rutas sin duplicarla.
-    return `${u.origin}${u.pathname}`.replace(/\/+$/, '')
-  } catch {
-    return null
-  }
-}
-
 export async function getSiteUrl(): Promise<string> {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
 
@@ -46,22 +36,8 @@ export async function getSiteUrl(): Promise<string> {
   return 'http://localhost:3000'
 }
 
-/**
- * La misma URL, pero sin leer cabeceras.
- *
- * robots.txt y sitemap.xml se generan en el build, donde no hay petición
- * que consultar. Y da igual: son ficheros del sitio entero, no de una
- * visita concreta, así que el dominio canónico es exactamente lo que
- * deben llevar. Leer cabeceras aquí, además, obligaría a generarlos en
- * cada visita.
- */
-export const DOMINIO_CANONICO = 'https://savedocumentos.com'
-
-export function getSiteUrlEstatico(): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-  if (configured) {
-    const limpia = urlValida(configured)
-    if (limpia) return limpia
-  }
-  return DOMINIO_CANONICO
-}
+/* La versión que NO lee cabeceras está en lib/dominio.ts, y se importa
+   DESDE ALLÍ, no reexportada desde aquí. Reexportarla sería volver a
+   tender la trampa: quien la importara de este archivo arrastraría
+   next/headers otra vez, y robots.txt volvería a devolver 404 sin que
+   nada lo explicara. */
