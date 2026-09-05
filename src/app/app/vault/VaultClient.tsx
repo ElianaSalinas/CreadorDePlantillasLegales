@@ -1,15 +1,25 @@
 'use client'
 
 import { useRef, useState, useTransition } from 'react'
-import { Upload, Download, Trash2, FileText, Loader2, ShieldCheck } from 'lucide-react'
+import { Upload, Download, Trash2, FileText, Loader2, ShieldCheck, Lock, Users } from 'lucide-react'
 import EmptyState from '@/components/ui/EmptyState'
-import { uploadToVault, deleteFromVault, getVaultDownloadUrl } from './actions'
+import {
+  uploadToVault,
+  deleteFromVault,
+  getVaultDownloadUrl,
+  cambiarVisibilidadArchivo,
+} from './actions'
 
 export type VaultFile = {
   path: string
   displayName: string
   size: number
   createdAt: string | null
+  /** Lo subí yo, así que puedo decidir con quién se comparte. */
+  esMio: boolean
+  compartido: boolean
+  /** Anterior a la bóveda privada: se comporta como siempre. */
+  sinFicha: boolean
 }
 
 export default function VaultClient({
@@ -18,12 +28,14 @@ export default function VaultClient({
   limit,
   canWrite,
   canDelete,
+  soyTitular = false,
 }: {
   files: VaultFile[]
   used: number
   limit: number
   canWrite: boolean
   canDelete: boolean
+  soyTitular?: boolean
 }) {
   const [error, setError] = useState<string | null>(null)
   const [busyPath, setBusyPath] = useState<string | null>(null)
@@ -32,6 +44,16 @@ export default function VaultClient({
 
   const full = used >= limit
   const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0
+
+  function handleCompartir(file: VaultFile) {
+    setError(null)
+    setBusyPath(file.path)
+    startTransition(async () => {
+      const r = await cambiarVisibilidadArchivo(file.path, !file.compartido)
+      if (!r.ok) setError(r.error ?? 'No se pudo cambiar quién ve el archivo.')
+      setBusyPath(null)
+    })
+  }
 
   function handleFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -161,6 +183,7 @@ export default function VaultClient({
                       >
                         {file.displayName}
                       </span>
+                      <VisibilidadDelArchivo file={file} soyTitular={soyTitular} />
                     </div>
                   </td>
                   <td className="hidden whitespace-nowrap px-5 py-3 text-slate-500 sm:table-cell">
@@ -171,6 +194,29 @@ export default function VaultClient({
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex justify-end gap-1">
+                      {file.esMio && !file.sinFicha && (
+                        <button
+                          onClick={() => handleCompartir(file)}
+                          disabled={busyPath === file.path}
+                          title={
+                            file.compartido
+                              ? 'Dejar de compartir con el despacho'
+                              : 'Compartir con el despacho'
+                          }
+                          aria-label={
+                            file.compartido
+                              ? `Dejar de compartir ${file.displayName} con el despacho`
+                              : `Compartir ${file.displayName} con el despacho`
+                          }
+                          className={
+                            file.compartido
+                              ? 'rounded-md p-2 text-emerald-600 transition-colors hover:bg-emerald-50 disabled:opacity-50 dark:hover:bg-emerald-900/20'
+                              : 'rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-emerald-600 disabled:opacity-50 dark:hover:bg-slate-800'
+                          }
+                        >
+                          {file.compartido ? <Users size={16} /> : <Lock size={16} />}
+                        </button>
+                      )}
                       <button
                         onClick={() => handleDownload(file)}
                         disabled={busyPath === file.path}
@@ -225,4 +271,40 @@ function formatDate(iso: string | null) {
   } catch {
     return '—'
   }
+}
+
+/**
+ * Con quién se ve este archivo.
+ *
+ * Nunca pone "Privado" a secas: el titular del despacho es la excepción y
+ * sí lo ve, así que decirlo a secas prometería más de lo que el sistema
+ * cumple. Quien lo subió lee "Solo tú y el titular", que es exactamente
+ * lo que pasa.
+ */
+function VisibilidadDelArchivo({
+  file,
+  soyTitular,
+}: {
+  file: VaultFile
+  soyTitular: boolean
+}) {
+  if (file.sinFicha) return null
+
+  const base =
+    'inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide'
+
+  if (file.compartido) {
+    return (
+      <span className={`${base} bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400`}>
+        <Users size={11} /> Todo el despacho
+      </span>
+    )
+  }
+
+  return (
+    <span className={`${base} bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400`}>
+      <Lock size={11} />
+      {file.esMio ? 'Solo tú y el titular' : soyTitular ? 'Privado de su autor' : 'Privado'}
+    </span>
+  )
 }

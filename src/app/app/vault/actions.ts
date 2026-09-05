@@ -80,6 +80,26 @@ export async function uploadToVault(formData: FormData): Promise<VaultResult> {
 
   if (error) return { ok: false, error: error.message }
 
+  // La ficha del archivo: quién lo subió y si lo comparte. Nace privado.
+  // Si esto fallara, el archivo ya está subido y sin ficha se comportaría
+  // como los anteriores a la migración —visible para el despacho—, que es
+  // justo lo contrario de lo prometido. Por eso se deshace la subida.
+  const { error: errorFicha } = await supabase.from('boveda_archivos').insert({
+    ruta: path,
+    org_id: org.id,
+    subido_por: user.id,
+    visible_para_despacho: false,
+  })
+
+  if (errorFicha) {
+    await supabase.storage.from(VAULT_BUCKET).remove([path])
+    return {
+      ok: false,
+      error:
+        'No se pudo registrar el archivo como privado, así que no se subió. Vuelve a intentarlo.',
+    }
+  }
+
   await supabase
     .from('organizations')
     .update({ vault_used_count: used + 1 })
@@ -123,6 +143,10 @@ export async function deleteFromVault(path: string): Promise<VaultResult> {
   const { error } = await supabase.storage.from(VAULT_BUCKET).remove([path])
   if (error) return { ok: false, error: error.message }
 
+  // Sin esto quedaría una ficha huérfana que reclamaría la ruta si algún
+  // día se subiera otro archivo con el mismo nombre.
+  await supabase.from('boveda_archivos').delete().eq('ruta', path)
+
   const { data: remaining } = await supabase.storage
     .from(VAULT_BUCKET)
     .list(org.id, { limit: 1000 })
@@ -137,6 +161,44 @@ export async function deleteFromVault(path: string): Promise<VaultResult> {
     userId: user.id,
     action: 'VAULT_DELETE',
     description: `Documento eliminado de la bóveda: ${path.split('__').slice(1).join('__')}`,
+  })
+
+  revalidatePath('/app/vault')
+  return { ok: true }
+}
+
+/**
+ * Compartir un archivo de la bóveda con el despacho, o dejar de hacerlo.
+ *
+ * Solo su dueño. El titular ve todo lo de su despacho, pero no decide por
+ * otro si un archivo suyo se comparte: eso lo impone también la política
+ * de la base, no solo esta comprobación.
+ */
+export async function cambiarVisibilidadArchivo(
+  path: string,
+  visible: boolean
+): Promise<VaultResult> {
+  const { supabase, user, org, permissions } = await requireSession()
+  if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (!permissions.vault) return { ok: false, error: 'No tienes acceso a la bóveda.' }
+
+  const { data, error } = await supabase
+    .from('boveda_archivos')
+    .update({ visible_para_despacho: visible })
+    .eq('ruta', path)
+    .eq('subido_por', user.id)
+    .select('ruta')
+
+  if (error) return { ok: false, error: error.message }
+  if (!data || data.length === 0) {
+    return { ok: false, error: 'Solo quien subió un archivo puede decidir con quién se comparte.' }
+  }
+
+  await logAudit(supabase, {
+    orgId: org.id,
+    userId: user.id,
+    action: visible ? 'VAULT_SHARED' : 'VAULT_UNSHARED',
+    description: `${visible ? 'Compartido con' : 'Retirado de'} el despacho: ${path.split('__').slice(1).join('__')}`,
   })
 
   revalidatePath('/app/vault')
