@@ -35,6 +35,52 @@ flowchart LR
 
 ---
 
+## Los tres planes
+
+Decidido el 5 de septiembre. Cierra D1, D2 y D4.
+
+| | **Gratis** | **Pro** · RD$999/mes | **Equipo** · RD$1,699/mes |
+|---|---|---|---|
+| Plantillas del catálogo | 50 | Las 251 | Las 251 |
+| Documentos al mes | 5 | 30 | Sin tope |
+| Bóveda | 10 | 30 | 100, y +30 por integrante adicional |
+| Crear plantilla desde un documento | — | Sí | Sí |
+| Despacho con equipo | — | — | Sí |
+| Usuarios | 1 | 1 | Titular + 2 incluidos |
+| Usuario adicional | — | — | RD$399/mes |
+
+**Cómo se cuenta la bóveda de Equipo.** Los 100 ya cubren al titular y a los dos
+incluidos. El cuarto integrante sube el tope a 130, el quinto a 160, y así.
+La bóveda se cuenta **por despacho, no por persona** — y eso ahorra trabajo real:
+los archivos ya se guardan en `{org_id}/`, así que no hay que cambiar la
+convención de rutas ni mover nada de lo subido.
+
+**Las 50 plantillas del plan gratis** se calculan solas: las más usadas por número
+de documentos generados, recalculadas cada semana. **Con una salvedad para el
+arranque**, porque hoy hay cero documentos generados y un ranking sin datos sale
+vacío: mientras una plantilla no tenga uso, el desempate es por categoría, las
+mejores de cada una de las once en rotación. Así el escaparate gratuito cubre
+todas las categorías desde el primer día en vez de ser cincuenta contratos de
+vehículos, y en cuanto haya uso real el ranking lo corrige solo.
+
+**La asimetría de los dos defaults, que es deliberada:**
+
+- **Documentos:** todo el despacho los ve, salvo que el autor los marque privados.
+- **Bóveda:** nadie los ve, salvo que el autor los marque visibles para el despacho.
+
+Son defaults opuestos a propósito. La bóveda es el archivo de originales
+sensibles —cédulas, títulos, poderes firmados—; los documentos son el trabajo en
+curso del despacho. Hay que **contárselo así al usuario** en la interfaz: si no,
+alguien subirá algo dando por hecho que se comporta como lo otro.
+
+**Y lo que hay que saber antes de estimar nada:** hoy **ningún límite se aplica**.
+`free_limit` y `vault_limit` existen en la tabla y se pintan en pantalla, pero
+solo la bóveda comprueba el suyo. No hay tope de documentos de ninguna clase, ni
+control de qué plantillas ve cada plan. Los tres planes se implementan desde
+cero; no es ajustar números existentes.
+
+---
+
 ## Cómo se lee cada tarea
 
 Cada una lleva **qué**, **por qué**, **dónde** y **cuándo está hecha**. Ese último campo es el que importa: una tarea no está hecha porque exista el código, sino porque se comprobó que hace lo que decía. Los tiempos son estimaciones gruesas de una persona desarrollando.
@@ -129,29 +175,52 @@ nadie se lo compartió. Privacidad probada por los dos lados.
 
 **Hecho cuando:** escribir "alquiler" deja a la vista solo las de alquiler, y la página monta menos de 2.000 nodos.
 
-### 1.3 Los límites del plan Equipo · P1 · decisión de negocio
+### 1.3 Aplicar los tres planes · P1
 
-**Qué.** Que `free_limit` y `vault_limit` dependan del plan.
+**Qué.** Que los límites de la tabla de arriba se cumplan de verdad.
 
-**Por qué.** Hoy son 10 plantillas y 30 archivos **por defecto de la tabla**, iguales para todos. Un despacho en BUSINESS pagando RD$999 al mes tiene el mismo cupo que uno gratuito. Solo se cambia a mano, cliente por cliente, desde el panel de administración.
+**Por qué.** Hoy no se aplica ninguno salvo el de la bóveda. Un despacho en
+Equipo pagando RD$1,699 tiene exactamente las mismas restricciones que uno
+gratuito: ninguna.
 
-**Antes de escribir código hay que decidir tres números:** cuánto da FREE, cuánto da PREMIUM y cuánto da BUSINESS.
+**Las cuatro piezas:**
 
-**Dónde.** `src/lib/billing.ts`, migración sobre `organizations`
+1. **Tope mensual de documentos.** No hace falta columna nueva ni contador que
+   mantener: se cuenta `documents` con `created_at >= date_trunc('month', now())`
+   para ese despacho. Un contador guardado se desincroniza; una consulta, no.
+2. **Cupo de bóveda por plan**, con la fórmula de Equipo: `100 + 30 × (integrantes − 3)`,
+   con suelo en 100.
+3. **Las 50 plantillas del gratis.** Columna `es_gratuita` en `templates`, mantenida
+   por una función que se recalcula cada semana, y la política de lectura del
+   catálogo la respeta.
+4. **Importar solo desde Pro** (ver Fase 3).
 
-**Hecho cuando:** un despacho recién pasado a BUSINESS ve su cupo nuevo sin que nadie toque la base a mano.
+**Dónde.** `src/lib/billing.ts`, migración sobre `organizations`, políticas de
+`templates`, `src/app/app/documents/new/`, `src/app/app/vault/actions.ts`
 
-### 1.4 La bóveda: ¿por despacho o por persona? · P1 · decisión de producto
+**Hecho cuando:** una cuenta gratuita genera cinco documentos y el sexto se
+detiene con un mensaje que explica por qué y qué hacer; y un despacho de cuatro
+personas ve 130 de cupo en la bóveda, no 100.
 
-**Qué.** Decidir, y luego alinear.
+### 1.4 La bóveda: privada por defecto · P1 · ✅ decidido
 
-**Por qué.** Las políticas del bucket aíslan por `org_id`: **todos los miembros ven todo lo que suba cualquiera**. Los documentos acaban de volverse privados por defecto; la bóveda se quedó como estaba. Hoy no se nota porque está vacía. En cuanto se suban archivos, sí.
+**Qué.** Cada archivo nace privado. Su dueño decide si lo hace visible para el
+despacho.
 
-Con la decisión de F4 —todo el despacho ve todo salvo lo marcado privado— lo coherente es dejar la bóveda como está y, si acaso, añadirle la misma marca de privado. Pero conviene decirlo en voz alta y no dejarlo por omisión.
+**Por qué.** Hoy las políticas del bucket aíslan por `org_id` y nada más: **todos
+los miembros ven todo lo que suba cualquiera**. No se nota porque está vacía; en
+cuanto se suban archivos, sí.
 
-**Dónde.** `supabase/migrations/20260822000001_vault_storage_bucket.sql`
+**Lo que NO hay que hacer, y conviene dejarlo escrito:** no hay que cambiar la
+convención de rutas. Al contarse por despacho y no por persona, `{org_id}/archivo`
+sigue sirviendo. Se añade una columna de propiedad y visibilidad, y las políticas
+la consultan. Media jornada menos de la que estaba estimada.
 
-**Hecho cuando:** la decisión está escrita y el comportamiento coincide con ella.
+**Dónde.** `supabase/migrations/20260822000001_vault_storage_bucket.sql`,
+`src/app/app/vault/`
+
+**Hecho cuando:** un paralegal sube un archivo, su compañero no lo ve, y al
+marcarlo visible aparece.
 
 ### 1.5 Textos que contradicen al producto · P2
 
@@ -280,6 +349,15 @@ Hoy esa frase no es cierta. Esta fase la hace cierta.
 **Por qué.** Si cada importación crea `nombre_comprador`, `comprador_nombre` y `nombre_del_comprador`, el diccionario se vuelve inútil en un mes. Es exactamente el problema que la auditoría pedía evitar.
 
 **Hecho cuando:** importar dos contratos parecidos reutiliza variables en vez de duplicarlas.
+
+### 3.5 Restringir a Pro y Equipo
+
+**Qué.** La importación es de pago. Crear plantillas **a mano**, desde cero, sigue
+disponible en el plan gratuito.
+
+**Por qué.** Es lo que separa Pro del gratis en la tabla de planes, junto con el
+catálogo completo. Y la distinción es limpia de explicar: gratis puedes escribir
+una plantilla; pagando, conviertes la que ya tienes.
 
 ---
 
@@ -517,19 +595,21 @@ Si F3 y F5 se hacen **en paralelo** con la revisión legal, para cuando el catá
 
 ---
 
-# Las cinco decisiones que hay que tomar
+# Las decisiones
 
-Ninguna la puede tomar quien escribe el código. Todas bloquean tareas concretas.
+| # | Decisión | Estado |
+|---|---|---|
+| D1 | Cupos de cada plan | ✅ **Decidido el 5 de septiembre** — ver la tabla de planes |
+| D2 | La bóveda, ¿por despacho o por persona? | ✅ **Por despacho**, y privada por defecto |
+| D4 | Precios públicos | ✅ **RD$999 Pro · RD$1,699 Equipo · RD$399 por usuario** |
+| D3 | Modo oscuro, ¿terminarlo o retirarlo? | ⬜ Abierta · bloquea 8.4 · sin decidir, 47 archivos de código muerto siguen creciendo |
+| D5 | Al cancelar, ¿qué pasa con lo guardado? | ⬜ Abierta · bloquea 9.3 · sin definir, que es la peor opción |
 
-| # | Decisión | Bloquea | Por defecto si no se decide |
-|---|---|---|---|
-| D1 | Cupos de FREE, PREMIUM y BUSINESS | 1.3, 9.1 | Todos con 10 y 30: el plan de pago no vale lo que cuesta |
-| D2 | La bóveda, ¿por despacho o por persona? | 1.4 | Sigue siendo de todo el despacho, por omisión |
-| D3 | Modo oscuro, ¿terminarlo o retirarlo? | 8.4 | 47 archivos de código muerto creciendo |
-| D4 | Precios públicos | 5.1, 9.1 | No hay página de precios |
-| D5 | Al cancelar, ¿qué pasa con lo guardado? | 9.3 | Sin definir, que es la peor opción |
-
----
+**Sobre D5**, para cuando toque: lo que no se puede hacer es borrar documentos por
+falta de pago. Lo razonable es bloquear la creación de nuevos y mantener el acceso
+y la descarga de lo que ya se pagó. Pero hay que decidir si la bóveda pasa a solo
+lectura, cuánto dura el periodo de gracia, y qué ocurre con un despacho de cinco
+personas que cae a un plan de una.
 
 # Lo que ya está hecho
 
