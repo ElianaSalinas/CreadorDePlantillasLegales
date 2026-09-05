@@ -1,6 +1,7 @@
 import { LogOut } from 'lucide-react'
 import { logout } from './actions'
 import AppNav from '@/components/ui/AppNav'
+import MenuMovil from '@/components/ui/MenuMovil'
 import { requireSession, displayName } from '@/lib/session'
 
 export default async function AppLayout({
@@ -14,6 +15,7 @@ export default async function AppLayout({
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
+          <MenuMovil isAdmin={isAdmin} esRevisor={esRevisor} />
           <div className="w-8 h-8 bg-emerald-600 rounded flex items-center justify-center text-white font-bold">
             S
           </div>

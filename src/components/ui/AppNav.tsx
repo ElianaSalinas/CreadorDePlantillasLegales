@@ -13,6 +13,27 @@ const BASE_LINKS = [
   { href: '/app/settings', label: 'Mi Despacho', Icon: Building2 },
 ]
 
+/**
+ * Los enlaces que le tocan a esta persona.
+ *
+ * Se exporta para que el menú de móvil use exactamente esta lista. Si cada
+ * uno tuviera la suya, el día que se añada una sección aparecería en uno y
+ * no en el otro, y nadie se daría cuenta hasta que alguien la echara de
+ * menos desde el teléfono.
+ *
+ * Revisar el catálogo y administrar la plataforma son permisos distintos:
+ * la abogada que revisa no tiene por qué ver el panel de cuentas.
+ */
+export function enlacesDeNavegacion(isAdmin = false, esRevisor = false) {
+  return [
+    ...BASE_LINKS,
+    ...(esRevisor || isAdmin
+      ? [{ href: '/app/revision', label: 'Revisión', Icon: BadgeCheck }]
+      : []),
+    ...(isAdmin ? [{ href: '/app/admin', label: 'Administración', Icon: ShieldCheck }] : []),
+  ]
+}
+
 export default function AppNav({
   isAdmin = false,
   esRevisor = false,
@@ -21,16 +42,7 @@ export default function AppNav({
   esRevisor?: boolean
 }) {
   const pathname = usePathname()
-
-  // Revisar el catálogo y administrar la plataforma son permisos distintos.
-  // La abogada que revisa no tiene por qué ver el panel de cuentas.
-  const links = [
-    ...BASE_LINKS,
-    ...(esRevisor || isAdmin
-      ? [{ href: '/app/revision', label: 'Revisión', Icon: BadgeCheck }]
-      : []),
-    ...(isAdmin ? [{ href: '/app/admin', label: 'Administración', Icon: ShieldCheck }] : []),
-  ]
+  const links = enlacesDeNavegacion(isAdmin, esRevisor)
 
   return (
     <nav className="space-y-1">

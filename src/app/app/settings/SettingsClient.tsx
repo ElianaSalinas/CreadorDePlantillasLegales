@@ -516,7 +516,8 @@ function TeamPanel({
             {math.costOfNext === 0
               ? 'Esta persona entra sin cargo adicional.'
               : `Añadir a esta persona sube tu factura en ${formatDOP(math.costOfNext)} al mes.`}{' '}
-            Debe tener ya una cuenta en Save Documentos.
+            Si todavía no tiene cuenta, le llega una invitación por correo y él mismo elige su
+            contraseña.
           </p>
         </form>
       )}
