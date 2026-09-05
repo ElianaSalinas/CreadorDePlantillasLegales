@@ -43,7 +43,13 @@ Cada una lleva **qué**, **por qué**, **dónde** y **cuándo está hecha**. Ese
 
 # FASE 0 · Cerrar lo abierto
 
-**Hoy mismo. Nada de esto lleva más de una hora en total.**
+> ## ✅ CERRADA · 5 de septiembre de 2026
+>
+> Las tres tareas hechas y comprobadas. Con esto **no queda ningún problema
+> crítico abierto** en el proyecto.
+
+**Lo que costó de verdad:** una hora, más un fallo que apareció por el camino
+y que merece quedar escrito (ver 0.2).
 
 ### 0.1 Rotar las dos credenciales expuestas · P0 · 👤
 
@@ -55,6 +61,8 @@ Cada una lleva **qué**, **por qué**, **dónde** y **cuándo está hecha**. Ese
 
 **Hecho cuando:** un registro de prueba recibe su correo de confirmación con las credenciales nuevas.
 
+**✅ Hecho el 5 de septiembre.** Credenciales rotadas y SMTP funcionando.
+
 ### 0.2 Verificar robots.txt y sitemap.xml en el dominio
 
 **Qué.** Comprobar que los dos responden 200 en producción.
@@ -63,6 +71,23 @@ Cada una lleva **qué**, **por qué**, **dónde** y **cuándo está hecha**. Ese
 
 **Hecho cuando:** `savedocumentos.com/robots.txt` menciona el sitemap y `savedocumentos.com/sitemap.xml` contiene la portada.
 
+**✅ Hecho el 5 de septiembre — y aquí apareció un fallo que valida la tarea.**
+
+Los dos seguían devolviendo 404 **con el código ya subido a origin**. No era
+falta de despliegue: `/login` tampoco traía el `noindex` del mismo commit, lo
+que descartaba a Railway y señalaba al build.
+
+La causa: `robots.ts` y `sitemap.ts` importaban `getSiteUrlEstatico` desde
+`lib/siteUrl.ts`, y ese archivo empieza con `import { headers } from 'next/headers'`.
+Los dos son **rutas estáticas** —Next las genera en el build, cuando no existe
+ninguna petición que tenga cabeceras—, así que arrastrar `next/headers`, aunque
+sea de rebote, las rompe. La versión sin cabeceras se mudó a `lib/dominio.ts`,
+que no importa nada de Next.
+
+**La lección, que es el motivo de que esta tarea exista:** el código estaba
+escrito, revisado y subido, y no estaba hecho. Sin comprobarlo contra el dominio
+habríamos dado por buenos dos archivos que no existían.
+
 ### 0.3 Cerrar la prueba de privacidad de documentos
 
 **Qué.** Quitar el compartir del documento de prueba y recargar como paralegal.
@@ -70,6 +95,11 @@ Cada una lleva **qué**, **por qué**, **dónde** y **cuándo está hecha**. Ese
 **Por qué.** Es lo único del modelo de privacidad que está verificado sobre PostgreSQL pero no en producción. Con un solo documento compartido, ver uno no demuestra nada.
 
 **Hecho cuando:** el documento desaparece de la lista del paralegal.
+
+**✅ Hecho el 5 de septiembre.** Quitado el compartir, el paralegal —dentro del
+mismo despacho, con la cabecera diciendo "Despacho de elianastephania…"— pasó a
+ver **cero documentos**. El documento existe y es del despacho; no lo ve porque
+nadie se lo compartió. Privacidad probada por los dos lados.
 
 > Esta prueba pierde sentido cuando entre F4, que invierte el modelo. **Hacerla antes.**
 
@@ -470,7 +500,7 @@ Pago fallido, periodo de gracia, cancelación y qué ve un despacho con la suscr
 
 | Fase | Qué | Estimado | Bloquea a |
 |---|---|---|---|
-| **F0** | Cerrar lo abierto | 1 hora | Todo |
+| **F0** | Cerrar lo abierto | ✅ **Cerrada** | — |
 | **F1** | Bloqueos de uso | 1 semana | F3, F4, F5 |
 | **F2** | Revisión legal | **3–6 semanas · abogada** | **F6** |
 | **F3** | Importar y convertir | 2–3 semanas | — |
@@ -518,3 +548,6 @@ No para lucirlo, sino para que no se vuelva a planificar.
 | ✅ | El `{"engine":"v2"}` que salía impreso 251 veces |
 | ✅ | Contador de la portada que sube solo según se aprueba |
 | ✅ | Prueba de dos cuentas del despacho, cerrada en producción |
+| ✅ | `robots.txt` y `sitemap.xml` **verificados en el dominio**, no solo escritos |
+| ✅ | Credenciales expuestas rotadas: sin problemas críticos abiertos |
+| ✅ | Privacidad de documentos probada en producción por los dos lados |
