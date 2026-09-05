@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import PageHeader from '@/components/ui/PageHeader'
 import { requireSession } from '@/lib/session'
+import { cargarEstadoDelPlan, documentosRestantes, motivoParaNoCrear } from '@/lib/planes'
 import { loadTemplateBundle, groupVariablesBySection } from '@/lib/engine/repository'
 import GeneratorClient from './GeneratorClient'
 import type { Answers } from '@/lib/engine/types'
@@ -15,7 +16,7 @@ export default async function NewDocumentPage({
   params: Promise<{ templateId: string }>
 }) {
   const { templateId } = await params
-  const { permissions } = await requireSession()
+  const { supabase, org, permissions } = await requireSession()
 
   const bundle = await loadTemplateBundle(templateId)
   if (!bundle) notFound()
@@ -45,6 +46,30 @@ export default async function NewDocumentPage({
     )
   }
 
+  // Se avisa ANTES de rellenar dieciocho campos, no después de darle a
+  // Generar. Enterarse del tope cuando ya has escrito todo es la peor
+  // forma posible de enterarse.
+  const estado = org ? await cargarEstadoDelPlan(supabase, org.id) : null
+  const bloqueado = motivoParaNoCrear(estado)
+  const quedan = estado ? documentosRestantes(estado) : null
+
+  if (bloqueado) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <Link
+          href="/app/templates"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-emerald-600"
+        >
+          <ArrowLeft size={15} /> Volver a plantillas
+        </Link>
+        <PageHeader title={bundle.template.title} />
+        <p className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+          {bloqueado}
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto max-w-6xl">
       <Link
@@ -58,6 +83,15 @@ export default async function NewDocumentPage({
         title={bundle.template.title}
         subtitle="Responde el formulario. Las cláusulas del contrato se ajustan solas a tus respuestas."
       />
+
+      {quedan !== null && quedan <= 3 && (
+        <p className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+          {quedan === 1
+            ? 'Te queda 1 documento este mes.'
+            : `Te quedan ${quedan} documentos este mes.`}{' '}
+          El contador se reinicia el día 1.
+        </p>
+      )}
 
       <GeneratorClient
         templateId={templateId}

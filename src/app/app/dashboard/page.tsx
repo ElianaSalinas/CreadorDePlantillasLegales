@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { FileText, Archive, Users, ArrowRight } from 'lucide-react'
+import { cargarEstadoDelPlan, type EstadoDelPlan } from '@/lib/planes'
 import { requireSession, displayName } from '@/lib/session'
 import { VAULT_BUCKET } from '@/lib/vault'
 
@@ -11,9 +12,10 @@ export default async function DashboardPage() {
   let templateCount = 0
   let vaultCount = 0
   let memberCount = 1
+  let estadoPlan: EstadoDelPlan | null = null
 
   if (org) {
-    const [{ count: tpl }, { count: members }, vaultList] = await Promise.all([
+    const [{ count: tpl }, { count: members }, vaultList, plan] = await Promise.all([
       supabase
         .from('templates')
         .select('id', { count: 'exact', head: true })
@@ -23,11 +25,13 @@ export default async function DashboardPage() {
         .select('id', { count: 'exact', head: true })
         .eq('org_id', org.id),
       supabase.storage.from(VAULT_BUCKET).list(org.id, { limit: 1000 }),
+      cargarEstadoDelPlan(supabase, org.id),
     ])
 
     templateCount = tpl ?? 0
     memberCount = members ?? 1
     vaultCount = (vaultList.data ?? []).filter((f) => f.id !== null).length
+    estadoPlan = plan
   }
 
   return (
@@ -57,19 +61,51 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {estadoPlan?.suspendida && (
+        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-5 text-sm dark:border-red-800 dark:bg-red-900/20">
+          <p className="font-bold text-red-900 dark:text-red-300">Cuenta suspendida por falta de pago</p>
+          <p className="mt-1 text-red-800 dark:text-red-400">
+            Tus documentos y tu bóveda siguen ahí y se pueden abrir y descargar. Lo que no se puede
+            hasta regularizar el pago es crear documentos nuevos ni subir archivos.
+          </p>
+        </div>
+      )}
+
+      {estadoPlan?.en_gracia && (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm dark:border-amber-800 dark:bg-amber-900/20">
+          <p className="font-bold text-amber-900 dark:text-amber-300">Hay un pago pendiente</p>
+          <p className="mt-1 text-amber-800 dark:text-amber-400">
+            Sigues trabajando con normalidad durante siete días desde el intento fallido. Pasados
+            esos días, la cuenta queda en solo lectura hasta que se regularice.
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatCard
-          href="/app/templates"
+          href="/app/documents"
           icon={<FileText size={18} />}
-          label="Plantillas del despacho"
-          value={`${templateCount}`}
-          detail={`Límite gratuito: ${org?.free_limit ?? 10}`}
+          label="Documentos este mes"
+          value={
+            estadoPlan
+              ? estadoPlan.documentos_limite === null
+                ? `${estadoPlan.documentos_usados}`
+                : `${estadoPlan.documentos_usados} / ${estadoPlan.documentos_limite}`
+              : `${templateCount}`
+          }
+          detail={
+            estadoPlan
+              ? estadoPlan.documentos_limite === null
+                ? `Plan ${estadoPlan.nombre}: sin tope`
+                : `Plan ${estadoPlan.nombre} · se reinicia el día 1`
+              : 'Plantillas del despacho'
+          }
         />
         <StatCard
           href="/app/vault"
           icon={<Archive size={18} />}
           label="Tu bóveda"
-          value={`${vaultCount} / ${org?.vault_limit ?? 30}`}
+          value={`${vaultCount} / ${estadoPlan?.boveda_limite ?? org?.vault_limit ?? 30}`}
           detail="Documentos almacenados"
         />
         <StatCard

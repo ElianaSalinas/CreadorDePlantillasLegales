@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireSession } from '@/lib/session'
+import { cargarEstadoDelPlan, motivoParaNoCrear } from '@/lib/planes'
 import { logAudit } from '@/lib/audit'
 import { loadTemplateBundle } from '@/lib/engine/repository'
 import { renderDocument, snapshotTemplate } from '@/lib/engine/render'
@@ -124,6 +125,15 @@ export async function generateDocument(
     }
     versionId = created?.id ?? null
   }
+
+  // El tope del plan, justo antes de escribir. Se comprueba aquí y no al
+  // abrir el formulario porque la vista previa no consume cupo: solo
+  // cuenta el documento que se guarda. Hay además un trigger en la base
+  // que vuelve a comprobarlo, pero ese solo puede lanzar una excepción;
+  // aquí se puede decir qué pasa y qué hacer.
+  const estado = await cargarEstadoDelPlan(supabase, org.id)
+  const impedimento = motivoParaNoCrear(estado)
+  if (impedimento) return { ok: false, error: impedimento }
 
   const { data: doc, error } = await supabase
     .from('documents')

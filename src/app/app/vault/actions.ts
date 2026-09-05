@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireSession } from '@/lib/session'
+import { cargarEstadoDelPlan, motivoParaNoSubir } from '@/lib/planes'
 import { logAudit } from '@/lib/audit'
 
 import { VAULT_BUCKET } from '@/lib/vault'
@@ -47,7 +48,9 @@ export async function uploadToVault(formData: FormData): Promise<VaultResult> {
     return { ok: false, error: 'Solo se aceptan archivos PDF o Word (.doc, .docx).' }
   }
 
-  // Límite de la bóveda (30 por defecto según el PRD).
+  // El cupo sale del plan, no de la columna de la tabla: en Equipo crece
+  // con cada integrante por encima de los incluidos, así que no es un
+  // número fijo que se pueda guardar y olvidar.
   const { data: existing, error: listError } = await supabase.storage
     .from(VAULT_BUCKET)
     .list(org.id, { limit: 1000 })
@@ -55,7 +58,14 @@ export async function uploadToVault(formData: FormData): Promise<VaultResult> {
   if (listError) return { ok: false, error: listError.message }
 
   const used = (existing ?? []).filter((f) => f.id !== null).length
-  if (used >= org.vault_limit) {
+
+  const estado = await cargarEstadoDelPlan(supabase, org.id)
+  const impedimento = motivoParaNoSubir(estado, used)
+  if (impedimento) return { ok: false, error: impedimento }
+
+  // Red de seguridad si el estado del plan no se pudo leer: se aplica el
+  // límite guardado, que es el comportamiento anterior.
+  if (!estado && used >= org.vault_limit) {
     return {
       ok: false,
       error: `Tu bóveda está llena (${used}/${org.vault_limit}). Elimina un documento o solicita ampliar el límite.`,
