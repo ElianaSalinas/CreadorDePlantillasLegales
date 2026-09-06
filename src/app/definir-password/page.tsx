@@ -46,6 +46,14 @@ export default async function DefinirPasswordPage({
 
   const despacho = (membresia ?? []).find((m) => m.organizations && m.organizations.owner_id !== user.id)
 
+  // Si quien invitó ya escribió un nombre, se muestra relleno en vez de
+  // pedirlo otra vez.
+  const { data: perfil } = await supabase
+    .from('profiles')
+    .select('first_name, last_name')
+    .eq('id', user.id)
+    .maybeSingle<{ first_name: string | null; last_name: string | null }>()
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
       <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
@@ -62,6 +70,48 @@ export default async function DefinirPasswordPage({
           </div>
 
           <form action={definirPassword} className="space-y-4">
+            {/* Se pide el nombre aquí y no después porque es el único
+                momento en que esta persona está obligada a pasar por una
+                pantalla. Sin nombre, sus compañeros la ven como un correo:
+                el botón de compartir dice "Compartir con
+                juana+prueba@gmail.com" en vez de "Compartir con Juana". */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="first_name"
+                  className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  Nombre
+                </label>
+                <input
+                  id="first_name"
+                  name="first_name"
+                  type="text"
+                  required
+                  defaultValue={perfil?.first_name ?? ''}
+                  autoComplete="given-name"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="last_name"
+                  className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  Apellido
+                </label>
+                <input
+                  id="last_name"
+                  name="last_name"
+                  type="text"
+                  required
+                  defaultValue={perfil?.last_name ?? ''}
+                  autoComplete="family-name"
+                  className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                />
+              </div>
+            </div>
+
             <PasswordInput autoComplete="new-password" hint="Mínimo 6 caracteres." />
 
             <div>

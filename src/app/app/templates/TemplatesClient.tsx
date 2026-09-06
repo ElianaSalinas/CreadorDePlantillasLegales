@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
-import { FileText, Plus, Pencil, Trash2, Copy, Loader2, Wand2 } from 'lucide-react'
+import { FileText, Plus, Pencil, Trash2, Copy, Loader2, Wand2, Search } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import EmptyState from '@/components/ui/EmptyState'
 import { TEMPLATE_CATEGORIES } from '@/lib/categories'
@@ -26,6 +26,9 @@ export type TemplateRow = {
 
 type Tab = 'mine' | 'master'
 
+/** Cuántas tarjetas se pintan de una vez. */
+const PASO = 24
+
 export default function TemplatesClient({
   mine,
   master,
@@ -40,8 +43,45 @@ export default function TemplatesClient({
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  const [busqueda, setBusqueda] = useState('')
+  const [categoria, setCategoria] = useState('')
+  const [aLaVista, setALaVista] = useState(PASO)
 
-  const list = tab === 'mine' ? mine : master
+  const todas = tab === 'mine' ? mine : master
+
+  // Las categorías salen de lo que hay, no de una lista fija: si mañana
+  // aparece una nueva en el catálogo, el filtro la recoge sola.
+  const categorias = useMemo(
+    () => [...new Set(todas.map((t) => t.category).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, 'es')
+    ),
+    [todas]
+  )
+
+  const filtradas = useMemo(() => {
+    const q = busqueda.trim().toLowerCase()
+    return todas.filter((t) => {
+      if (categoria && t.category !== categoria) return false
+      if (!q) return true
+      return (
+        t.title.toLowerCase().includes(q) ||
+        (t.description ?? '').toLowerCase().includes(q) ||
+        (t.category ?? '').toLowerCase().includes(q)
+      )
+    })
+  }, [todas, busqueda, categoria])
+
+  // Pintar las 251 de golpe eran siete mil nodos y una espera notable en
+  // un teléfono. Se muestran por tandas, y quien busca casi nunca
+  // necesita pasar de la primera.
+  const list = filtradas.slice(0, aLaVista)
+
+  function cambiarPestana(nueva: Tab) {
+    setTab(nueva)
+    setBusqueda('')
+    setCategoria('')
+    setALaVista(PASO)
+  }
 
   function handleSubmit(formData: FormData) {
     setError(null)
@@ -83,10 +123,10 @@ export default function TemplatesClient({
           role="tablist"
           className="inline-flex rounded-lg border border-slate-200 bg-white p-1 dark:border-slate-800 dark:bg-slate-900"
         >
-          <TabButton active={tab === 'mine'} onClick={() => setTab('mine')}>
+          <TabButton active={tab === 'mine'} onClick={() => cambiarPestana('mine')}>
             Mis plantillas ({mine.length})
           </TabButton>
-          <TabButton active={tab === 'master'} onClick={() => setTab('master')}>
+          <TabButton active={tab === 'master'} onClick={() => cambiarPestana('master')}>
             Biblioteca SA&amp;VE ({master.length})
           </TabButton>
         </div>
@@ -105,13 +145,70 @@ export default function TemplatesClient({
         )}
       </div>
 
+      {todas.length > 8 && (
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <div className="relative min-w-[220px] flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="search"
+              value={busqueda}
+              onChange={(e) => {
+                setBusqueda(e.target.value)
+                setALaVista(PASO)
+              }}
+              placeholder="Buscar por nombre, categoría o descripción…"
+              aria-label="Buscar plantillas"
+              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+            />
+          </div>
+
+          <select
+            value={categoria}
+            onChange={(e) => {
+              setCategoria(e.target.value)
+              setALaVista(PASO)
+            }}
+            aria-label="Filtrar por categoría"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+          >
+            <option value="">Todas las categorías</option>
+            {categorias.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
+          <span className="text-sm text-slate-500">
+            {filtradas.length === todas.length
+              ? `${todas.length} plantillas`
+              : `${filtradas.length} de ${todas.length}`}
+          </span>
+        </div>
+      )}
+
       {error && (
         <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20">
           {error}
         </p>
       )}
 
-      {list.length === 0 ? (
+      {list.length === 0 && todas.length > 0 ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-900">
+          <p className="font-semibold text-slate-700 dark:text-slate-300">
+            Ninguna plantilla coincide con lo que buscas.
+          </p>
+          <button
+            onClick={() => {
+              setBusqueda('')
+              setCategoria('')
+            }}
+            className="mt-2 text-sm text-emerald-600 underline underline-offset-2"
+          >
+            Quitar los filtros
+          </button>
+        </div>
+      ) : list.length === 0 ? (
         <EmptyState
           title={tab === 'mine' ? 'Aún no tienes plantillas propias' : 'La biblioteca está vacía'}
           description={
@@ -181,6 +278,20 @@ export default function TemplatesClient({
               </div>
             </article>
           ))}
+        </div>
+      )}
+
+      {filtradas.length > list.length && (
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => setALaVista((n) => n + PASO)}
+            className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            Mostrar {Math.min(PASO, filtradas.length - list.length)} más
+          </button>
+          <p className="mt-2 text-xs text-slate-400">
+            Viendo {list.length} de {filtradas.length}
+          </p>
         </div>
       )}
 
