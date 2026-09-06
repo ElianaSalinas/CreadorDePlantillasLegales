@@ -153,7 +153,16 @@ nadie se lo compartió. Privacidad probada por los dos lados.
 
 # FASE 1 · Bloqueos de uso
 
-**Lo que hoy impide usar el producto con normalidad. Estimado: 1 semana.**
+> ## ✅ CERRADA · 5 de septiembre de 2026
+>
+> Las seis tareas hechas. Queda solo 1.7, que es P3 y se hará junto con 8.1
+> porque tocan el mismo archivo.
+>
+> **Verificado en producción con sesión iniciada:** el menú móvil se abre a
+> 606 px, atrapa el foco, bloquea el scroll de fondo y muestra solo las seis
+> secciones que le tocan a un paralegal. El panel ya lee del plan:
+> *"Plan Equipo: sin tope"* y bóveda *"0 / 100"*, que es la fórmula
+> funcionando con un despacho de dos integrantes.
 
 ### 1.1 Menú de navegación en móvil · P1
 
@@ -165,6 +174,8 @@ nadie se lo compartió. Privacidad probada por los dos lados.
 
 **Hecho cuando:** a 375 px se puede llegar a las seis secciones sin tocar la barra de direcciones.
 
+**✅ Hecho.** `AppNav` pasa a exportar la lista de enlaces y el menú móvil usa esa misma: si cada uno tuviera la suya, una sección nueva aparecería en uno y no en el otro.
+
 ### 1.2 Buscador y paginación en Plantillas · P2
 
 **Qué.** Campo de búsqueda por título y categoría, y paginación o carga progresiva.
@@ -174,6 +185,8 @@ nadie se lo compartió. Privacidad probada por los dos lados.
 **Dónde.** `src/app/app/templates/TemplatesClient.tsx`
 
 **Hecho cuando:** escribir "alquiler" deja a la vista solo las de alquiler, y la página monta menos de 2.000 nodos.
+
+**✅ Hecho.** Búsqueda por nombre, categoría y descripción, filtro por categoría y tandas de 24. Las categorías del filtro salen de lo que hay en la lista, no de una escrita a mano — una fija se habría quedado desfasada, como ya pasó con las diez de la portada frente a las once de la base.
 
 ### 1.3 Aplicar los tres planes · P1
 
@@ -202,6 +215,8 @@ gratuito: ninguna.
 detiene con un mensaje que explica por qué y qué hacer; y un despacho de cuatro
 personas ve 130 de cupo en la bóveda, no 100.
 
+**✅ Hecho.** Los números viven en la tabla `planes`, que leen tanto la aplicación como el trigger. El periodo de gracia se modela como *plan efectivo*: pasados los siete días rige `CANCELLED`, con 0 documentos y 0 de bóveda — y cero de bóveda no impide leer ni descargar, solo subir, que es exactamente "solo lectura" sin una línea de lógica especial.
+
 ### 1.4 La bóveda: privada por defecto · P1 · ✅ decidido
 
 **Qué.** Cada archivo nace privado. Su dueño decide si lo hace visible para el
@@ -222,6 +237,8 @@ la consultan. Media jornada menos de la que estaba estimada.
 **Hecho cuando:** un paralegal sube un archivo, su compañero no lo ve, y al
 marcarlo visible aparece.
 
+**✅ Hecho.** Con el titular como excepción, que obliga a cuidar el lenguaje: llamar "Privado" a secas a un archivo que su jefa sí ve sería prometer de más, así que en pantalla dice **"Solo tú y el titular"**.
+
 ### 1.5 Textos que contradicen al producto · P2
 
 **Qué.** Corregir *"Debe tener ya una cuenta en Save Documentos"* en Mi Despacho.
@@ -232,6 +249,8 @@ marcarlo visible aparece.
 
 **Hecho cuando:** el texto describe el comportamiento real.
 
+**✅ Hecho.**
+
 ### 1.6 Pedir el nombre a quien llega invitado · P3
 
 **Qué.** Que `/definir-password` pida nombre y apellido junto con la contraseña.
@@ -241,6 +260,8 @@ marcarlo visible aparece.
 **Dónde.** `src/app/definir-password/`
 
 **Hecho cuando:** el panel de compartir muestra nombres.
+
+**✅ Hecho.** Se pide al crear la contraseña, el único momento en que esa persona está obligada a pasar por una pantalla. Y se guarda *después* de la contraseña: si el nombre fallara ya puede entrar y lo arregla luego; al revés, un fallo la dejaría fuera de su cuenta por un dato cosmético.
 
 ### 1.7 `middleware.ts` → `proxy.ts` · P3
 
@@ -579,7 +600,7 @@ Pago fallido, periodo de gracia, cancelación y qué ve un despacho con la suscr
 | Fase | Qué | Estimado | Bloquea a |
 |---|---|---|---|
 | **F0** | Cerrar lo abierto | ✅ **Cerrada** | — |
-| **F1** | Bloqueos de uso | 1 semana | F3, F4, F5 |
+| **F1** | Bloqueos de uso | ✅ **Cerrada** | — |
 | **F2** | Revisión legal | **3–6 semanas · abogada** | **F6** |
 | **F3** | Importar y convertir | 2–3 semanas | — |
 | **F4** | Visibilidad nueva | 3–4 días | — |
@@ -631,3 +652,8 @@ No para lucirlo, sino para que no se vuelva a planificar.
 | ✅ | `robots.txt` y `sitemap.xml` **verificados en el dominio**, no solo escritos |
 | ✅ | Credenciales expuestas rotadas: sin problemas críticos abiertos |
 | ✅ | Privacidad de documentos probada en producción por los dos lados |
+| ✅ | Los tres planes, aplicados de verdad: topes, gracia de 7 días y catálogo por plan |
+| ✅ | La app deja de ser inservible en un teléfono |
+| ✅ | La bóveda deja de ser de todo el despacho |
+| ✅ | Buscador y filtro entre las 251 plantillas |
+| ✅ | Autoría de 40 commits devuelta, y fin del ruido de finales de línea |
