@@ -121,10 +121,14 @@ export default async function PreciosPage() {
                 <h2 className="font-serif text-2xl font-bold text-[#0D2C24]">{p.nombre}</h2>
 
                 <p className="mt-3 flex items-baseline gap-1.5">
+                  {/* El plan gratis se llama "Gratis" en la base, asi que
+                      poner tambien "Gratis" de precio lo repetia dos veces
+                      seguidas. RD$0 dice lo mismo y alinea las tres
+                      tarjetas en la misma linea de base. */}
                   <span className="font-serif text-4xl font-bold text-[#0D2C24]">
-                    {p.precio_dop === 0 ? 'Gratis' : dop(p.precio_dop)}
+                    {dop(p.precio_dop)}
                   </span>
-                  {p.precio_dop > 0 && <span className="text-sm text-[#6b7570]">al mes</span>}
+                  <span className="text-sm text-[#6b7570]">al mes</span>
                 </p>
 
                 <ul className="mt-6 flex-1 space-y-3 text-sm text-[#2c3330]">
