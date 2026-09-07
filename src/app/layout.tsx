@@ -3,6 +3,8 @@ import Script from 'next/script'
 import '../index.css'
 import { OG_IMAGE } from '@/lib/og'
 import { fuenteSerif, fuenteSans } from '@/lib/fuentes'
+import Analitica from '@/components/analitica/Analitica'
+import Consentimiento from '@/components/analitica/Consentimiento'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://savedocumentos.com'),
@@ -88,7 +90,25 @@ export default function RootLayout({
           {`(function(){try{var v=localStorage.getItem('save-tema');var o=v==='oscuro'||(v!=='claro'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var c=document.documentElement.classList;c.toggle('dark',o);c.toggle('light',!o);}catch(e){}})();`}
         </Script>
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        {/*
+          El identificador se lee AQUI, en el servidor, y baja como prop.
+
+          `NEXT_PUBLIC_GA_ID` es una variable de build: Next la sustituye
+          por su valor al compilar. Como el Dockerfile no declaraba
+          ningun ARG, en el contenedor de build valia `undefined` — es
+          exactamente lo que dejo /precios roto en cada despliegue. El
+          Dockerfile ya la declara; si algun dia falta, esto vale
+          undefined y la analitica sencillamente no se monta, en vez de
+          romper la pagina.
+
+          Cambiar el ID exige REDESPLEGAR, no basta con tocar la
+          variable en Railway: el valor viaja dentro del bundle.
+        */}
+        <Analitica id={process.env.NEXT_PUBLIC_GA_ID} />
+        <Consentimiento />
+      </body>
     </html>
   )
 }

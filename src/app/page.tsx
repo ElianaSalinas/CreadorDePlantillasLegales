@@ -296,6 +296,8 @@ export default async function HomePage() {
             </Link>
             <Link
               href="/register"
+              data-analitica="cta_click"
+              data-analitica-etiqueta="cabecera"
               className="rounded-full bg-[#0D2C24] px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#164E3E]"
             >
               Empieza gratis
@@ -351,6 +353,8 @@ export default async function HomePage() {
             <div className="mt-1 flex flex-col gap-3.5 sm:flex-row sm:items-center">
               <Link
                 href="/register"
+                data-analitica="cta_click"
+                data-analitica-etiqueta="heroe"
                 className="flex items-center justify-center gap-2.5 rounded-full bg-[#0D2C24] px-8 py-4 text-[15px] font-bold text-white shadow-lg shadow-[#0D2C24]/20 transition-colors hover:bg-[#164E3E]"
               >
                 Empieza gratis
@@ -611,6 +615,8 @@ export default async function HomePage() {
           </p>
           <Link
             href="/register"
+            data-analitica="cta_click"
+            data-analitica-etiqueta="cierre"
             className="mt-2 flex items-center gap-2.5 rounded-full bg-white px-10 py-5 text-base font-bold text-[#0D2C24] shadow-2xl transition-transform hover:scale-[1.02]"
           >
             Empieza gratis

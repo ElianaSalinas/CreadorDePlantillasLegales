@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, AlertTriangle, Check, X, FileText, Eye } from 'lucide-react'
 import { previewDocument, generateDocument, type PreviewResult } from '../../actions'
+import { enviarEvento } from '@/lib/analitica'
 import { questionFor } from '@/lib/engine/variables'
 import type { Answers, Variable } from '@/lib/engine/types'
 
@@ -71,6 +72,11 @@ export default function GeneratorClient({
     startSaving(async () => {
       const r = await generateDocument(templateId, answers, title)
       if (r.ok && r.documentId) {
+        // Se cuenta ANTES de navegar, y solo si el servidor devolvio un
+        // documento. Contarlo al pulsar el boton mediria intentos, no
+        // documentos, y los dos numeros se parecen lo justo para
+        // engañarnos durante meses.
+        enviarEvento('document_created')
         router.push(`/app/documents/${r.documentId}`)
       } else {
         setError(r.error ?? 'No se pudo generar el documento.')

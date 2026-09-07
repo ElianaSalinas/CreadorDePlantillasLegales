@@ -100,6 +100,8 @@ export default function EditorClient({
 
         <a
           href={`/app/documents/${documentId}/export?format=docx`}
+          data-analitica="document_download"
+          data-analitica-etiqueta="docx"
           className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           <FileText size={16} /> Word
@@ -108,6 +110,8 @@ export default function EditorClient({
         <button
           onClick={downloadPdf}
           disabled={downloading}
+          data-analitica="document_download"
+          data-analitica-etiqueta="pdf"
           className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} PDF

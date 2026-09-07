@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, Check, Loader2, X } from 'lucide-react'
 import { shareDocument, unshareDocument, type ShareResult } from './share-actions'
+import { enviarEvento } from '@/lib/analitica'
 
 export type Companero = {
   userId: string
@@ -55,7 +56,12 @@ export default function SharePanel({
         : await shareDocument(documentId, c.userId)
       setResult(r)
       setEnCurso(null)
-      if (r.ok) router.refresh()
+      if (r.ok) {
+        // Solo el reparto, no el que lo quita: son dos gestos distintos y
+        // sumarlos daria una cifra de "compartidos" que no es real.
+        if (!c.compartido) enviarEvento('document_shared')
+        router.refresh()
+      }
     })
   }
 

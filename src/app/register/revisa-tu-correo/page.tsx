@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { MailCheck } from 'lucide-react'
 import AuthShowcase from '@/components/ui/AuthShowcase'
 import { EMPRESA } from '@/lib/empresa'
+import EventoAlLlegar from '@/components/analitica/EventoAlLlegar'
 
 export const metadata = {
   title: 'Revisa tu correo',
@@ -25,6 +26,10 @@ export default async function RevisaTuCorreoPage() {
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center bg-slate-50 p-6 dark:bg-slate-950">
         <div className="w-full max-w-md py-10">
+        {/* El alta se cuenta AQUI y no en el boton de registro: el boton
+            puede volver con un error, y esta pantalla solo se ve cuando
+            la cuenta existe de verdad. */}
+        <EventoAlLlegar evento="sign_up" />
           <Link href="/" className="mb-10 flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-[7px] bg-[#0D2C24] font-serif text-base font-bold text-white">
               S

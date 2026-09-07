@@ -254,6 +254,8 @@ export default function TemplatesClient({
               <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
                 <Link
                   href={`/app/documents/new/${row.id}`}
+                  data-analitica="template_start"
+                  data-analitica-etiqueta={row.title}
                   className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
                 >
                   <Wand2 size={15} /> Usar
