@@ -86,15 +86,22 @@ export default function GeneratorClient({
       {/* ── Formulario ── */}
       <div className="space-y-6">
         <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-          <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="titulo-documento"
+            className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
             Nombre del documento
           </label>
           <input
+            id="titulo-documento"
+            aria-describedby="titulo-documento-ayuda"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
           />
-          <p className="mt-1 text-xs text-slate-500">Solo para encontrarlo después en tu bóveda.</p>
+          <p id="titulo-documento-ayuda" className="mt-1 text-xs text-slate-500">
+            Solo para encontrarlo después en tu bóveda.
+          </p>
         </div>
 
         {groups.map((group) => {
@@ -246,19 +253,63 @@ function Field({
   const required = forcedRequired || variable.is_required
   const wide = variable.data_type === 'textarea' || variable.data_type === 'address' || variable.data_type === 'multiselect'
 
+  // Un id por variable, estable entre renders. Sin esto la etiqueta no
+  // puede apuntar a su campo y un lector de pantalla lee "campo de
+  // edición" dieciocho veces seguidas: se ve bien y no se puede usar.
+  const campoId = `campo-${variable.id}`
+  const etiquetaId = `${campoId}-etiqueta`
+  const ayudaId = `${campoId}-ayuda`
+  const errorId = `${campoId}-error`
+
+  // Lo que describe al campo se le cuelga por aria-describedby, no se deja
+  // suelto debajo: si no, el error existe en la pantalla y no en el oído.
+  const describedBy = [variable.help_text && !error ? ayudaId : null, error ? errorId : null]
+    .filter(Boolean)
+    .join(' ')
+
+  // El multiselect no es un campo, son botones. `htmlFor` no tiene a qué
+  // apuntar, así que el grupo se nombra con aria-labelledby.
+  const esGrupo = variable.data_type === 'multiselect'
+
   return (
     <div className={wide ? 'sm:col-span-2' : undefined}>
-      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+      <label
+        id={etiquetaId}
+        htmlFor={esGrupo ? undefined : campoId}
+        className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300"
+      >
         {questionFor(variable)}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && (
+          <span className="ml-1 text-red-500" aria-hidden="true">
+            *
+          </span>
+        )}
+        {/* El asterisco es decoración: quien no ve la pantalla necesita
+            la palabra, y aria-required no la dice en todos los lectores. */}
+        {required && <span className="sr-only"> (obligatorio)</span>}
       </label>
 
-      <Control variable={variable} value={value} onChange={onChange} />
+      <Control
+        variable={variable}
+        value={value}
+        onChange={onChange}
+        campoId={campoId}
+        etiquetaId={etiquetaId}
+        describedBy={describedBy || undefined}
+        required={required}
+        invalido={Boolean(error)}
+      />
 
       {variable.help_text && !error && (
-        <p className="mt-1 text-xs text-slate-500">{variable.help_text}</p>
+        <p id={ayudaId} className="mt-1 text-xs text-slate-500">
+          {variable.help_text}
+        </p>
       )}
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && (
+        <p id={errorId} role="alert" className="mt-1 text-xs text-red-500">
+          {error}
+        </p>
+      )}
     </div>
   )
 }
@@ -267,17 +318,40 @@ function Control({
   variable,
   value,
   onChange,
+  campoId,
+  etiquetaId,
+  describedBy,
+  required,
+  invalido,
 }: {
   variable: Variable
   value: unknown
   onChange: (v: unknown) => void
+  campoId: string
+  etiquetaId: string
+  describedBy?: string
+  required: boolean
+  invalido: boolean
 }) {
   const t = variable.data_type
 
+  // Lo que todo control comparte. `aria-invalid` es lo que hace que el
+  // lector anuncie el error al entrar en el campo, no solo al enviarlo.
+  const a11y = {
+    id: campoId,
+    'aria-describedby': describedBy,
+    'aria-required': required || undefined,
+    'aria-invalid': invalido || undefined,
+  } as const
+
   if (t === 'boolean') {
     return (
-      <label className="flex items-center gap-2.5 rounded-lg border border-slate-300 px-3 py-2 dark:border-slate-700">
+      <label
+        htmlFor={campoId}
+        className="flex items-center gap-2.5 rounded-lg border border-slate-300 px-3 py-2 dark:border-slate-700"
+      >
         <input
+          {...a11y}
           type="checkbox"
           checked={value === true}
           onChange={(e) => onChange(e.target.checked)}
@@ -290,7 +364,12 @@ function Control({
 
   if (t === 'select') {
     return (
-      <select value={String(value ?? '')} onChange={(e) => onChange(e.target.value)} className={inputClass}>
+      <select
+        {...a11y}
+        value={String(value ?? '')}
+        onChange={(e) => onChange(e.target.value)}
+        className={inputClass}
+      >
         <option value="">Selecciona…</option>
         {variable.options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -304,13 +383,19 @@ function Control({
   if (t === 'multiselect') {
     const selected = Array.isArray(value) ? (value as string[]) : []
     return (
-      <div className="flex flex-wrap gap-2">
+      <div
+        role="group"
+        aria-labelledby={etiquetaId}
+        aria-describedby={describedBy}
+        className="flex flex-wrap gap-2"
+      >
         {variable.options.map((o) => {
           const on = selected.includes(o.value)
           return (
             <button
               key={o.value}
               type="button"
+              aria-pressed={on}
               onClick={() =>
                 onChange(on ? selected.filter((s) => s !== o.value) : [...selected, o.value])
               }
@@ -331,6 +416,7 @@ function Control({
   if (t === 'textarea') {
     return (
       <textarea
+        {...a11y}
         rows={5}
         value={String(value ?? '')}
         onChange={(e) => onChange(e.target.value)}
@@ -355,6 +441,7 @@ function Control({
 
   return (
     <input
+      {...a11y}
       type={inputType}
       inputMode={t === 'cedula' || t === 'rnc' ? 'numeric' : undefined}
       step={t === 'currency' ? '0.01' : undefined}

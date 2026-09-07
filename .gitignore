@@ -28,3 +28,6 @@ trash-*.old
 
 # Salida temporal de npm run verify:import
 .tmp-import/
+
+# Carpeta de trabajo del asistente. No es del proyecto.
+Claude outputs/

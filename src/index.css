@@ -72,8 +72,11 @@
 
 @layer base {
   :root {
-    --font-serif: 'Libre Caslon Text', Georgia, Cambria, serif;
-    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Las dos las define next/font en el <html>. Las de reserva que hay
+       aquí solo actúan si algo fallara al cargar la fuente: sin ellas,
+       un fallo dejaria la pagina en la letra por defecto del navegador. */
+    --font-serif: var(--fuente-serif), Georgia, Cambria, serif;
+    --font-sans: var(--fuente-sans), -apple-system, BlinkMacSystemFont, sans-serif;
     --color-primary: #0D2C24;
     --color-secondary: #F5F2ED;
     --color-gold: #C5A059;
