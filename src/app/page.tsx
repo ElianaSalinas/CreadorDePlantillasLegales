@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { contarCatalogoPublicado, fraseDelCatalogo } from '@/lib/catalogo'
+import { EMPRESA } from '@/lib/empresa'
 import {
   FileText,
   Braces,
@@ -38,12 +39,87 @@ export const metadata: Metadata = {
 
 /* Le dice a Google cómo se llama el sitio, para que al buscar "savedocumentos"
    muestre "SAVE Documentos" y no la URL pelada. */
+const FAQ = [
+  {
+    q: '¿De verdad puedo empezar gratis?',
+    a: 'Sí. Creas tu cuenta y generas tus primeros documentos sin poner una tarjeta. Cuando el volumen crezca, ahí hablamos de un plan.',
+  },
+  {
+    q: '¿Tengo que usar sus plantillas?',
+    a: 'No. Puedes subir los documentos que ya usas y convertirlos en plantillas tuyas. La biblioteca es un punto de partida, no una obligación.',
+  },
+  {
+    q: '¿Los documentos salen con marca de SAVE?',
+    a: 'Nunca. Salen limpios, sin marcas de agua ni logotipos. El documento es tuyo y se ve como tuyo.',
+  },
+  {
+    q: '¿Quién puede ver lo que guardo?',
+    a: 'Solo tú y las personas que invites a tu despacho. Tu bóveda es privada y cada acceso queda registrado.',
+  },
+  {
+    q: '¿SAVE reemplaza a mi abogado?',
+    a: 'No, y no pretende hacerlo. SAVE es la herramienta con la que un profesional trabaja más rápido, no un sustituto del criterio jurídico.',
+  },
+]
+
+/**
+ * Lo que Google lee de la portada.
+ *
+ * Tres entidades, y las tres existen de verdad:
+ *
+ *   WebSite       el sitio.
+ *   Organization  la empresa, con su RNC y su sede reales. NO se usa
+ *                 LocalBusiness: eso describe un negocio al que un
+ *                 cliente se presenta físicamente, y a Punta Cana no va
+ *                 nadie a recoger un contrato.
+ *   FAQPage       legítimo porque las cinco preguntas ESTÁN visibles en
+ *                 la página. Marcar preguntas que el visitante no ve es
+ *                 justo lo que Google penaliza.
+ *
+ * Sin teléfonos, horarios, valoraciones ni precios inventados.
+ */
 const SITE_SCHEMA = {
   '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'SAVE Documentos',
-  alternateName: ['SAVE', 'Save Documentos'],
-  url: 'https://savedocumentos.com',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${EMPRESA.url}/#sitio`,
+      name: EMPRESA.nombreComercial,
+      alternateName: ['SAVE', 'Save Documentos'],
+      url: EMPRESA.url,
+      inLanguage: 'es-DO',
+      publisher: { '@id': `${EMPRESA.url}/#empresa` },
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${EMPRESA.url}/#empresa`,
+      name: EMPRESA.nombreComercial,
+      legalName: EMPRESA.nombreLegal,
+      taxID: EMPRESA.rnc,
+      url: EMPRESA.url,
+      email: EMPRESA.correo,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: EMPRESA.ciudad,
+        addressCountry: 'DO',
+      },
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer support',
+        email: EMPRESA.correo,
+        availableLanguage: ['es'],
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': `${EMPRESA.url}/#faq`,
+      mainEntity: FAQ.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    },
+  ],
 }
 
 const NAV_LINKS = [
@@ -163,28 +239,6 @@ const CATEGORIES = [
   'Construcción',
 ]
 
-const FAQ = [
-  {
-    q: '¿De verdad puedo empezar gratis?',
-    a: 'Sí. Creas tu cuenta y generas tus primeros documentos sin poner una tarjeta. Cuando el volumen crezca, ahí hablamos de un plan.',
-  },
-  {
-    q: '¿Tengo que usar sus plantillas?',
-    a: 'No. Puedes subir los documentos que ya usas y convertirlos en plantillas tuyas. La biblioteca es un punto de partida, no una obligación.',
-  },
-  {
-    q: '¿Los documentos salen con marca de SAVE?',
-    a: 'Nunca. Salen limpios, sin marcas de agua ni logotipos. El documento es tuyo y se ve como tuyo.',
-  },
-  {
-    q: '¿Quién puede ver lo que guardo?',
-    a: 'Solo tú y las personas que invites a tu despacho. Tu bóveda es privada y cada acceso queda registrado.',
-  },
-  {
-    q: '¿SAVE reemplaza a mi abogado?',
-    a: 'No, y no pretende hacerlo. SAVE es la herramienta con la que un profesional trabaja más rápido, no un sustituto del criterio jurídico.',
-  },
-]
 
 /* El número del catálogo se refresca cada cinco minutos. La portada sigue
    sirviéndose cacheada: nadie espera a la base de datos para verla. */
@@ -585,6 +639,7 @@ export default async function HomePage() {
           <FooterCol
             title="CUENTA"
             links={[
+              { href: '/precios', label: 'Precios' },
               { href: '/register', label: 'Empieza gratis' },
               { href: '/login', label: 'Iniciar sesión' },
             ]}
@@ -602,9 +657,12 @@ export default async function HomePage() {
         <div className="mx-auto max-w-[1200px] px-6 pb-11 md:px-12">
           <div className="flex flex-col justify-between gap-3 border-t border-[#e8e5df] pt-6 sm:flex-row">
             <p className="text-[12.5px] text-slate-500">
-              © 2026 SA&amp;VE Comercial, S.R.L. · RNC 132-28618-9 · savedocumentos.com
+              © {new Date().getFullYear()} {EMPRESA.nombreLegal} · RNC {EMPRESA.rnc} ·{' '}
+              {EMPRESA.dominio}
             </p>
-            <p className="text-[12.5px] text-slate-500">Santo Domingo, República Dominicana</p>
+            <p className="text-[12.5px] text-slate-500">
+              {EMPRESA.ciudad}, {EMPRESA.pais}
+            </p>
           </div>
         </div>
       </footer>
