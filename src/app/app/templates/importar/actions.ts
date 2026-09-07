@@ -44,6 +44,32 @@ function wrap(err: unknown, defecto: string) {
   return { ok: false, error: err instanceof Error ? err.message : defecto }
 }
 
+/**
+ * Un mensaje que una persona pueda leer.
+ *
+ * Los errores de PostgreSQL llegan en inglés y hablando de columnas y
+ * restricciones: 'null value in column "category" of relation
+ * "templates" violates not-null constraint'. Eso en pantalla no ayuda a
+ * nadie, y encima esconde el problema, porque quien lo lee no sabe si ha
+ * hecho algo mal o si el producto está roto. Se traduce lo que se
+ * reconoce y lo demás se acompaña de algo que sí orienta.
+ */
+function enCastellano(mensaje?: string): string {
+  if (!mensaje) return 'No se pudo crear la plantilla.'
+
+  if (/duplicate key|already exists/i.test(mensaje)) {
+    return 'Ya tienes una variable con ese nombre. Cámbiale el nombre a la que se repite.'
+  }
+  if (/violates row-level security/i.test(mensaje)) {
+    return 'No tienes permiso para crear plantillas en este despacho.'
+  }
+  if (/not-null constraint/i.test(mensaje)) {
+    return `Falta un dato obligatorio para crear la plantilla. Detalle técnico: ${mensaje}`
+  }
+
+  return `No se pudo crear la plantilla. Detalle técnico: ${mensaje}`
+}
+
 /* ══════════════ PASO 1: LEER Y PROPONER ══════════════ */
 
 export async function analizarDocumento(formData: FormData): Promise<AnalisisResult> {
@@ -113,6 +139,20 @@ export async function crearPlantillaDesdeTexto(
   try {
     const { supabase, user, org } = await requireImportador()
 
+    // `templates` arrastra dos columnas de categoría: `category_id`, que
+    // apunta a la tabla, y `category`, texto libre del esquema original y
+    // NOT NULL. Rellenar solo la primera hace que el INSERT falle con un
+    // mensaje de PostgreSQL que no dice nada a quien lo lee.
+    let categoriaTexto = 'Sin categoría'
+    if (meta.categoriaId) {
+      const { data: cat } = await supabase
+        .from('template_categories')
+        .select('name')
+        .eq('id', meta.categoriaId)
+        .maybeSingle()
+      if (cat) categoriaTexto = (cat as any).name
+    }
+
     const titulo = meta.titulo.trim()
     if (!titulo) return { ok: false, error: 'Ponle un nombre a la plantilla.' }
     if (elecciones.length === 0) {
@@ -153,9 +193,7 @@ export async function crearPlantillaDesdeTexto(
         .insert(nuevas)
         .select('id, tag')
 
-      if (errorVars) {
-        return { ok: false, error: `No se pudieron crear las variables: ${errorVars.message}` }
-      }
+      if (errorVars) return { ok: false, error: enCastellano(errorVars.message) }
       for (const v of creadas ?? []) porTag.set((v as any).tag, (v as any).id)
     }
 
@@ -166,6 +204,7 @@ export async function crearPlantillaDesdeTexto(
         org_id: org!.id,
         title: titulo,
         description: meta.descripcion.trim() || null,
+        category: categoriaTexto,
         category_id: meta.categoriaId,
         is_master: false,
         status: 'DRAFT',
@@ -177,7 +216,7 @@ export async function crearPlantillaDesdeTexto(
       .maybeSingle()
 
     if (errorPlantilla || !plantilla) {
-      return { ok: false, error: errorPlantilla?.message ?? 'No se pudo crear la plantilla.' }
+      return { ok: false, error: enCastellano(errorPlantilla?.message) }
     }
 
     const templateId = (plantilla as any).id as string
@@ -194,7 +233,7 @@ export async function crearPlantillaDesdeTexto(
       sort_order: 1,
     })
 
-    if (errorSeccion) return { ok: false, error: errorSeccion.message }
+    if (errorSeccion) return { ok: false, error: enCastellano(errorSeccion.message) }
 
     // ── Enganchar las variables ──
     const enlaces = etiquetas
