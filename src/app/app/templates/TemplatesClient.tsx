@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
-import { FileText, Plus, Pencil, Trash2, Copy, Loader2, Wand2, Search } from 'lucide-react'
+import { FileText, Plus, Pencil, Trash2, Copy, Loader2, Wand2, Search, Upload } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import EmptyState from '@/components/ui/EmptyState'
 import { TEMPLATE_CATEGORIES } from '@/lib/categories'
@@ -142,6 +142,15 @@ export default function TemplatesClient({
           >
             <Plus size={18} /> Nueva plantilla
           </button>
+        )}
+
+        {canEdit && (
+          <Link
+            href="/app/templates/importar"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            <Upload size={18} /> Convertir un documento
+          </Link>
         )}
       </div>
 
