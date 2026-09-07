@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import '../index.css'
 import { OG_IMAGE } from '@/lib/og'
 import { fuenteSerif, fuenteSans } from '@/lib/fuentes'
@@ -55,13 +56,38 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    // Las dos variables CSS que index.css consume. Ya no hay <head> con
-    // hojas de terceros: las letras salen del mismo dominio que la página.
+    // `light` es solo el punto de partida del HTML servido: el script de
+    // abajo lo corrige antes de que se pinte nada. Sin una clase inicial,
+    // el servidor y el cliente renderizarían distinto.
     <html
       lang="es-DO"
       className={`light ${fuenteSerif.variable} ${fuenteSans.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/*
+          El tema, antes del primer pixel.
+
+          Va EN LÍNEA y SÍNCRONO a propósito. Si esto se hiciera en un
+          efecto de React, el navegador ya habría pintado la página en
+          claro y el usuario vería un fogonazo blanco antes de que
+          apareciera su tema oscuro. Es un parpadeo pequeño y molesto que
+          delata que el tema es un añadido.
+
+          Va con `next/script` y `beforeInteractive` en vez de un <script>
+          suelto: un <script> dentro de un componente funciona al servir
+          la página, pero React avisa por consola de que nunca se ejecuta
+          al renderizar en cliente. Deuda en la consola es deuda.
+
+          La lógica está duplicada con `aplicarTema` en SelectorDeTema, y
+          eso es deliberado: aquí no puede haber un import, porque esto
+          corre antes de que exista un solo módulo de la aplicación. Si
+          se cambia una, hay que cambiar la otra.
+        */}
+        <Script id="save-tema-inicial" strategy="beforeInteractive">
+          {`(function(){try{var v=localStorage.getItem('save-tema');var o=v==='oscuro'||(v!=='claro'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var c=document.documentElement.classList;c.toggle('dark',o);c.toggle('light',!o);}catch(e){}})();`}
+        </Script>
+      </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
   )

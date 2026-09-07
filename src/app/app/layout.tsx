@@ -2,6 +2,7 @@ import { LogOut } from 'lucide-react'
 import { logout } from './actions'
 import AppNav from '@/components/ui/AppNav'
 import MenuMovil from '@/components/ui/MenuMovil'
+import SelectorDeTema from '@/components/ui/SelectorDeTema'
 import { requireSession, displayName } from '@/lib/session'
 
 export default async function AppLayout({
@@ -33,7 +34,8 @@ export default async function AppLayout({
         </div>
 
         <div className="flex items-center space-x-4">
-          <span className="text-sm text-slate-600 dark:text-slate-400">
+          <SelectorDeTema />
+          <span className="hidden text-sm text-slate-600 sm:inline dark:text-slate-400">
             {displayName(profile, user.email)}
           </span>
           <form action={logout}>
