@@ -2,14 +2,20 @@
   <!--
     Fondo transparente a propósito: sin rectángulo no hay esquinas
     blancas en la pestaña, ni en modo claro ni en oscuro.
-    El verde de marca se aclara en oscuro porque a 16px queda apagado.
-    Si un navegador no entiende la media query, se queda con el verde
-    base, que también se lee sobre fondo oscuro.
+
+    Los dos verdes son los de la escala nueva. Antes eran #059669 y
+    #34d399, el menta de Tailwind, que ya no aparece en ninguna otra
+    parte de la web: el icono se había quedado con el color viejo.
+
+    En oscuro se sube al 300 (#8FB4A6) porque el verde de marca, a
+    16px y sobre una barra oscura, no se ve. Si un navegador no
+    entiende la media query se queda con el verde base, que sobre
+    fondo claro es donde tiene que leerse.
   -->
   <style>
-    .marca { fill: #059669; }
+    .marca { fill: #0D2C24; }
     @media (prefers-color-scheme: dark) {
-      .marca { fill: #34d399; }
+      .marca { fill: #8FB4A6; }
     }
   </style>
   <text class="marca" x="16" y="25" text-anchor="middle"

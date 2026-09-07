@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { contarCatalogoPublicado, fraseDelCatalogo } from '@/lib/catalogo'
 import { DOMICILIO, EMPRESA } from '@/lib/empresa'
+import { OG_IMAGE } from '@/lib/og'
 import {
   FileText,
   Braces,
@@ -34,6 +35,9 @@ export const metadata: Metadata = {
     title: 'SAVE Documentos — Crea documentos. Automatiza tu trabajo.',
     description:
       'Convierte los contratos que ya usas en plantillas inteligentes. Sin volver a empezar de cero.',
+    // Obligatorio: Next sustituye el `openGraph` del layout entero, no lo
+    // fusiona. Sin esta linea la portada se comparte sin imagen.
+    images: OG_IMAGE,
   },
 }
 
