@@ -87,7 +87,22 @@
   html,
   body {
     font-family: var(--font-sans);
-    overflow-x: hidden;
+
+    /* `clip`, NO `hidden`.
+     *
+     * Los dos recortan lo que se sale por los lados, pero `hidden`
+     * convierte al elemento en un contenedor de scroll, y eso ANULA
+     * `position: sticky` de todo lo que haya dentro. La cabecera de la
+     * portada era sticky desde el primer dia y se iba con la pagina:
+     * medido en produccion, a 1200px de scroll estaba en top:-1200.
+     *
+     * `clip` recorta igual y no crea contenedor de scroll, asi que
+     * sticky vuelve a funcionar. Comprobado tambien que no reaparece la
+     * barra horizontal que `hidden` estaba tapando.
+     *
+     * Si algun dia hay que volver a `hidden`, la cabecera deja de
+     * quedarse fija y nadie relacionara una cosa con la otra. */
+    overflow-x: clip;
     max-width: 100vw;
     width: 100%;
     margin: 0;
