@@ -343,6 +343,7 @@ export default function ImportarClient({
                         <div>
                           <label className="mb-1 block text-xs font-semibold text-slate-500">
                             Qué se le pregunta a quien rellene
+                            <span className="ml-1 font-normal text-slate-400">(opcional)</span>
                           </label>
                           <input
                             value={d.pregunta}
@@ -350,6 +351,17 @@ export default function ImportarClient({
                             placeholder="¿Quién es el arrendatario?"
                             className={campo + ' text-xs'}
                           />
+                          {c.variableExistente && d.etiqueta === c.variableExistente ? (
+                            <p className="mt-1 text-[11px] text-slate-400">
+                              Esta variable ya tiene su pregunta en el catálogo.
+                            </p>
+                          ) : (
+                            !d.pregunta.trim() && (
+                              <p className="mt-1 text-[11px] text-slate-400">
+                                Sin pregunta, el formulario mostrará &laquo;{d.etiqueta.replace(/_/g, ' ')}&raquo;.
+                              </p>
+                            )
+                          )}
                         </div>
                       </div>
                     )}

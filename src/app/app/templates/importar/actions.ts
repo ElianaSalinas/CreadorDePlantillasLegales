@@ -54,6 +54,19 @@ function wrap(err: unknown, defecto: string) {
  * hecho algo mal o si el producto está roto. Se traduce lo que se
  * reconoce y lo demás se acompaña de algo que sí orienta.
  */
+/**
+ * El nombre con el que la variable aparece en el formulario.
+ *
+ * Antes se usaba el tag con los guiones bajos cambiados por espacios, y
+ * en pantalla salía "monto principal" en minúsculas, al lado de
+ * etiquetas cuidadas como "¿Quién es la primera parte?". Se nota, y
+ * hace que la plantilla importada parezca de segunda.
+ */
+function etiquetaLegible(tag: string): string {
+  const texto = tag.replace(/_/g, ' ').trim()
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
+}
+
 function enCastellano(mensaje?: string): string {
   if (!mensaje) return 'No se pudo crear la plantilla.'
 
@@ -181,7 +194,7 @@ export async function crearPlantillaDesdeTexto(
       .map((e) => ({
         org_id: org!.id,
         tag: e.etiqueta,
-        label: e.pregunta?.trim() || e.etiqueta.replace(/_/g, ' '),
+        label: etiquetaLegible(e.etiqueta),
         question: e.pregunta?.trim() || null,
         data_type: TIPO_DE_DATO[e.tipo] ?? 'text',
         is_required: true,
