@@ -22,3 +22,9 @@ _*.tar.gz
 # Sobras de git tras una operación interrumpida en la carpeta montada,
 # donde no se pueden borrar sobre la marcha.
 trash-*.old
+
+# Estado de sesion del IDE (Antigravity): 13 MB que se regeneran solos.
+.antigravity/
+
+# Salida temporal de npm run verify:import
+.tmp-import/
