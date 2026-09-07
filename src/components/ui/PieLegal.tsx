@@ -13,6 +13,7 @@ import { DOMICILIO, EMPRESA } from '@/lib/empresa'
 export default function PieLegal() {
   const enlaces = [
     { href: '/precios', texto: 'Precios' },
+    { href: '/quienes-somos', texto: 'Quiénes somos' },
     { href: '/terminos', texto: 'Términos de servicio' },
     { href: '/privacidad', texto: 'Privacidad' },
     { href: '/contacto', texto: 'Contacto' },

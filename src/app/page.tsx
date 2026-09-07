@@ -656,6 +656,7 @@ export default async function HomePage() {
           <FooterCol
             title="LEGAL"
             links={[
+              { href: '/quienes-somos', label: 'Quiénes somos' },
               { href: '/terminos', label: 'Términos' },
               { href: '/privacidad', label: 'Privacidad' },
               { href: '/contacto', label: 'Contacto' },
