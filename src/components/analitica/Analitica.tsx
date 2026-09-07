@@ -8,6 +8,7 @@ import {
   EVENTOS,
   enviarEvento,
   leerConsentimiento,
+  rutaSinIdentificadores,
   type Evento,
 } from '@/lib/analitica'
 
@@ -24,6 +25,11 @@ import {
  * `id` llega como prop desde el layout, que es un componente de
  * servidor. No se lee process.env aquí porque este archivo es de
  * cliente y ahí no hay variables de entorno.
+ *
+ * `send_page_view: false` en la configuración es deliberado: la vista
+ * automática de GA4 usa la URL real del navegador, con el identificador
+ * del documento dentro. Se apaga la suya y se manda la nuestra, ya
+ * limpia.
  */
 export default function Analitica({ id }: { id?: string }) {
   const [permitido, setPermitido] = useState(false)
@@ -56,18 +62,30 @@ export default function Analitica({ id }: { id?: string }) {
       if (!nombre || !EVENTOS.includes(nombre)) return
       enviarEvento(nombre, {
         etiqueta: el.getAttribute('data-analitica-etiqueta') ?? undefined,
-        ruta,
+        ruta: rutaSinIdentificadores(ruta),
       })
     }
     document.addEventListener('click', alHacerClic)
     return () => document.removeEventListener('click', alHacerClic)
   }, [permitido, ruta])
 
-  // Las navegaciones dentro de la aplicación no recargan la página, así
-  // que GA4 no se entera solo: hay que contarle cada cambio de ruta.
+  /**
+   * Cada cambio de ruta, con la ruta ya limpia de identificadores.
+   *
+   * El `gtag('set', ...)` no es un adorno: fija la ruta por defecto para
+   * TODO lo que GA4 mande después, incluidos los eventos automáticos de
+   * la "medición mejorada" —desplazamientos, clics salientes— que no
+   * pasan por nuestro código y que, si no, adjuntarían la URL real con
+   * el identificador del documento dentro.
+   */
   useEffect(() => {
     if (!permitido || !id || typeof window.gtag !== 'function') return
-    window.gtag('event', 'page_view', { page_path: ruta })
+    const limpia = rutaSinIdentificadores(ruta)
+    window.gtag('set', {
+      page_path: limpia,
+      page_location: window.location.origin + limpia,
+    })
+    window.gtag('event', 'page_view')
   }, [ruta, permitido, id])
 
   if (!id || !permitido) return null
@@ -76,7 +94,7 @@ export default function Analitica({ id }: { id?: string }) {
     <>
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${id}`} strategy="afterInteractive" />
       <Script id="ga4-init" strategy="afterInteractive">
-        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${id}',{anonymize_ip:true});`}
+        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${id}',{anonymize_ip:true,send_page_view:false});`}
       </Script>
     </>
   )

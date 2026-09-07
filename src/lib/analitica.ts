@@ -57,3 +57,42 @@ export function enviarEvento(nombre: Evento, parametros?: Record<string, unknown
     /* nada */
   }
 }
+
+/**
+ * Quita de la ruta los identificadores antes de mandarla a Google.
+ *
+ * POR QUE, QUE ES LA PARTE QUE IMPORTA
+ *
+ * GA4 envia la URL completa de cada pagina. Dentro de la aplicacion las
+ * URLs son /app/documents/<id-del-documento>, asi que sin esto cada
+ * visita mandaria a Google el identificador de un expediente de un
+ * cliente de un despacho. No es un nombre ni una cedula, pero es rastro
+ * del trabajo de un abogado saliendo del pais, y la Ley 172-13 llama a
+ * eso secreto profesional en su articulo 5.6.
+ *
+ * Para lo que sirve la analitica -saber cuanta gente edita documentos-
+ * "/app/documents/[id]" vale exactamente lo mismo que el identificador
+ * real. Se pierde cero informacion util y se deja de filtrar la que no
+ * nos toca.
+ */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export function rutaSinIdentificadores(ruta: string): string {
+  return ruta
+    .split('/')
+    .map((trozo) => {
+      if (UUID.test(trozo)) return '[id]'
+      // Por si algun dia se usan ids que no sean UUID. La regla es
+      // ESTRECHA a proposito: sin guiones y solo hexadecimal.
+      //
+      // La primera version decia "trozo largo con digitos", y al probarla
+      // se comia los slugs: /plantillas/contrato-de-alquiler-2024 habria
+      // llegado a GA4 como /plantillas/[id], borrando justo la pagina
+      // cuyo rendimiento queremos medir en la Fase 6. Un filtro de
+      // privacidad que tapa de mas es un filtro roto, solo que se nota
+      // seis meses despues y en forma de informe vacio.
+      if (trozo.length >= 20 && /^[0-9a-f]+$/i.test(trozo)) return '[id]'
+      return trozo
+    })
+    .join('/')
+}
