@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FileText, Plus } from 'lucide-react'
+import { FileText, Plus, Lock } from 'lucide-react'
 import PageHeader from '@/components/ui/PageHeader'
 import EmptyState from '@/components/ui/EmptyState'
 import { requireSession, displayName } from '@/lib/session'
@@ -26,7 +26,7 @@ export default async function DocumentsPage() {
   const { data } = org
     ? await supabase
         .from('documents')
-        .select('id, title, status, created_at, updated_at, creator_id, profiles:creator_id(first_name, last_name, email)')
+        .select('id, title, status, created_at, updated_at, creator_id, es_privado, profiles:creator_id(first_name, last_name, email)')
         .eq('org_id', org.id)
         .order('created_at', { ascending: false })
         .limit(100)
@@ -38,7 +38,7 @@ export default async function DocumentsPage() {
     <div className="mx-auto max-w-5xl">
       <PageHeader
         title="Documentos"
-        subtitle="Todo lo que has generado en este despacho."
+        subtitle="Lo que ha generado tu despacho. Los privados solo los ve quien los escribió."
         action={
           <Link
             href="/app/templates"
@@ -70,9 +70,23 @@ export default async function DocumentsPage() {
                 href={`/app/documents/${d.id}`}
                 className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
-                <FileText size={18} className="shrink-0 text-slate-400" />
+                {/* El candado sustituye al icono de documento en vez de
+                    ponerse al lado: en una lista larga, dos iconos por fila
+                    se convierten en ruido y se dejan de mirar. */}
+                {d.es_privado ? (
+                  <Lock size={18} className="shrink-0 text-amber-600 dark:text-amber-500" />
+                ) : (
+                  <FileText size={18} className="shrink-0 text-slate-400" />
+                )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-slate-900 dark:text-white">{d.title}</p>
+                  <p className="truncate font-medium text-slate-900 dark:text-white">
+                    {d.title}
+                    {d.es_privado && (
+                      <span className="ml-2 align-middle text-xs font-semibold text-amber-700 dark:text-amber-500">
+                        Privado
+                      </span>
+                    )}
+                  </p>
                   <p className="truncate text-sm text-slate-500">
                     {displayName(d.profiles, d.profiles?.email)} ·{' '}
                     {new Date(d.created_at).toLocaleDateString('es-DO', {

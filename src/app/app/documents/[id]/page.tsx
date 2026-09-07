@@ -5,6 +5,7 @@ import PageHeader from '@/components/ui/PageHeader'
 import { requireSession, displayName } from '@/lib/session'
 import EditorClient from './EditorClient'
 import SharePanel, { type Companero } from './SharePanel'
+import PrivacidadToggle from './PrivacidadToggle'
 import { MEMBER_ROLE_LABEL } from '@/lib/labels'
 
 export const dynamic = 'force-dynamic'
@@ -22,12 +23,13 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
 
   if (!org) notFound()
 
-  // Ya no hace falta filtrar por org_id: la política de documents es más
-  // estricta que eso. Un paralegal solo ve lo suyo y lo que le compartieron,
-  // aunque el documento sea de su mismo despacho.
+  // No hace falta filtrar por org_id: la política de documents ya decide.
+  // Desde la Fase 4 un miembro del despacho ve los documentos de sus
+  // compañeros, salvo los marcados privados, que siguen requiriendo ser su
+  // autor, el titular, o tenerlo compartido.
   const { data: doc } = await supabase
     .from('documents')
-    .select('id, title, status, content, created_at, creator_id, template_version_id, templates(title, version), profiles:creator_id(first_name, last_name, email)')
+    .select('id, title, status, content, created_at, creator_id, es_privado, template_version_id, templates(title, version), profiles:creator_id(first_name, last_name, email)')
     .eq('id', id)
     .maybeSingle()
 
@@ -36,6 +38,7 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
   // Con quién se puede compartir: los demás miembros del despacho, sin el
   // titular -que ya lo ve todo- ni uno mismo.
   const puedeCompartir = (doc as any).creator_id === user.id || org.owner_id === user.id
+  const esPrivado = Boolean((doc as any).es_privado)
 
   const { data: miembros } = await supabase
     .from('org_members')
@@ -102,11 +105,24 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
         </p>
       )}
 
-      <SharePanel
-        documentId={doc.id}
-        companeros={companeros}
-        puedeCompartir={puedeCompartir}
-      />
+      <div className="mb-4 flex flex-wrap items-start gap-3">
+        <PrivacidadToggle
+          documentId={doc.id}
+          esPrivado={esPrivado}
+          puedeCambiar={puedeCompartir}
+        />
+
+        {/* Compartir solo tiene sentido en un documento privado. En uno
+            visible ya lo ve todo el despacho, y ofrecer el botón haría
+            creer que hay alguien a quien todavía hay que darle acceso. */}
+        {esPrivado && (
+          <SharePanel
+            documentId={doc.id}
+            companeros={companeros}
+            puedeCompartir={puedeCompartir}
+          />
+        )}
+      </div>
 
       <EditorClient
         documentId={doc.id}

@@ -108,3 +108,70 @@ export async function unshareDocument(documentId: string, userId: string): Promi
   revalidatePath(`/app/documents/${documentId}`)
   return { ok: true, notice: 'Acceso retirado.' }
 }
+
+const NO_PUEDE_PRIVACIDAD =
+  'Solo quien creó el documento, o el titular del despacho, puede cambiar quién lo ve.'
+
+/**
+ * Abre o cierra el candado de un documento.
+ *
+ * Privado significa: lo ven su autor, el titular del despacho y aquellos
+ * con quienes se haya compartido. Visible significa: lo ve todo el
+ * despacho, que es como nacen los documentos nuevos.
+ *
+ * Los repartos NO se borran al abrir el candado. Si mañana vuelve a
+ * cerrarse, quien ya lo tenía sigue teniéndolo; borrarlos aquí haría que
+ * un clic de más deshiciera en silencio un trabajo de reparto que quizá
+ * costó explicar por teléfono.
+ */
+export async function setDocumentPrivacy(
+  documentId: string,
+  esPrivado: boolean,
+): Promise<ShareResult> {
+  const { supabase, user, org } = await requireSession()
+  if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+
+  const { data: doc } = await supabase
+    .from('documents')
+    .select('id, title, creator_id, org_id, es_privado')
+    .eq('id', documentId)
+    .maybeSingle()
+
+  if (!doc) return { ok: false, error: 'No se encontró el documento.' }
+  if (doc.creator_id !== user.id && org.owner_id !== user.id) {
+    return { ok: false, error: NO_PUEDE_PRIVACIDAD }
+  }
+  if (doc.es_privado === esPrivado) {
+    return { ok: true, notice: esPrivado ? 'Ya era privado.' : 'Ya lo veía el despacho.' }
+  }
+
+  const { error } = await supabase
+    .from('documents')
+    .update({ es_privado: esPrivado })
+    .eq('id', documentId)
+
+  if (error) {
+    console.error('[privacidad] no se pudo cambiar es_privado:', error.message)
+    return { ok: false, error: 'No se pudo cambiar quién ve el documento. Inténtalo otra vez.' }
+  }
+
+  await logAudit(supabase, {
+    orgId: doc.org_id,
+    userId: user.id,
+    documentId,
+    action: esPrivado ? 'DOCUMENT_SET_PRIVATE' : 'DOCUMENT_SET_VISIBLE',
+    description: esPrivado
+      ? `"${doc.title}" pasa a privado.`
+      : `"${doc.title}" pasa a visible para el despacho.`,
+  })
+
+  revalidatePath(`/app/documents/${documentId}`)
+  revalidatePath('/app/documents')
+
+  return {
+    ok: true,
+    notice: esPrivado
+      ? 'Ahora es privado. Solo lo ves tú, el titular y quien tenga acceso.'
+      : 'Ahora lo ve todo tu despacho.',
+  }
+}
