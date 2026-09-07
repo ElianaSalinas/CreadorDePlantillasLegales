@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Mail, MapPin, Building2 } from 'lucide-react'
+import { Mail, MapPin, Building2, Phone } from 'lucide-react'
 import PieLegal from '@/components/ui/PieLegal'
-import { EMPRESA } from '@/lib/empresa'
+import { DOMICILIO, EMPRESA } from '@/lib/empresa'
 
 export const metadata: Metadata = {
   title: { absolute: 'Contacto · SAVE Documentos' },
   description:
-    'Escríbenos. SA&VE Comercial, S.R.L., Punta Cana, República Dominicana. Soporte, ventas y ejercicio de derechos sobre tus datos.',
+    'Escríbenos o llámanos. SA&VE Comercial, S.R.L., Verón, Higüey, La Altagracia. Soporte, ventas y ejercicio de derechos sobre tus datos.',
   alternates: { canonical: `${EMPRESA.url}/contacto` },
 }
 
@@ -33,22 +33,37 @@ export default function ContactoPage() {
           Escribe a una persona, no a un formulario. Contestamos en horario laboral dominicano.
         </p>
 
-        <a
-          href={`mailto:${EMPRESA.correo}`}
-          className="mt-10 flex items-center gap-4 rounded-2xl border border-[#e8e5df] bg-white p-6 transition-colors hover:border-[#0D2C24]"
-        >
-          <span className="rounded-xl bg-[#f5f2ed] p-3 text-[#0D2C24]">
-            <Mail size={22} />
-          </span>
-          <span>
-            <span className="block font-serif text-xl font-bold text-[#0D2C24]">
-              {EMPRESA.correo}
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <a
+            href={`mailto:${EMPRESA.correo}`}
+            className="flex items-center gap-4 rounded-2xl border border-[#e8e5df] bg-white p-6 transition-colors hover:border-[#0D2C24]"
+          >
+            <span className="rounded-xl bg-[#f5f2ed] p-3 text-[#0D2C24]">
+              <Mail size={22} />
             </span>
-            <span className="text-sm text-[#414845]">
-              Soporte, ventas, facturación y cualquier duda sobre el servicio.
+            <span className="min-w-0">
+              <span className="block truncate font-serif text-lg font-bold text-[#0D2C24]">
+                {EMPRESA.correo}
+              </span>
+              <span className="text-sm text-[#414845]">Soporte, ventas y facturación.</span>
             </span>
-          </span>
-        </a>
+          </a>
+
+          <a
+            href={`tel:${EMPRESA.telefonoE164}`}
+            className="flex items-center gap-4 rounded-2xl border border-[#e8e5df] bg-white p-6 transition-colors hover:border-[#0D2C24]"
+          >
+            <span className="rounded-xl bg-[#f5f2ed] p-3 text-[#0D2C24]">
+              <Phone size={22} />
+            </span>
+            <span className="min-w-0">
+              <span className="block font-serif text-lg font-bold text-[#0D2C24]">
+                {EMPRESA.telefono}
+              </span>
+              <span className="text-sm text-[#414845]">En horario laboral dominicano.</span>
+            </span>
+          </a>
+        </div>
 
         <section className="mt-12 border-t border-[#e8e5df] pt-8">
           <h2 className="font-serif text-2xl font-bold text-[#0D2C24]">Quiénes somos</h2>
@@ -63,9 +78,16 @@ export default function ContactoPage() {
             </p>
             <p className="flex items-start gap-3">
               <MapPin size={18} className="mt-1 shrink-0 text-[#c5a059]" />
-              <span>
-                {EMPRESA.ciudad}, {EMPRESA.pais}
-              </span>
+              <span>{DOMICILIO}</span>
+            </p>
+            <p className="flex items-start gap-3">
+              <Phone size={18} className="mt-1 shrink-0 text-[#c5a059]" />
+              <a
+                href={`tel:${EMPRESA.telefonoE164}`}
+                className="underline decoration-[#c5a059] underline-offset-4"
+              >
+                {EMPRESA.telefono}
+              </a>
             </p>
           </div>
           <p className="mt-6 leading-relaxed text-[#414845]">

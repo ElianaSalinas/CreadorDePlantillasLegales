@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { contarCatalogoPublicado, fraseDelCatalogo } from '@/lib/catalogo'
-import { EMPRESA } from '@/lib/empresa'
+import { DOMICILIO, EMPRESA } from '@/lib/empresa'
 import {
   FileText,
   Braces,
@@ -98,15 +98,20 @@ const SITE_SCHEMA = {
       taxID: EMPRESA.rnc,
       url: EMPRESA.url,
       email: EMPRESA.correo,
+      telephone: EMPRESA.telefonoE164,
       address: {
         '@type': 'PostalAddress',
-        addressLocality: EMPRESA.ciudad,
+        streetAddress: EMPRESA.calle,
+        addressLocality: `${EMPRESA.sector}, ${EMPRESA.municipio}`,
+        addressRegion: EMPRESA.provincia,
         addressCountry: 'DO',
       },
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'customer support',
         email: EMPRESA.correo,
+        telephone: EMPRESA.telefonoE164,
+        areaServed: 'DO',
         availableLanguage: ['es'],
       },
     },
@@ -660,9 +665,7 @@ export default async function HomePage() {
               © {new Date().getFullYear()} {EMPRESA.nombreLegal} · RNC {EMPRESA.rnc} ·{' '}
               {EMPRESA.dominio}
             </p>
-            <p className="text-[12.5px] text-slate-500">
-              {EMPRESA.ciudad}, {EMPRESA.pais}
-            </p>
+            <p className="text-[12.5px] text-slate-500">{DOMICILIO}</p>
           </div>
         </div>
       </footer>

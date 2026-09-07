@@ -16,12 +16,30 @@ export const EMPRESA = {
   nombreLegal: 'SA&VE Comercial, S.R.L.',
   nombreComercial: 'SAVE Documentos',
   rnc: '132-28618-9',
-  ciudad: 'Punta Cana',
+
+  // El domicilio legal está en Verón, que es el distrito municipal de
+  // Higüey donde queda Punta Cana. En la calle se dice "Punta Cana" y en
+  // un documento legal se escribe Verón, Higüey, La Altagracia: por eso
+  // hay dos campos y no uno.
+  calle: 'Local #2, Edificios Ibercub, Calle Doña Leonor',
+  sector: 'Verón',
+  municipio: 'Higüey',
+  provincia: 'La Altagracia',
   pais: 'República Dominicana',
+  /** Como lo dice la gente. Para textos comerciales. */
+  ciudad: 'Punta Cana',
+
+  telefono: '829-345-2056',
+  /** Formato internacional, para los enlaces tel: y el schema. */
+  telefonoE164: '+18293452056',
+
   correo: 'info@savedocumentos.com',
   dominio: 'savedocumentos.com',
   url: 'https://savedocumentos.com',
 } as const
+
+/** El domicilio completo, en una línea. Para los documentos legales. */
+export const DOMICILIO = `${EMPRESA.calle}, ${EMPRESA.sector}, ${EMPRESA.municipio}, ${EMPRESA.provincia}, ${EMPRESA.pais}`
 
 /** Última vez que se revisaron los términos y la política de privacidad. */
 export const VIGENCIA_LEGAL = '5 de septiembre de 2026'

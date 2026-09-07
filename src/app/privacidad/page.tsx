@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import PieLegal from '@/components/ui/PieLegal'
-import { EMPRESA, LEYES, VIGENCIA_LEGAL } from '@/lib/empresa'
+import { DOMICILIO, EMPRESA, LEYES, VIGENCIA_LEGAL } from '@/lib/empresa'
 
 export const metadata: Metadata = {
   title: { absolute: 'Política de privacidad · SAVE Documentos' },
@@ -47,8 +47,8 @@ export default function PrivacidadPage() {
 
         <Seccion n="1" titulo="Quién responde por tus datos">
           <p>
-            {EMPRESA.nombreLegal}, RNC {EMPRESA.rnc}, con domicilio en {EMPRESA.ciudad},{' '}
-            {EMPRESA.pais}. Puedes escribirnos a{' '}
+            {EMPRESA.nombreLegal}, RNC {EMPRESA.rnc}, con domicilio en {DOMICILIO}. Puedes
+            escribirnos a{' '}
             <a href={`mailto:${EMPRESA.correo}`} className="underline decoration-[#c5a059] underline-offset-4">
               {EMPRESA.correo}
             </a>

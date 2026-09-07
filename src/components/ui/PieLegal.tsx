@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { EMPRESA } from '@/lib/empresa'
+import { DOMICILIO, EMPRESA } from '@/lib/empresa'
 
 /**
  * El pie de las páginas públicas.
@@ -26,15 +26,19 @@ export default function PieLegal() {
           <p className="mt-1 text-sm">
             {EMPRESA.nombreLegal} · RNC {EMPRESA.rnc}
           </p>
-          <p className="text-sm">
-            {EMPRESA.ciudad}, {EMPRESA.pais}
-          </p>
-          <p className="mt-2 text-sm">
+          <p className="max-w-[38ch] text-sm">{DOMICILIO}</p>
+          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
             <a
               href={`mailto:${EMPRESA.correo}`}
               className="underline decoration-[#c5a059] underline-offset-4 hover:text-[#0D2C24]"
             >
               {EMPRESA.correo}
+            </a>
+            <a
+              href={`tel:${EMPRESA.telefonoE164}`}
+              className="underline decoration-[#c5a059] underline-offset-4 hover:text-[#0D2C24]"
+            >
+              {EMPRESA.telefono}
             </a>
           </p>
         </div>

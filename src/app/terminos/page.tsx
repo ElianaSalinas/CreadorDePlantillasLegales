@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import PieLegal from '@/components/ui/PieLegal'
-import { EMPRESA, LEYES, VIGENCIA_LEGAL } from '@/lib/empresa'
+import { DOMICILIO, EMPRESA, LEYES, VIGENCIA_LEGAL } from '@/lib/empresa'
 
 export const metadata: Metadata = {
   title: { absolute: 'Términos de servicio · SAVE Documentos' },
@@ -45,8 +45,7 @@ export default function TerminosPage() {
         </h1>
         <p className="mt-4 text-[#414845]">
           En vigor desde el {VIGENCIA_LEGAL}. Estos términos rigen el uso de {EMPRESA.nombreComercial},
-          un servicio de {EMPRESA.nombreLegal} (RNC {EMPRESA.rnc}), con domicilio en {EMPRESA.ciudad},{' '}
-          {EMPRESA.pais}.
+          un servicio de {EMPRESA.nombreLegal} (RNC {EMPRESA.rnc}), con domicilio en {DOMICILIO}.
         </p>
 
         <Seccion n="1" titulo="Qué es SAVE Documentos">
@@ -208,8 +207,9 @@ export default function TerminosPage() {
         <Seccion n="11" titulo="Ley aplicable">
           <p>
             Estos términos se rigen por las leyes de la {EMPRESA.pais}. Para cualquier controversia
-            las partes se someten a los tribunales competentes de {EMPRESA.ciudad}, sin perjuicio de
-            los derechos que la ley reconozca al usuario consumidor.
+            las partes se someten a los tribunales competentes del Distrito Judicial de{' '}
+            {EMPRESA.provincia}, sin perjuicio de los derechos que la ley reconozca al usuario
+            consumidor.
           </p>
           <p>
             Para cualquier duda sobre estos términos, escríbenos a{' '}
