@@ -19,7 +19,7 @@ export default async function LoginPage({
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="flex items-center justify-center bg-white p-6 dark:bg-slate-950">
+      <div className="flex items-center justify-center bg-slate-50 p-6 dark:bg-slate-950">
         <div className="w-full max-w-md">
           <Link href="/" className="mb-10 flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-[7px] bg-[#0D2C24] font-serif text-base font-bold text-white">

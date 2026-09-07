@@ -20,7 +20,7 @@ export const metadata: Metadata = {
  */
 export default function ContactoPage() {
   return (
-    <div className="min-h-screen bg-[#fcf9f8] text-[#1A1A1A]">
+    <div className="min-h-screen bg-slate-50 text-[#1A1A1A]">
       <main className="mx-auto max-w-[760px] px-6 py-16 md:px-12 md:py-24">
         <Link href="/" className="text-sm text-[#414845] underline underline-offset-4 hover:text-[#0D2C24]">
           Volver al inicio
@@ -36,7 +36,7 @@ export default function ContactoPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           <a
             href={`mailto:${EMPRESA.correo}`}
-            className="flex items-center gap-4 rounded-2xl border border-[#e8e5df] bg-white p-6 transition-colors hover:border-[#0D2C24]"
+            className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 transition-colors hover:border-[#0D2C24]"
           >
             <span className="rounded-xl bg-[#f5f2ed] p-3 text-[#0D2C24]">
               <Mail size={22} />
@@ -51,7 +51,7 @@ export default function ContactoPage() {
 
           <a
             href={`tel:${EMPRESA.telefonoE164}`}
-            className="flex items-center gap-4 rounded-2xl border border-[#e8e5df] bg-white p-6 transition-colors hover:border-[#0D2C24]"
+            className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 transition-colors hover:border-[#0D2C24]"
           >
             <span className="rounded-xl bg-[#f5f2ed] p-3 text-[#0D2C24]">
               <Phone size={22} />
@@ -65,7 +65,7 @@ export default function ContactoPage() {
           </a>
         </div>
 
-        <section className="mt-12 border-t border-[#e8e5df] pt-8">
+        <section className="mt-12 border-t border-slate-200 pt-8">
           <h2 className="font-serif text-2xl font-bold text-[#0D2C24]">Quiénes somos</h2>
           <div className="mt-5 space-y-4 text-[#2c3330]">
             <p className="flex items-start gap-3">
@@ -98,7 +98,7 @@ export default function ContactoPage() {
           </p>
         </section>
 
-        <section className="mt-12 border-t border-[#e8e5df] pt-8">
+        <section className="mt-12 border-t border-slate-200 pt-8">
           <h2 className="font-serif text-2xl font-bold text-[#0D2C24]">
             Para ejercer tus derechos sobre tus datos
           </h2>

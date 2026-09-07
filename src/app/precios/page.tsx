@@ -79,7 +79,7 @@ export default async function PreciosPage() {
   const planes = await cargarPlanes()
 
   return (
-    <div className="min-h-screen bg-[#fcf9f8] text-[#1A1A1A]">
+    <div className="min-h-screen bg-slate-50 text-[#1A1A1A]">
       <main className="mx-auto max-w-[1100px] px-6 py-16 md:px-12 md:py-24">
         <Link href="/" className="text-sm text-[#414845] underline underline-offset-4 hover:text-[#0D2C24]">
           Volver al inicio
@@ -94,7 +94,7 @@ export default async function PreciosPage() {
         </p>
 
         {planes.length === 0 ? (
-          <p className="mt-12 rounded-xl border border-[#e8e5df] bg-white p-6 text-[#414845]">
+          <p className="mt-12 rounded-xl border border-slate-200 bg-white p-6 text-[#414845]">
             No pudimos cargar los planes en este momento. Escríbenos a{' '}
             <a href={`mailto:${EMPRESA.correo}`} className="underline decoration-[#c5a059] underline-offset-4">
               {EMPRESA.correo}
@@ -109,7 +109,7 @@ export default async function PreciosPage() {
                 className={
                   p.codigo === 'PREMIUM'
                     ? 'flex flex-col rounded-2xl border-2 border-[#0D2C24] bg-white p-7'
-                    : 'flex flex-col rounded-2xl border border-[#e8e5df] bg-white p-7'
+                    : 'flex flex-col rounded-2xl border border-slate-200 bg-white p-7'
                 }
               >
                 {p.codigo === 'PREMIUM' && (
@@ -172,7 +172,7 @@ export default async function PreciosPage() {
           </div>
         )}
 
-        <section className="mt-16 border-t border-[#e8e5df] pt-10">
+        <section className="mt-16 border-t border-slate-200 pt-10">
           <h2 className="font-serif text-2xl font-bold text-[#0D2C24]">Lo que conviene saber</h2>
           <dl className="mt-6 grid gap-6 md:grid-cols-2">
             <Pregunta q="¿Qué pasa si dejo de pagar?">

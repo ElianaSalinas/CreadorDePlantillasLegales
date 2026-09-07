@@ -9,7 +9,7 @@ import { CheckCheck, Download } from 'lucide-react'
  */
 export default function AuthShowcase() {
   return (
-    <div className="relative hidden overflow-hidden bg-[#fcf9f8] lg:flex lg:flex-col lg:justify-center">
+    <div className="relative hidden overflow-hidden bg-slate-50 lg:flex lg:flex-col lg:justify-center">
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute -top-40 -right-24 h-[520px] w-[520px] rounded-full bg-[#c8eadd] opacity-40 blur-[90px]" />
         <div className="absolute -bottom-48 -left-32 h-[460px] w-[460px] rounded-full bg-[#ffdea5] opacity-45 blur-[100px]" />
@@ -17,7 +17,7 @@ export default function AuthShowcase() {
 
       <div className="relative flex flex-col items-center gap-10 px-12 py-16">
         <div className="relative flex h-[420px] w-full items-center justify-center">
-          <div className="save-sheet relative w-[340px] rounded-2xl border border-[#e8e5df] bg-white px-7 pt-6 pb-7 shadow-[0_26px_60px_-20px_rgba(13,44,36,0.28)]">
+          <div className="save-sheet relative w-[340px] rounded-2xl border border-slate-200 bg-white px-7 pt-6 pb-7 shadow-[0_26px_60px_-20px_rgba(13,44,36,0.28)]">
             <div className="flex items-center justify-between border-b border-[#f1efe9] pb-3.5">
               <span className="font-serif text-sm font-bold text-[#0D2C24]">
                 Contrato de Alquiler
@@ -48,7 +48,7 @@ export default function AuthShowcase() {
             {['Word', 'PDF'].map((f) => (
               <span
                 key={f}
-                className="flex items-center gap-1.5 rounded-full border border-[#e8e5df] bg-white px-4 py-2.5 text-xs font-bold text-[#0D2C24] shadow-sm"
+                className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#0D2C24] shadow-sm"
               >
                 <Download size={13} />
                 {f}

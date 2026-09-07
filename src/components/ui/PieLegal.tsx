@@ -19,7 +19,7 @@ export default function PieLegal() {
   ]
 
   return (
-    <footer className="border-t border-[#e8e5df] bg-[#fcf9f8] text-[#414845]">
+    <footer className="border-t border-slate-200 bg-slate-50 text-[#414845]">
       <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-6 py-10 md:flex-row md:items-start md:justify-between md:px-12">
         <div>
           <p className="font-serif text-lg font-bold text-[#0D2C24]">{EMPRESA.nombreComercial}</p>
@@ -52,7 +52,7 @@ export default function PieLegal() {
         </nav>
       </div>
 
-      <div className="border-t border-[#e8e5df] px-6 py-5 md:px-12">
+      <div className="border-t border-slate-200 px-6 py-5 md:px-12">
         <p className="mx-auto max-w-[1200px] text-xs text-[#6b7570]">
           SAVE Documentos es una herramienta de redacción. No presta servicios de asesoría jurídica
           ni sustituye el criterio de un abogado o un notario.

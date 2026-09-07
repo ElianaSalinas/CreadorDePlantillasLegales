@@ -253,14 +253,14 @@ export default async function HomePage() {
   const { plantillas } = await contarCatalogoPublicado()
 
   return (
-    <div className="w-full bg-[#fcf9f8] text-[#1A1A1A]">
+    <div className="w-full bg-slate-50 text-[#1A1A1A]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_SCHEMA) }}
       />
 
       {/* ═══════════ NAVBAR ═══════════ */}
-      <header className="sticky top-0 z-50 border-b border-[#e8e5df] bg-[#fcf9f8]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-slate-50/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-8 px-6 py-4 md:px-12">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-[7px] bg-[#0D2C24] font-serif text-base font-bold text-white">
@@ -309,7 +309,7 @@ export default async function HomePage() {
 
         <div className="relative mx-auto grid max-w-[1200px] items-center gap-16 px-6 py-20 md:px-12 lg:grid-cols-2 lg:py-24">
           <div className="flex flex-col items-start gap-6">
-            <div className="flex items-center gap-2.5 rounded-full border border-[#e8e5df] bg-white px-4 py-1.5 shadow-sm">
+            <div className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 shadow-sm">
               <span className="h-[7px] w-[7px] rounded-full bg-[#C5A059]" />
               <span className="text-xs font-bold tracking-wide text-slate-600">
                 Hecho para República Dominicana
@@ -354,7 +354,7 @@ export default async function HomePage() {
               </Link>
               <a
                 href="#como-funciona"
-                className="flex items-center justify-center gap-2.5 rounded-full border border-[#e8e5df] bg-white px-7 py-4 text-[15px] font-semibold text-[#0D2C24] transition-colors hover:bg-[#F5F2ED]"
+                className="flex items-center justify-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-4 text-[15px] font-semibold text-[#0D2C24] transition-colors hover:bg-[#F5F2ED]"
               >
                 <PlayCircle size={17} />
                 Ver cómo funciona
@@ -366,7 +366,7 @@ export default async function HomePage() {
 
           {/* Escenario de la animación */}
           <div className="relative flex h-[470px] items-center justify-center">
-            <div className="save-sheet relative w-[372px] max-w-full rounded-2xl border border-[#e8e5df] bg-white px-8 pt-7 pb-8 shadow-[0_26px_60px_-20px_rgba(13,44,36,0.28)]">
+            <div className="save-sheet relative w-[372px] max-w-full rounded-2xl border border-slate-200 bg-white px-8 pt-7 pb-8 shadow-[0_26px_60px_-20px_rgba(13,44,36,0.28)]">
               <div className="flex items-center justify-between border-b border-[#f1efe9] pb-4">
                 <span className="font-serif text-sm font-bold text-[#0D2C24]">
                   Contrato de Alquiler
@@ -411,7 +411,7 @@ export default async function HomePage() {
               {['Word', 'PDF'].map((f) => (
                 <span
                   key={f}
-                  className="flex items-center gap-1.5 rounded-full border border-[#e8e5df] bg-white px-4 py-2.5 text-xs font-bold text-[#0D2C24] shadow-sm"
+                  className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#0D2C24] shadow-sm"
                 >
                   <Download size={13} />
                   {f}
@@ -437,7 +437,7 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ QUÉ ES SAVE ═══════════ */}
-      <section className="bg-[#fcf9f8]">
+      <section className="bg-slate-50">
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
           <SectionHead
             eyebrow="QUÉ ES SAVE"
@@ -449,7 +449,7 @@ export default async function HomePage() {
             {PIPELINE.map(({ Icon, title, body }) => (
               <article
                 key={title}
-                className="flex flex-col gap-3.5 rounded-[18px] border border-[#e8e5df] bg-white p-7"
+                className="flex flex-col gap-3.5 rounded-[18px] border border-slate-200 bg-white p-7"
               >
                 <span className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-[#F5F2ED] text-[#0D2C24]">
                   <Icon size={21} strokeWidth={1.8} />
@@ -475,7 +475,7 @@ export default async function HomePage() {
       {/* ═══════════ CÓMO FUNCIONA ═══════════ */}
       <section
         id="como-funciona"
-        className="scroll-mt-20 border-y border-[#e8e5df] bg-[#F5F2ED]"
+        className="scroll-mt-20 border-y border-slate-200 bg-[#F5F2ED]"
       >
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
           <SectionHead eyebrow="CÓMO FUNCIONA" title="Cuatro pasos. Ninguno técnico." />
@@ -495,7 +495,7 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ AUTOMATIZACIÓN ═══════════ */}
-      <section id="automatizacion" className="scroll-mt-20 bg-[#fcf9f8]">
+      <section id="automatizacion" className="scroll-mt-20 bg-slate-50">
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
           <SectionHead
             eyebrow="AUTOMATIZACIÓN"
@@ -507,7 +507,7 @@ export default async function HomePage() {
             {AUTOMATION.map(({ Icon, title, body }) => (
               <article
                 key={title}
-                className="flex flex-col gap-4 rounded-[18px] border border-[#e8e5df] bg-white p-8"
+                className="flex flex-col gap-4 rounded-[18px] border border-slate-200 bg-white p-8"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#c8eadd] text-[#0D2C24]">
                   <Icon size={22} strokeWidth={1.8} />
@@ -521,7 +521,7 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ PARA QUIÉN ES ═══════════ */}
-      <section id="para-quien" className="scroll-mt-20 border-t border-[#e8e5df] bg-[#F5F2ED]">
+      <section id="para-quien" className="scroll-mt-20 border-t border-slate-200 bg-[#F5F2ED]">
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
           <SectionHead
             eyebrow="PARA QUIÉN ES"
@@ -532,7 +532,7 @@ export default async function HomePage() {
             {AUDIENCES.map(({ Icon, title, body }) => (
               <article
                 key={title}
-                className="flex flex-col gap-3 rounded-[18px] border border-[#e8e5df] bg-white p-7"
+                className="flex flex-col gap-3 rounded-[18px] border border-slate-200 bg-white p-7"
               >
                 <Icon size={24} strokeWidth={1.7} className="text-[#0D2C24]" />
                 <h3 className="font-serif text-[17px] font-bold text-[#0D2C24]">{title}</h3>
@@ -544,7 +544,7 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ PLANTILLAS ═══════════ */}
-      <section id="plantillas" className="scroll-mt-20 bg-[#fcf9f8]">
+      <section id="plantillas" className="scroll-mt-20 bg-slate-50">
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
           <SectionHead
             eyebrow="PLANTILLAS"
@@ -556,7 +556,7 @@ export default async function HomePage() {
             {CATEGORIES.map((c) => (
               <span
                 key={c}
-                className="rounded-full border border-[#e8e5df] bg-white px-6 py-3 text-[15px] font-semibold text-[#0D2C24]"
+                className="rounded-full border border-slate-200 bg-white px-6 py-3 text-[15px] font-semibold text-[#0D2C24]"
               >
                 {c}
               </span>
@@ -570,7 +570,7 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ FAQ ═══════════ */}
-      <section className="border-t border-[#e8e5df] bg-[#F5F2ED]">
+      <section className="border-t border-slate-200 bg-[#F5F2ED]">
         <div className="mx-auto max-w-[840px] px-6 py-24 md:px-12">
           <h2 className="mb-12 text-center font-serif text-3xl leading-tight font-bold tracking-tight text-[#0D2C24] md:text-[38px]">
             Antes de que preguntes
@@ -580,7 +580,7 @@ export default async function HomePage() {
             {FAQ.map(({ q, a }) => (
               <div
                 key={q}
-                className="flex flex-col gap-2.5 rounded-2xl border border-[#e8e5df] bg-white px-7 py-6"
+                className="flex flex-col gap-2.5 rounded-2xl border border-slate-200 bg-white px-7 py-6"
               >
                 <h3 className="font-serif text-[17px] font-bold text-[#0D2C24]">{q}</h3>
                 <p className="text-[15px] leading-relaxed text-slate-600">{a}</p>
@@ -619,7 +619,7 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
-      <footer className="border-t border-[#e8e5df] bg-[#fcf9f8]">
+      <footer className="border-t border-slate-200 bg-slate-50">
         <div className="mx-auto grid max-w-[1200px] gap-10 px-6 pt-14 pb-10 md:px-12 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="flex flex-col gap-3.5">
             <div className="flex items-center gap-2.5">
@@ -660,7 +660,7 @@ export default async function HomePage() {
         </div>
 
         <div className="mx-auto max-w-[1200px] px-6 pb-11 md:px-12">
-          <div className="flex flex-col justify-between gap-3 border-t border-[#e8e5df] pt-6 sm:flex-row">
+          <div className="flex flex-col justify-between gap-3 border-t border-slate-200 pt-6 sm:flex-row">
             <p className="text-[12.5px] text-slate-500">
               © {new Date().getFullYear()} {EMPRESA.nombreLegal} · RNC {EMPRESA.rnc} ·{' '}
               {EMPRESA.dominio}

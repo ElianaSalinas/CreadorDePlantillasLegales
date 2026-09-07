@@ -9,7 +9,7 @@ export default function NotFound() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
           font-family: 'Plus Jakarta Sans', sans-serif;
-          background: #fcf9f8;
+          background: #FAF8F5;
           color: #1c1b1b;
           min-height: 100vh;
           display: flex;

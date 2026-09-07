@@ -1,6 +1,75 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ============================================================
+   El verde de SAVE.
+
+   La marca ya era #0D2C24, pero en la interfaz convivian 713 usos de
+   `emerald-*`, que es el verde menta de Tailwind: mucho mas claro y
+   mucho mas saturado que el logo. Se veian los dos verdes a la vez.
+
+   En vez de reescribir 713 clases una por una, se redefine la escala
+   entera aqui. Tailwind v4 resuelve `bg-emerald-600` contra estas
+   variables, asi que toda la web se oscurece de golpe y ningun
+   componente cambia.
+
+   El 900 es exactamente #0D2C24, el color del logo: la escala termina
+   donde ya estaba la marca en vez de al lado.
+
+   Los tonos 300 y 400 NO se oscurecen tanto como el resto. Son los que
+   se usan como texto sobre fondo oscuro en el modo noche (194 usos
+   entre los dos); bajarlos al nivel de los demas dejaria el modo
+   oscuro ilegible. Contraste comprobado sobre slate-900: 7.5:1 el 300
+   y 5.4:1 el 400. El blanco sobre el 600, que es el boton principal,
+   da 7.9:1.
+   ============================================================ */
+@theme {
+  --color-emerald-50:  #EDF3F0;
+  --color-emerald-100: #DDE8E3;
+  --color-emerald-200: #BCD2C9;
+  --color-emerald-300: #8FB4A6;
+  --color-emerald-400: #6B9A89;
+  --color-emerald-500: #3F7362;
+  --color-emerald-600: #2A5A4A;
+  --color-emerald-700: #1F4638;
+  --color-emerald-800: #16362C;
+  --color-emerald-900: #0D2C24;
+  --color-emerald-950: #08201A;
+
+  /* ------------------------------------------------------------
+     Los neutros.
+
+     `slate` de Tailwind es una escala FRIA, tirando a azul: #f8fafc,
+     #0f172a. Son 2.685 usos, y es lo que hacia que la aplicacion se
+     viera azulada justo al lado de la crema de la marca (#F5F2ED,
+     #E8E5DF). No era que faltara color: era que habia dos temperaturas
+     peleandose.
+
+     Esta escala es la misma idea en calido. Los cuatro tonos claros NO
+     son inventados: son los colores que la marca ya usaba, colocados en
+     su peldano. El 100 es #F5F2ED y el 200 es #E8E5DF, tal cual.
+
+     Las tarjetas siguen siendo `bg-white` a proposito. Blanco sobre
+     crema es lo que les da el relieve; pintarlo todo del mismo crema
+     aplana la pantalla entera.
+
+     Contrastes comprobados sobre blanco: 5.1:1 el 500 (texto
+     secundario) y 7.3:1 el 600. Sobre el 900 en modo oscuro, 6.9:1 el
+     400.
+     ------------------------------------------------------------ */
+  --color-slate-50:  #FAF8F5;
+  --color-slate-100: #F5F2ED;
+  --color-slate-200: #E8E5DF;
+  --color-slate-300: #D1CCC4;
+  --color-slate-400: #A8A29A;
+  --color-slate-500: #736E67;
+  --color-slate-600: #5A5651;
+  --color-slate-700: #423F3B;
+  --color-slate-800: #2A2926;
+  --color-slate-900: #1A1A18;
+  --color-slate-950: #111110;
+}
+
 @layer base {
   :root {
     --font-serif: 'Libre Caslon Text', Georgia, Cambria, serif;

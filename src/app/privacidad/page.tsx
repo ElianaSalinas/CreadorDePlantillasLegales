@@ -31,7 +31,7 @@ export const metadata: Metadata = {
  */
 export default function PrivacidadPage() {
   return (
-    <div className="min-h-screen bg-[#fcf9f8] text-[#1A1A1A]">
+    <div className="min-h-screen bg-slate-50 text-[#1A1A1A]">
       <main className="mx-auto max-w-[760px] px-6 py-16 md:px-12 md:py-24">
         <Link href="/" className="text-sm text-[#414845] underline underline-offset-4 hover:text-[#0D2C24]">
           Volver al inicio
@@ -86,7 +86,7 @@ export default function PrivacidadPage() {
             no tienen cuenta en SAVE ni han oído hablar de nosotros. Conviene ser claros sobre quién
             responde por esos datos:
           </p>
-          <p className="rounded-lg border border-[#e8e5df] bg-white p-4">
+          <p className="rounded-lg border border-slate-200 bg-white p-4">
             <strong className="text-[#0D2C24]">Frente a tus clientes, el responsable eres tú.</strong>{' '}
             Nosotros solo almacenamos y procesamos lo que tú escribes, siguiendo tus instrucciones, y
             no lo usamos para ninguna finalidad propia. Eres tú quien debe tener la base legal para
@@ -130,7 +130,7 @@ export default function PrivacidadPage() {
               <strong>Hostinger</strong> — envío de los correos del servicio.
             </li>
           </ul>
-          <p className="rounded-lg border border-[#e8e5df] bg-white p-4">
+          <p className="rounded-lg border border-slate-200 bg-white p-4">
             <strong className="text-[#0D2C24]">
               Esos servidores están fuera de la {EMPRESA.pais}.
             </strong>{' '}
@@ -241,7 +241,7 @@ export default function PrivacidadPage() {
 
 function Seccion({ n, titulo, children }: { n: string; titulo: string; children: React.ReactNode }) {
   return (
-    <section className="mt-12 border-t border-[#e8e5df] pt-8">
+    <section className="mt-12 border-t border-slate-200 pt-8">
       <h2 className="font-serif text-2xl font-bold leading-snug text-[#0D2C24]">
         <span className="mr-2 text-[#c5a059]">{n}.</span>
         {titulo}
