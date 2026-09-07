@@ -2,9 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import { getSiteUrl } from '@/lib/siteUrl'
 import { PROF_ROLE_OPTIONS } from '@/lib/labels'
+import { mensajeDeAuth } from '@/lib/mensajes-auth'
 
 export async function register(formData: FormData) {
   const supabase = await createClient()
@@ -32,9 +34,24 @@ export async function register(formData: FormData) {
   const { error } = await supabase.auth.signUp(data)
 
   if (error) {
-    redirect('/register?message=' + encodeURIComponent(error.message))
+    // El texto de Supabase va al log, no a la cara del usuario.
+    console.error('[register] signUp fallo:', error.message)
+    redirect('/register?message=' + encodeURIComponent(mensajeDeAuth(error.message)))
   }
 
+  // La pantalla siguiente enseña a que direccion salio el correo, que es
+  // lo que resuelve el 90% de los "no me llego": una erratita al teclear.
+  // Va en cookie y no en la URL: un query param acaba en los logs, en el
+  // historial y en la cabecera Referer.
+  const cookieStore = await cookies()
+  cookieStore.set('save_registro_correo', data.email, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/register',
+    maxAge: 60 * 15,
+  })
+
   revalidatePath('/', 'layout')
-  redirect('/login?message=Revisa tu correo para verificar tu cuenta')
+  redirect('/register/revisa-tu-correo')
 }

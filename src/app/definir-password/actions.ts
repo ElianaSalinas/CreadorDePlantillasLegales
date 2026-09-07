@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { mensajeDeAuth } from '@/lib/mensajes-auth'
 import { createClient } from '@/utils/supabase/server'
 
 /**
@@ -39,7 +40,10 @@ export async function definirPassword(formData: FormData) {
 
   const { error } = await supabase.auth.updateUser({ password })
 
-  if (error) volver(error.message)
+  if (error) {
+    console.error('[definir-password] updateUser fallo:', error.message)
+    volver(mensajeDeAuth(error.message))
+  }
 
   // El nombre va después de la contraseña, no antes: si esto fallara, la
   // persona ya puede entrar y lo arregla desde Mi Despacho. Al revés,

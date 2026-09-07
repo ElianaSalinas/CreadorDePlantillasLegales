@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { mensajeDeAuth } from '@/lib/mensajes-auth'
 import { createClient } from '@/utils/supabase/server'
 
 export async function login(formData: FormData) {
@@ -15,7 +16,8 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    redirect('/login?message=' + encodeURIComponent(error.message))
+    console.error('[login] signInWithPassword fallo:', error.message)
+    redirect('/login?message=' + encodeURIComponent(mensajeDeAuth(error.message)))
   }
 
   revalidatePath('/', 'layout')
