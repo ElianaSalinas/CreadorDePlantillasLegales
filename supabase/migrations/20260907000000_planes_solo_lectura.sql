@@ -3,25 +3,28 @@
 --
 -- Supabase concede por defecto todos los privilegios sobre las tablas
 -- nuevas de public a anon y authenticated. Sobre "planes" eso dejaba a
--- un visitante sin cuenta con INSERT, UPDATE, DELETE y TRUNCATE.
+-- un visitante sin cuenta con INSERT, UPDATE, DELETE, TRUNCATE y
+-- TRIGGER.
 --
--- Hoy no se puede explotar: RLS esta activo y la unica policy es de
--- SELECT, asi que cualquier escritura se cae. Pero eso deja los precios
--- protegidos por una sola capa. El dia que alguien anada una policy
--- amplia para arreglar otra cosa, la tabla queda abierta.
+-- Las escrituras hoy no se pueden explotar, porque RLS esta activo y la
+-- unica policy es de SELECT. TRIGGER es otra cosa: es el permiso para
+-- colgar un trigger de la tabla, y un trigger sobre "planes" reescribe
+-- precios en cada operacion.
 --
 -- Los planes los escribe una migracion, es decir el rol postgres, y
 -- service_role conserva lo suyo. Ninguno de los dos pasa por aqui.
+--
+-- Se revoca TODO y se vuelve a conceder solo SELECT, en vez de ir
+-- nombrando privilegios uno a uno: enumerarlos es como se cuela el que
+-- falta. Aqui ya se colo TRIGGER una vez.
 -- ============================================================
 
-REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES
-    ON TABLE public.planes
-  FROM anon, authenticated;
+REVOKE ALL ON TABLE public.planes FROM anon, authenticated;
 
 GRANT SELECT ON TABLE public.planes TO anon, authenticated;
 
--- Comprobacion: si quedara alguna escritura, la migracion falla en vez
--- de dar por bueno un resultado que nadie mira.
+-- Comprobacion: si quedara cualquier privilegio que no sea SELECT, la
+-- migracion falla en vez de dar por bueno un resultado que nadie mira.
 DO $$
 DECLARE sobrantes TEXT;
 BEGIN
@@ -34,6 +37,14 @@ BEGIN
      AND privilege_type <> 'SELECT';
 
   IF sobrantes IS NOT NULL THEN
-    RAISE EXCEPTION 'planes sigue con permisos de escritura: %', sobrantes;
+    RAISE EXCEPTION 'planes sigue con permisos de mas: %', sobrantes;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.role_table_grants
+     WHERE table_schema = 'public' AND table_name = 'planes'
+       AND grantee = 'anon' AND privilege_type = 'SELECT'
+  ) THEN
+    RAISE EXCEPTION 'anon se quedo sin SELECT: /precios dejaria de mostrar los planes';
   END IF;
 END $$;
