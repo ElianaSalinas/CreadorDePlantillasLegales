@@ -12,8 +12,17 @@ export const metadata: Metadata = {
   alternates: { canonical: `${EMPRESA.url}/precios` },
 }
 
-/** Se refresca solo cada cinco minutos; los planes no cambian a diario. */
-export const revalidate = 300
+/**
+ * Se renderiza en cada visita, NO durante el build.
+ *
+ * Con `revalidate` esta pagina se prerenderizaba dentro del contenedor
+ * de Docker, donde no existen las variables de Supabase, asi que el
+ * HTML salia del build con el mensaje de error ya escrito y el primer
+ * visitante de cada despliegue lo veia. Los planes son cuatro filas:
+ * consultarlas en cada visita cuesta menos que anunciar un precio que
+ * no es el que cobra la base de datos.
+ */
+export const dynamic = 'force-dynamic'
 
 type Plan = {
   codigo: string
@@ -41,17 +50,25 @@ type Plan = {
 async function cargarPlanes(): Promise<Plan[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!url || !key) return []
+  if (!url || !key) {
+    console.error('[precios] faltan NEXT_PUBLIC_SUPABASE_URL o NEXT_PUBLIC_SUPABASE_ANON_KEY')
+    return []
+  }
 
   try {
     const anon = createClient(url, key, { auth: { persistSession: false } })
-    const { data } = await anon
+    const { data, error } = await anon
       .from('planes')
       .select('*')
       .neq('codigo', 'CANCELLED')
       .order('orden')
+    if (error) {
+      console.error('[precios] no se pudieron leer los planes:', error.message)
+      return []
+    }
     return (data ?? []) as Plan[]
-  } catch {
+  } catch (e) {
+    console.error('[precios] fallo al consultar los planes:', e)
     return []
   }
 }
