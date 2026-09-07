@@ -2,13 +2,13 @@
 
 import { useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, Loader2, Wand2, FileText, ArrowRight, Check } from 'lucide-react'
+import { Upload, Loader2, Wand2, FileText, Check, MousePointerClick, Plus, X } from 'lucide-react'
 import {
   analizarDocumento,
   crearPlantillaDesdeTexto,
   type EleccionConfirmada,
 } from './actions'
-import { ETIQUETA_TIPO, type Candidato } from '@/lib/engine/import'
+import { ETIQUETA_TIPO, contarOcurrencias, type Candidato } from '@/lib/engine/import'
 
 type Paso = 'subir' | 'revisar'
 
@@ -51,6 +51,10 @@ export default function ImportarClient({
   const [categoriaId, setCategoriaId] = useState('')
 
   const archivoRef = useRef<HTMLInputElement>(null)
+
+  // Lo que la persona ha seleccionado con el ratón dentro del documento.
+  const [seleccion, setSeleccion] = useState('')
+  const [etiquetaManual, setEtiquetaManual] = useState('')
 
   const confirmadas = useMemo(
     () => candidatos.filter((c) => decisiones[c.id]?.confirmado),
@@ -98,6 +102,58 @@ export default function ImportarClient({
 
   function cambiar(id: string, cambio: Partial<Decision>) {
     setDecisiones((d) => ({ ...d, [id]: { ...d[id], ...cambio } }))
+  }
+
+  /**
+   * Convertir en variable un trozo de texto elegido a mano.
+   *
+   * Es la otra mitad de "la detección propone, la persona decide". Hasta
+   * ahora solo se podía RECHAZAR lo propuesto; nada permitía AÑADIR lo
+   * que el detector no vio. Y no ve poco: en una compraventa de vehículo
+   * se le escapan el chasis, la placa y las direcciones, que son justo
+   * los datos que cambian de un contrato a otro.
+   */
+  function anotarSeleccion() {
+    const valor = seleccion.trim()
+    if (!valor) return
+
+    if (candidatos.some((c) => c.valor === valor)) {
+      setError('Ese texto ya está en la lista de abajo.')
+      setSeleccion('')
+      return
+    }
+    if (!texto.includes(valor)) {
+      setError('La selección no coincide con el texto del documento. Vuelve a seleccionarla.')
+      return
+    }
+
+    const etiqueta = etiquetaManual.trim() || sugerirEtiqueta(valor)
+    const veces = contarOcurrencias(texto, valor)
+
+    const nuevo: Candidato = {
+      id: `manual:${etiqueta}:${valor.slice(0, 20)}`,
+      tipo: 'manual',
+      valor,
+      ocurrencias: veces,
+      motivo: 'Lo elegiste tú en el texto.',
+      confianza: 'alta',
+      etiquetaSugerida: etiqueta,
+    }
+
+    setCandidatos((cs) => [nuevo, ...cs])
+    setDecisiones((d) => ({ ...d, [nuevo.id]: { confirmado: true, etiqueta, pregunta: '' } }))
+    setSeleccion('')
+    setEtiquetaManual('')
+    setError(null)
+  }
+
+  function quitarManual(id: string) {
+    setCandidatos((cs) => cs.filter((c) => c.id !== id))
+    setDecisiones((d) => {
+      const copia = { ...d }
+      delete copia[id]
+      return copia
+    })
   }
 
   function crear() {
@@ -254,7 +310,17 @@ export default function ImportarClient({
                       </span>
                     </div>
 
-                    <p className="mt-1 text-xs text-slate-500">{c.motivo}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {c.motivo}
+                      {c.tipo === 'manual' && (
+                        <button
+                          onClick={() => quitarManual(c.id)}
+                          className="ml-2 text-slate-400 underline underline-offset-2 hover:text-red-500"
+                        >
+                          quitar
+                        </button>
+                      )}
+                    </p>
 
                     {d?.confirmado && (
                       <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -365,15 +431,95 @@ export default function ImportarClient({
         </button>
       </div>
 
-      <details className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-        <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-300">
-          <FileText size={15} className="mr-1.5 inline" />
-          Ver el texto que se leyó
-        </summary>
-        <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-4 font-serif text-sm leading-relaxed text-slate-700 dark:bg-slate-800/50 dark:text-slate-300">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+          <FileText size={16} /> El documento
+        </h2>
+        <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+          <MousePointerClick size={14} className="shrink-0" />
+          ¿Falta algo en la lista de arriba? Selecciona con el ratón cualquier parte del texto y
+          conviértela en variable.
+        </p>
+
+        <pre
+          onMouseUp={() => {
+            const sel = window.getSelection()?.toString() ?? ''
+            const limpio = sel.trim()
+            // Una selección de una o dos letras casi siempre es un
+            // resbalón del ratón, no una intención.
+            if (limpio.length >= 3 && limpio.length <= 200) {
+              setSeleccion(limpio)
+              setEtiquetaManual('')
+            }
+          }}
+          className="mt-4 max-h-[28rem] cursor-text overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-4 font-serif text-sm leading-relaxed text-slate-700 selection:bg-emerald-200 dark:bg-slate-800/50 dark:text-slate-300 dark:selection:bg-emerald-800"
+        >
           {texto}
         </pre>
-      </details>
+      </div>
+
+      {seleccion && (
+        <div className="sticky bottom-4 z-10 rounded-xl border border-emerald-300 bg-white p-4 shadow-lg dark:border-emerald-700 dark:bg-slate-900">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Seleccionado
+              </p>
+              <code className="mt-1 block truncate rounded bg-slate-100 px-2 py-1 text-sm text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+                {seleccion}
+              </code>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-slate-500">
+                Nombre de la variable
+              </label>
+              <input
+                value={etiquetaManual}
+                onChange={(e) => setEtiquetaManual(e.target.value)}
+                placeholder={sugerirEtiqueta(seleccion)}
+                className={campo + ' w-56 font-mono text-xs'}
+              />
+            </div>
+            <button
+              onClick={anotarSeleccion}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+            >
+              <Plus size={15} /> Convertir en variable
+            </button>
+            <button
+              onClick={() => setSeleccion('')}
+              aria-label="Descartar la selección"
+              className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
+}
+
+/**
+ * Un nombre de variable a partir del texto seleccionado.
+ *
+ * Es solo una sugerencia: aparece como marcador de posición y quien
+ * importa la reescribe si quiere. Adivinar bien no es el objetivo;
+ * el objetivo es que el campo no empiece vacío.
+ */
+function sugerirEtiqueta(valor: string): string {
+  const base = valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .split('_')
+    .filter(Boolean)
+    .slice(0, 3)
+    .join('_')
+    .slice(0, 40)
+
+  // Si el texto era todo números o símbolos no queda nada aprovechable.
+  return /^[a-z]/.test(base) ? base : `dato_${base}` .replace(/_+$/, '')
 }

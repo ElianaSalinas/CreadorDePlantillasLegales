@@ -23,7 +23,7 @@
 
 import { validateCedula, validateRNC } from './dominican'
 
-export type TipoCandidato = 'cedula' | 'rnc' | 'monto' | 'fecha' | 'nombre' | 'repetido'
+export type TipoCandidato = 'cedula' | 'rnc' | 'monto' | 'fecha' | 'nombre' | 'repetido' | 'manual'
 
 export type Candidato = {
   id: string
@@ -47,6 +47,7 @@ export const ETIQUETA_TIPO: Record<TipoCandidato, string> = {
   fecha: 'Fecha',
   nombre: 'Nombre',
   repetido: 'Texto repetido',
+  manual: 'Elegido por ti',
 }
 
 /* ══════════════ LEER EL .DOCX ══════════════ */
@@ -162,7 +163,7 @@ function normaliza(texto: string): string {
     .slice(0, 40)
 }
 
-function contarOcurrencias(texto: string, valor: string): number {
+export function contarOcurrencias(texto: string, valor: string): number {
   if (!valor) return 0
   let n = 0
   let desde = 0

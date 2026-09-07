@@ -129,6 +129,7 @@ const TIPO_DE_DATO: Record<string, string> = {
   fecha: 'date',
   nombre: 'person',
   repetido: 'text',
+  manual: 'text',
 }
 
 export async function crearPlantillaDesdeTexto(
