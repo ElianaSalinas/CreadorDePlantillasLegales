@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { FileText, Archive, Users, ArrowRight } from 'lucide-react'
 import { cargarEstadoDelPlan, type EstadoDelPlan } from '@/lib/planes'
 import { requireSession, displayName } from '@/lib/session'
+import { toca, anosQueCumple } from '@/lib/cumpleanos'
 import { VAULT_BUCKET } from '@/lib/vault'
 
 export const dynamic = 'force-dynamic'
@@ -43,8 +44,27 @@ export default async function DashboardPage() {
     estadoPlan = plan
   }
 
+  // El mensaje del cumpleanos. Se calcula aqui y no se guarda nada: es
+  // la misma funcion probada que usa el correo, asi que la pantalla y
+  // el correo no pueden discrepar sobre que dia es.
+  const fnac = (profile as { fecha_nacimiento?: string | null } | null)?.fecha_nacimiento
+  const esSuCumple = Boolean(fnac && toca(String(fnac)))
+  const anos = fnac ? anosQueCumple(String(fnac)) : null
+
   return (
     <div className="mx-auto max-w-5xl">
+      {esSuCumple && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-[#FDE8B5] p-5 dark:border-amber-800 dark:bg-amber-900/20">
+          <p className="font-serif text-xl font-bold text-[#0D2C24] dark:text-amber-200">
+            ¡Feliz cumpleaños, {displayName(profile, user.email).split(' ')[0]}!
+          </p>
+          <p className="mt-1 text-sm text-[#7D6024] dark:text-amber-300/90">
+            {anos && anos > 0 && anos < 120
+              ? `Que cumplas muchos más. Hoy son ${anos}.`
+              : 'Que tengas un año excelente.'}
+          </p>
+        </div>
+      )}
       <h1 className="mb-2 text-3xl font-bold text-slate-900 dark:text-white">
         {/* Saludo neutro a proposito. La alternativa era preguntarle el
             genero a cada usuario para conjugar un adjetivo, y Google no

@@ -11,7 +11,8 @@
     "catalog:build": "tsc scripts/generate-catalog.ts --outDir .tmp-catalog --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-catalog/scripts/generate-catalog.js",
     "verify:import": "tsc scripts/verify-import.ts --outDir .tmp-import --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-import/scripts/verify-import.js",
     "verify:rutas": "node scripts/verify-rutas-analitica.mjs",
-    "verify:contraste": "node scripts/verify-contraste.mjs"
+    "verify:contraste": "node scripts/verify-contraste.mjs",
+    "verify:cumpleanos": "node scripts/verify-cumpleanos.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
@@ -22,12 +23,14 @@
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "next": "^16.3.1",
+    "nodemailer": "^7.0.9",
     "postcss": "^8.5.26",
     "react": "^19.0.1",
     "react-dom": "^19.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "@types/nodemailer": "^7.0.4",
     "@types/react": "19.2.18",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2"
