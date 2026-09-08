@@ -27,7 +27,7 @@ flowchart LR
   F6 --> F7["F7 · Analítica"]
   F3 --> F8["F8 · Rendimiento y accesibilidad"]
   F4 --> F8
-  F7 --> F9["F9 · PayPal"]
+  F7 --> F9["F9 · Cobros CardNET"]
   F8 --> F9
 ```
 
@@ -571,27 +571,79 @@ Core Web Vitals con PageSpeed Insights **después** de 8.1 y 8.2, no antes. Opti
 
 ---
 
-# FASE 9 · PayPal
+# FASE 9 · Cobros con CardNET
 
-**Estimado: 1 a 2 semanas. La última, como estaba previsto.**
+**Estimado: 1 a 2 semanas de código, más el trámite de afiliación. Decidido el 8 de septiembre.**
 
-Va al final porque **cobrar antes de tener qué vender no tiene sentido**: hasta F2 el catálogo está vacío, hasta F5 no hay página de precios y hasta F1.3 el plan de pago no da más capacidad que el gratuito.
+**PayPal queda descartado.** No por capricho: en República Dominicana solo se retira a través de Banco Popular, **en dólares**, y **Banco Popular cobra USD $10 fijos por cada retiro** sin importar el monto, con cinco días laborables de espera. Con suscripciones de RD$999 —unos 16 dólares— ese peaje se come la mitad de un cliente cada vez que sacas dinero. Y encima obliga a cobrarle en dólares a un dominicano un producto anunciado en pesos.
+
+**Stripe tampoco es una opción:** República Dominicana no está en su lista de países soportados.
+
+**CardNET** cobra 3,75–4,25%, en pesos, deposita en tu cuenta local en 48–72 horas y admite cobros recurrentes. Requiere afiliación comercial con RNC, que SAVE ya tiene.
+
+## LA DIFERENCIA QUE CAMBIA LA ARQUITECTURA
+
+El plan anterior decía *"webhook de pago que actualice `sub_status`"*. **Eso era pensar en PayPal, y con CardNET no funciona así.**
+
+PayPal es un modelo pasivo: PayPal cobra todos los meses por su cuenta y te avisa por webhook. CardNET es al revés: se guarda una **ficha de la tarjeta** (*Card on File*) y **es SAVE quien inicia el cobro cada mes**.
+
+Consecuencias, y ninguna es menor:
+
+- Hace falta un **proceso programado mensual** que recorra los despachos con suscripción activa y les cobre. No existe hoy.
+- **El resultado del cobro llega en la misma respuesta**, no por webhook. Es más simple de razonar, pero significa que si el proceso se cae a medias hay que saber por dónde iba.
+- Los **reintentos son nuestros**. Si una tarjeta falla, decidimos nosotros cuándo volver a intentarlo antes de mandar el despacho al periodo de gracia.
+
+### 9.0 Afiliación comercial · 👤 · EMPIEZA YA
+
+**Qué.** Solicitar la afiliación a CardNET con el RNC 132-28618-9.
+
+**Por qué va primero y separado.** Es el único punto del que depende cobrar, y no depende de escribir código: son semanas de trámite. Todo lo demás de esta fase se puede construir contra el entorno de pruebas mientras el papeleo avanza.
+
+**Hecho cuando:** CardNET entrega `PublicAccountKey` y `PrivateAccountKey` de producción.
 
 ### 9.1 Cerrar el modelo de cobro
 
-**Antes de escribir código:** ¿qué incluye cada plan, cuánto cuesta cada asiento adicional, y qué pasa al cancelar con documentos guardados?
+Los precios ya están decididos y viven en la tabla `planes`: RD$999 Pro, RD$1,699 Equipo, RD$399 por integrante adicional. Lo que **falta decidir**, y no es código:
 
-`billing.ts` ya tiene RD$999 de base, RD$499 por asiento y un miembro incluido. Falta lo demás.
+- **El comprobante fiscal.** El endpoint de compra de CardNET exige un campo `DataDo` con **número de factura**. En República Dominicana vender a empresas obliga a emitir NCF. Hay que hablarlo con tu contador **antes** de escribir la integración, porque determina si SAVE tiene que generar y numerar comprobantes.
+- **El ITBIS.** `/precios` dice hoy que los precios "incluyen los impuestos que apliquen". Hay que saber si el servicio lo lleva y si el precio anunciado es con impuesto incluido o sin él. Es una decisión de tu contador, no mía ni tuya.
+- **El prorrateo** al añadir un integrante a mitad de mes: se cobra completo, proporcional, o entra en el ciclo siguiente.
 
-### 9.2 Integración
+### 9.2 Integración con CardNET
 
-- Suscripción con PayPal
-- Webhook de pago que actualice `sub_status`
-- **La escalada de plan sigue bloqueada desde la aplicación** por `guard_org_plan_columns`: el webhook entra con la llave de servicio, no con sesión de usuario, así que el trigger le deja pasar. Esa pieza ya está resuelta desde la Fase 0.
+**Tokenización.** La tarjeta se captura en un **iframe de CardNET** mediante su librería `PWCheckout.js`, cargada con la `PublicAccountKey`. **Los datos de la tarjeta no pasan nunca por nuestro servidor ni por nuestro HTML**, que es lo que mantiene a SAVE fuera del alcance más caro de PCI. Devuelve un token de un solo uso, válido diez minutos, en un campo oculto `PWToken`.
 
-### 9.3 Estados del ciclo
+**Ficha permanente.** Ese token de un uso se convierte en un token de comercio (*Card on File*), que sí se guarda y permite cobrar en meses sucesivos sin que el titular esté delante.
 
-Pago fallido, periodo de gracia, cancelación y qué ve un despacho con la suscripción vencida. **Nunca borrar documentos por falta de pago**: bloquear la creación de nuevos, no el acceso a lo que ya se pagó.
+**El cobro.** `POST {URLBASE}/v1/api/purchase` con `TrxToken`, `Order`, `Amount`, `Currency: "DOP"` y `DataDo`.
+
+**Entornos.** Pruebas en `labservicios.cardnet.com.do`, producción en `servicios.cardnet.com.do`. Se construye entero contra pruebas mientras llega la afiliación.
+
+**Dónde va la clave privada.** `PrivateAccountKey` es de servidor y **solo** de servidor. En Railway como variable de entorno normal, **nunca** con prefijo `NEXT_PUBLIC_`: eso la incrustaría en el JavaScript que descarga cualquier visitante. La `PublicAccountKey` sí es pública y va al cliente.
+
+**Lo que NO se guarda nunca en nuestra base:** número de tarjeta, CVV, fecha de vencimiento. Solo el identificador del token y los cuatro últimos dígitos para que el usuario reconozca su tarjeta.
+
+### 9.3 El proceso mensual de cobro
+
+**Qué.** Una tarea programada que recorre los despachos con suscripción activa y vencida, cobra con el token guardado, y registra el resultado.
+
+**Cuidado con esto:** tiene que ser **idempotente**. Si se ejecuta dos veces el mismo día —porque falló a medias, porque alguien lo relanzó— no puede cobrar dos veces al mismo despacho. Se resuelve con un identificador de ciclo único por despacho y mes, y una restricción en la base que impida repetirlo.
+
+**Los reintentos.** Una tarjeta puede fallar por saldo y funcionar tres días después. Antes de mandar a nadie al periodo de gracia, reintentar; y avisar por correo al primer fallo, no al último.
+
+### 9.4 Estados del ciclo · ya construido
+
+**Esto ya está hecho desde la Fase 1** y no depende de quién cobre: `plan_efectivo()`, `sub_status`, `impago_desde` y el periodo de gracia de siete días. Pasada la gracia rige `CANCELLED`, con 0 documentos nuevos y 0 de bóveda — y cero de bóveda no impide leer ni descargar, solo subir.
+
+**Nunca se borran documentos por falta de pago.** Se bloquea crear nuevos; lo que ya se pagó se sigue viendo y descargando. Está implementado así a propósito.
+
+Lo que falta es **la interfaz**: una pantalla de estado de la suscripción, el aviso al entrar en gracia, y probar de verdad que un despacho vencido conserva el acceso a lo suyo.
+
+### 9.5 Probarlo con dinero de mentira
+
+Con el entorno de pruebas de CardNET: alta de tarjeta, primer cobro, cobro del mes siguiente con el token guardado, tarjeta rechazada, reintento, entrada en gracia, cancelación y reactivación.
+
+**Hecho cuando:** un despacho recorre el ciclo entero sin que nadie toque la base a mano.
 
 ---
 
@@ -608,7 +660,7 @@ Pago fallido, periodo de gracia, cancelación y qué ve un despacho con la suscr
 | **F6** | Arquitectura SEO | 3–4 semanas | F7 |
 | **F7** | Analítica | 2 días + manual | F9 |
 | **F8** | Rendimiento y accesibilidad | 1 semana | F9 |
-| **F9** | PayPal | 1–2 semanas | — |
+| **F9** | Cobros con CardNET | 1–2 semanas + afiliación | — |
 
 **Camino crítico hasta poder hacer adquisición orgánica en serio: F0 → F2 → F6 → F7.** Entre siete y once semanas, y la mitad son de la abogada.
 
@@ -624,13 +676,16 @@ Si F3 y F5 se hacen **en paralelo** con la revisión legal, para cuando el catá
 | D2 | La bóveda, ¿por despacho o por persona? | ✅ **Por despacho**, y privada por defecto |
 | D4 | Precios públicos | ✅ **RD$999 Pro · RD$1,699 Equipo · RD$399 por usuario** |
 | D3 | Modo oscuro, ¿terminarlo o retirarlo? | ⬜ Abierta · bloquea 8.4 · sin decidir, 47 archivos de código muerto siguen creciendo |
-| D5 | Al cancelar, ¿qué pasa con lo guardado? | ⬜ Abierta · bloquea 9.3 · sin definir, que es la peor opción |
+| D5 | Al cancelar, ¿qué pasa con lo guardado? | ✅ **Decidido y construido** — gracia de 7 días, luego bloqueo de creación y bóveda de solo lectura. Nunca se borra |
+| D6 | Pasarela de pago | ✅ **Decidido el 8 de septiembre** — CardNET. PayPal descartado por el retiro de USD$10; Stripe no opera en RD |
+| D7 | Comprobante fiscal (NCF) e ITBIS | ⬜ **Abierta · bloquea 9.2** · el endpoint de CardNET exige número de factura. Es consulta para tu contador |
+| D8 | Prorrateo al añadir integrante a mitad de mes | ⬜ Abierta · bloquea 9.1 |
 
-**Sobre D5**, para cuando toque: lo que no se puede hacer es borrar documentos por
-falta de pago. Lo razonable es bloquear la creación de nuevos y mantener el acceso
-y la descarga de lo que ya se pagó. Pero hay que decidir si la bóveda pasa a solo
-lectura, cuánto dura el periodo de gracia, y qué ocurre con un despacho de cinco
-personas que cae a un plan de una.
+**Sobre D7**, que es la que ahora bloquea: el campo `DataDo` del endpoint de compra de
+CardNET exige un número de factura. En República Dominicana vender a empresas obliga
+a emitir NCF. Antes de escribir la integración hay que saber si SAVE tiene que
+generar y numerar comprobantes, y si el precio anunciado lleva el ITBIS incluido.
+Eso lo contesta un contador, no el código.
 
 # Lo que ya está hecho
 
