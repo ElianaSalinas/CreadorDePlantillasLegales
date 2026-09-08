@@ -7,12 +7,41 @@ import { createClient } from '@/utils/supabase/server'
 import { getSiteUrl } from '@/lib/siteUrl'
 import { PROF_ROLE_OPTIONS } from '@/lib/labels'
 import { mensajeDeAuth } from '@/lib/mensajes-auth'
+import { validateRNC } from '@/lib/engine/dominican'
 
 export async function register(formData: FormData) {
   const supabase = await createClient()
 
   const siteUrl = await getSiteUrl()
   const perfil = String(formData.get('prof_role') ?? '').trim().toUpperCase()
+
+  const tipoCuenta = String(formData.get('tipo_cuenta') ?? 'PERSONA').toUpperCase()
+  const esEmpresa = tipoCuenta === 'EMPRESA'
+
+  // El RNC se valida AQUI y no solo en el navegador. El formulario se
+  // puede saltar; esta accion es el unico camino que no.
+  let rnc: string | null = null
+  let razonSocial: string | null = null
+  if (esEmpresa) {
+    razonSocial = String(formData.get('razon_social') ?? '').trim()
+    if (!razonSocial) {
+      redirect('/register?message=' + encodeURIComponent('Falta la razón social de la empresa.'))
+    }
+    const comprobado = validateRNC(String(formData.get('rnc') ?? ''))
+    if (!comprobado.isValid) {
+      redirect(
+        '/register?message=' +
+          encodeURIComponent(comprobado.error ?? 'El RNC no parece válido. Revísalo.'),
+      )
+    }
+    rnc = comprobado.clean
+  }
+
+  // Una empresa no tiene cumpleaños. Aunque el campo llegara relleno
+  // -formulario manipulado, autocompletado raro- aquí se descarta.
+  const fechaNacimiento = esEmpresa
+    ? null
+    : String(formData.get('fecha_nacimiento') ?? '').trim() || null
 
   const data = {
     email: formData.get('email') as string,
@@ -27,6 +56,10 @@ export async function register(formData: FormData) {
         // está en la lista, el trigger cae a INDEPENDIENTE, que es el
         // perfil sin facultades: nadie gana permisos por accidente.
         prof_role: PROF_ROLE_OPTIONS.some((o) => o.value === perfil) ? perfil : 'INDEPENDIENTE',
+        tipo_cuenta: esEmpresa ? 'EMPRESA' : 'PERSONA',
+        fecha_nacimiento: fechaNacimiento,
+        razon_social: razonSocial,
+        rnc,
       }
     }
   }

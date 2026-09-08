@@ -37,7 +37,12 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <h1 className="mb-2 text-3xl font-bold text-slate-900 dark:text-white">
-        Bienvenido, {displayName(profile, user.email).split(' ')[0]}
+        {/* Saludo neutro a proposito. La alternativa era preguntarle el
+            genero a cada usuario para conjugar un adjetivo, y Google no
+            lo devuelve al registrarse con su cuenta, asi que habria que
+            preguntarselo a todo el mundo. "Hola" no se equivoca con
+            nadie y no obliga a guardar un dato personal mas. */}
+        Hola, {displayName(profile, user.email).split(' ')[0]}
       </h1>
       <p className="mb-8 text-slate-600 dark:text-slate-400">
         Este es tu espacio de trabajo seguro en Save Documentos.

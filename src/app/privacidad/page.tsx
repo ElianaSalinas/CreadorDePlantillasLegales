@@ -63,6 +63,15 @@ export default function PrivacidadPage() {
               profesional y matrícula del Colegio de Abogados si la aportas.
             </li>
             <li>
+              <strong>Tu fecha de nacimiento, si nos la das:</strong> es opcional y la usamos para una
+              sola cosa, felicitarte el día de tu cumpleaños. No se comparte, no entra en ningún
+              perfil publicitario y puedes borrarla cuando quieras desde Mi Despacho.
+            </li>
+            <li>
+              <strong>Si te registras como empresa:</strong> razón social y RNC, que necesitamos para
+              emitirte el comprobante fiscal.
+            </li>
+            <li>
               <strong>De tu despacho:</strong> nombre, plan contratado y quiénes son sus integrantes.
             </li>
             <li>
@@ -75,8 +84,14 @@ export default function PrivacidadPage() {
             </li>
           </ul>
           <p>
-            No usamos cookies de publicidad ni de seguimiento de terceros. Las únicas cookies que
-            ponemos son las que mantienen tu sesión abierta.
+            <strong>Si entras con tu cuenta de Google</strong>, Google nos comunica tu nombre, tu
+            correo y tu foto de perfil, y nada más. No pedimos —ni podemos ver— tus contactos, tu
+            calendario, tu agenda ni el contenido de tu correo.
+          </p>
+          <p>
+            Solo ponemos cookies de terceros si aceptas las de analítica en el aviso que aparece al
+            entrar; puedes rechazarlas y la plataforma funciona igual. Las demás cookies son las que
+            mantienen tu sesión abierta.
           </p>
         </Seccion>
 

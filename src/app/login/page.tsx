@@ -31,7 +31,7 @@ export default async function LoginPage({
           </Link>
 
           <h1 className="font-serif text-3xl font-bold text-slate-900 dark:text-white">
-            Bienvenida de vuelta
+            Te damos la bienvenida
           </h1>
           <p className="mt-2 text-sm text-slate-500">
             Entra a tu espacio de trabajo en Save Documentos.

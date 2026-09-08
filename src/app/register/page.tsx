@@ -3,6 +3,7 @@ import PasswordInput from '@/components/ui/PasswordInput'
 import AuthShowcase from '@/components/ui/AuthShowcase'
 import { register } from './actions'
 import { PROF_ROLE_OPTIONS } from '@/lib/labels'
+import TipoDeCuenta from './TipoDeCuenta'
 
 // No tiene nada que hacer en Google, y además heredaba la
 // descripción del layout raíz, duplicándola en cada pantalla.
@@ -44,24 +45,30 @@ export default async function RegisterPage({
           <form className="mt-8 space-y-4" action={register}>
             <div className="flex gap-4">
               <div className="w-1/2">
-                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label htmlFor="first_name" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Nombre
                 </label>
-                <input name="first_name" type="text" required placeholder="Ej. Laura" className={inputClass} />
+                <input id="first_name" name="first_name" type="text" required placeholder="Ej. Laura" className={inputClass} />
               </div>
               <div className="w-1/2">
-                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label htmlFor="last_name" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Apellido
                 </label>
-                <input name="last_name" type="text" required placeholder="Ej. Cifuentes" className={inputClass} />
+                <input id="last_name" name="last_name" type="text" required placeholder="Ej. Cifuentes" className={inputClass} />
               </div>
             </div>
 
+            <TipoDeCuenta />
+
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="email"
+                className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Email Profesional
               </label>
               <input
+                id="email"
                 name="email"
                 type="email"
                 required
