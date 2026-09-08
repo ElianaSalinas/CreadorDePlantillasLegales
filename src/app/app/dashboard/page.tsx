@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { FileText, Archive, Users, ArrowRight } from 'lucide-react'
 import { cargarEstadoDelPlan, type EstadoDelPlan } from '@/lib/planes'
@@ -8,6 +9,14 @@ export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
   const { supabase, profile, org, isAdmin, user } = await requireSession()
+
+  // Quien entro con Google llega sin decirnos si es persona o empresa.
+  // Se le pregunta UNA vez, aqui, que es donde aterriza todo el mundo.
+  // El desvio no va en el layout de /app porque la propia pantalla de
+  // bienvenida vive dentro de /app y se desviaria a si misma en bucle.
+  if ((profile as { perfil_completado?: boolean } | null)?.perfil_completado === false) {
+    redirect('/app/bienvenida')
+  }
 
   let templateCount = 0
   let vaultCount = 0

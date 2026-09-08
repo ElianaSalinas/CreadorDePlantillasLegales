@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import PasswordInput from '@/components/ui/PasswordInput'
+import BotonGoogle from '@/components/ui/BotonGoogle'
 import AuthShowcase from '@/components/ui/AuthShowcase'
 import { register } from './actions'
 import { PROF_ROLE_OPTIONS } from '@/lib/labels'
@@ -41,8 +42,17 @@ export default async function RegisterPage({
           <p className="mt-2 text-sm text-slate-500">
             Gratis para empezar. Sin tarjeta de crédito.
           </p>
+          <div className="mt-8">
+            <BotonGoogle texto="Registrarme con Google" />
+          </div>
 
-          <form className="mt-8 space-y-4" action={register}>
+          <div className="my-6 flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+            <span className="text-xs font-medium text-slate-400">o con tu correo</span>
+            <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+          </div>
+
+          <form className="space-y-4" action={register}>
             <div className="flex gap-4">
               <div className="w-1/2">
                 <label htmlFor="first_name" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">

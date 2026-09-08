@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import PasswordInput from '@/components/ui/PasswordInput'
+import BotonGoogle from '@/components/ui/BotonGoogle'
 import AuthShowcase from '@/components/ui/AuthShowcase'
 import { login } from './actions'
 
@@ -36,8 +37,17 @@ export default async function LoginPage({
           <p className="mt-2 text-sm text-slate-500">
             Entra a tu espacio de trabajo en Save Documentos.
           </p>
+          <div className="mt-8">
+            <BotonGoogle texto="Entrar con Google" />
+          </div>
 
-          <form className="mt-8 space-y-4" action={login}>
+          <div className="my-6 flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+            <span className="text-xs font-medium text-slate-400">o con tu correo</span>
+            <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+          </div>
+
+          <form className="space-y-4" action={login}>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
                 Email
