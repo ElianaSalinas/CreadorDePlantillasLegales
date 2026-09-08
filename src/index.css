@@ -159,7 +159,16 @@
   color: #C5A059;
 }
 .text-save-gold-dark {
-  color: #8E6D29;
+  /* Era #8E6D29 y no llegaba al contraste minimo de la WCAG: 3.98:1
+     sobre el dorado claro #FDE8B5 y 4.30:1 sobre la crema #F5F2ED,
+     cuando el minimo para texto normal es 4.5:1. Lo delato PageSpeed y
+     lo confirme midiendo los tres textos que fallaban en la portada.
+
+     #7D6024 es el MISMO tono, un 12% mas oscuro: 4.87:1 en el peor
+     caso. Se descarto #836426, que da 4.56 y pasa por los pelos: un
+     color que aprueba con dos centesimas vuelve a suspender en cuanto
+     alguien retoca el fondo. */
+  color: #7D6024;
 }
 .border-save-gold {
   border-color: #C5A059;

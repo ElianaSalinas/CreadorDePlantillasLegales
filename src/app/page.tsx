@@ -379,7 +379,7 @@ export default async function HomePage() {
                 <span className="font-serif text-sm font-bold text-[#0D2C24]">
                   Contrato de Alquiler
                 </span>
-                <span className="rounded-full bg-[#FDE8B5] px-2.5 py-1 text-[11px] font-bold tracking-wider text-[#8E6D29]">
+                <span className="rounded-full bg-[#FDE8B5] px-2.5 py-1 text-[11px] font-bold tracking-wider text-[#7D6024]">
                   PLANTILLA
                 </span>
               </div>
@@ -491,7 +491,7 @@ export default async function HomePage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map(({ n, title, body }) => (
               <div key={n} className="flex flex-col gap-4">
-                <span className="font-serif text-[44px] leading-none font-bold text-[#8E6D29]">
+                <span className="font-serif text-[44px] leading-none font-bold text-[#7D6024]">
                   {n}
                 </span>
                 <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
@@ -697,7 +697,7 @@ function SectionHead({
 }) {
   return (
     <div className="mx-auto mb-14 flex max-w-[660px] flex-col gap-4 text-center">
-      <span className="text-xs font-extrabold tracking-[0.14em] text-[#8E6D29]">{eyebrow}</span>
+      <span className="text-xs font-extrabold tracking-[0.14em] text-[#7D6024]">{eyebrow}</span>
       <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-balance text-[#0D2C24] md:text-[42px]">
         {title}
       </h2>

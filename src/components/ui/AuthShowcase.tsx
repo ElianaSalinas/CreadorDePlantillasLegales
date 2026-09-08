@@ -22,7 +22,7 @@ export default function AuthShowcase() {
               <span className="font-serif text-sm font-bold text-[#0D2C24]">
                 Contrato de Alquiler
               </span>
-              <span className="rounded-full bg-[#FDE8B5] px-2.5 py-1 text-[11px] font-bold tracking-wider text-[#8E6D29]">
+              <span className="rounded-full bg-[#FDE8B5] px-2.5 py-1 text-[11px] font-bold tracking-wider text-[#7D6024]">
                 PLANTILLA
               </span>
             </div>
