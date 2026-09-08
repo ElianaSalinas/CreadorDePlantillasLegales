@@ -6,6 +6,18 @@
 # una vez: un PATCH parcial en esta API borra en vez de
 # actualizar, ya nos paso con smtp_pass.
 #
+# OJO: ESTAS PLANTILLAS VIVEN EN SUPABASE, NO EN EL REPOSITORIO.
+#
+# Es decir que NO se despliegan con un push: si cambia el domicilio, el
+# color de marca o el nombre legal, la web se entera y el correo no. Ya
+# paso: el 7 de septiembre se corrigio la sede a Veron, Higuey en los
+# terminos, la privacidad y el pie de la web, y el correo de
+# confirmacion siguio diciendo "Punta Cana" durante un dia. El boton
+# tambien se quedo en #059669, el verde menta que ese mismo dia dejo de
+# existir en toda la interfaz.
+#
+# Si tocas src/lib/empresa.ts o la paleta, VUELVE AQUI y corre esto.
+#
 # Los enlaces usan {{ .ConfirmationURL }}, que construye Supabase.
 # Antes los armabamos a mano con {{ .TokenHash }} y eso dependia de
 # que el cliente de correo decodificara bien el &amp; del href.
@@ -39,7 +51,8 @@ $uri = "https://api.supabase.com/v1/projects/$proyecto/config/auth"
 
 $pie = @"
 <p style="color:#6b7280;font-size:13px;margin-top:28px">
-SAVE Documentos &middot; SA&amp;VE Comercial, S.R.L. &middot; Punta Cana, Rep&uacute;blica Dominicana
+SAVE Documentos &middot; SA&amp;VE Comercial, S.R.L. &middot; RNC 132-28618-9<br>
+Local #2, Edificios Ibercub, Calle Do&ntilde;a Leonor, Ver&oacute;n, Hig&uuml;ey, La Altagracia, Rep&uacute;blica Dominicana
 </p>
 "@
 
@@ -70,7 +83,7 @@ $confirmacion = @"
 <h2>Confirma tu cuenta en SAVE Documentos</h2>
 <p>Ya casi est&aacute;. Haz clic para verificar tu correo y entrar:</p>
 <p><a href="$hrefConfirmar"
-   style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Verificar mi cuenta</a></p>
+   style="display:inline-block;background:#0D2C24;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Verificar mi cuenta</a></p>
 <p style="color:#6b7280;font-size:13px">Si no creaste esta cuenta, ignora este mensaje.</p>
 $pie
 "@
@@ -79,7 +92,7 @@ $recuperacion = @"
 <h2>Restablece tu contrase&ntilde;a</h2>
 <p>Haz clic para elegir una nueva contrase&ntilde;a:</p>
 <p><a href="$hrefRecuperar"
-   style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Cambiar mi contrase&ntilde;a</a></p>
+   style="display:inline-block;background:#0D2C24;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Cambiar mi contrase&ntilde;a</a></p>
 <p style="color:#6b7280;font-size:13px">Si no lo pediste t&uacute;, ignora este mensaje: tu contrase&ntilde;a no cambiar&aacute;.</p>
 $pie
 "@
@@ -89,7 +102,7 @@ $invitacion = @"
 <p>Haz clic para elegir tu contrase&ntilde;a y entrar. Tu cuenta es tuya:
 si alg&uacute;n d&iacute;a sales del despacho, la conservas.</p>
 <p><a href="$hrefInvitar"
-   style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Aceptar la invitaci&oacute;n</a></p>
+   style="display:inline-block;background:#0D2C24;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Aceptar la invitaci&oacute;n</a></p>
 <p style="color:#6b7280;font-size:13px">Si no esperabas esta invitaci&oacute;n, ignora este mensaje.</p>
 $pie
 "@
@@ -98,7 +111,7 @@ $enlaceMagico = @"
 <h2>Tu enlace de acceso</h2>
 <p>Haz clic para entrar. El enlace caduca pronto y solo sirve una vez.</p>
 <p><a href="{{ .ConfirmationURL }}"
-   style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Entrar</a></p>
+   style="display:inline-block;background:#0D2C24;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Entrar</a></p>
 $pie
 "@
 
@@ -106,7 +119,7 @@ $cambioCorreo = @"
 <h2>Confirma tu nuevo correo</h2>
 <p>Haz clic para confirmar {{ .NewEmail }} como tu nueva direcci&oacute;n.</p>
 <p><a href="{{ .ConfirmationURL }}"
-   style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Confirmar el nuevo correo</a></p>
+   style="display:inline-block;background:#0D2C24;color:#ffffff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">Confirmar el nuevo correo</a></p>
 <p style="color:#6b7280;font-size:13px">Si no pediste este cambio, ignora este mensaje.</p>
 $pie
 "@
