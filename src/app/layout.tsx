@@ -17,6 +17,21 @@ export const metadata: Metadata = {
   applicationName: 'SAVE Documentos',
 
   /**
+   * Verificacion de Google Search Console.
+   *
+   * Next lo convierte en la etiqueta <meta name="google-site-verification">
+   * que pide Google. Va aqui y no escrito a mano en el <head> para que
+   * viva con el resto de la metadata y nadie lo borre por accidente al
+   * tocar el layout.
+   *
+   * NO se quita nunca despues de verificar: Google revisa la propiedad
+   * cada cierto tiempo y si la etiqueta desaparecio, retira el acceso.
+   */
+  verification: {
+    google: 'rdzIGn9z7OY4tu1Ju6CClLSTS8KGVwtsHNNFye3d-vk',
+  },
+
+  /**
    * La tarjeta que se ve al compartir el enlace.
    *
    * Sin esto, WhatsApp y LinkedIn ensenaban el enlace pelado. En
