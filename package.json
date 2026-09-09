@@ -3,16 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "verify:engine": "tsc scripts/verify-engine.ts --outDir .tmp-verify --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-verify/scripts/verify-engine.js",
     "catalog:build": "tsc scripts/generate-catalog.ts --outDir .tmp-catalog --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-catalog/scripts/generate-catalog.js",
-    "verify:import": "tsc scripts/verify-import.ts --outDir .tmp-import --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-import/scripts/verify-import.js",
-    "verify:rutas": "node scripts/verify-rutas-analitica.mjs",
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start",
     "verify:contraste": "node scripts/verify-contraste.mjs",
-    "verify:cumpleanos": "node scripts/verify-cumpleanos.mjs"
+    "verify:cumpleanos": "node scripts/verify-cumpleanos.mjs",
+    "verify:engine": "tsc scripts/verify-engine.ts --outDir .tmp-verify --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-verify/scripts/verify-engine.js",
+    "verify:import": "tsc scripts/verify-import.ts --outDir .tmp-import --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-import/scripts/verify-import.js",
+    "verify:rnc": "node scripts/verify-rnc.mjs",
+    "verify:rutas": "node scripts/verify-rutas-analitica.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

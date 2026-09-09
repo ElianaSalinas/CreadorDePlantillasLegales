@@ -84,6 +84,23 @@ export type RncCheck = {
  * RNC de la DGII: 9 dígitos para empresas (verificador módulo 11) u 11
  * dígitos cuando el contribuyente es una persona física, en cuyo caso el
  * RNC es su propia cédula.
+ *
+ * El algoritmo: pesos 7 9 8 6 5 4 3 2 sobre los ocho primeros dígitos,
+ * suma, módulo 11, y entonces resto 0 → dígito 2, resto 1 → dígito 1,
+ * cualquier otro resto → 11 menos el resto. Comprobado contra el RNC
+ * real de SA&VE, 132-28618-9, en `npm run verify:rnc`.
+ *
+ * LO QUE ESTO NO PRUEBA, Y CONVIENE NO OLVIDARLO:
+ *
+ * Que el número esté BIEN FORMADO no significa que EXISTA, ni que sea
+ * de quien dice. 132-28618-8 se rechaza porque el dígito no cuadra,
+ * pero cualquier RNC inventado que cuadre pasará este control.
+ *
+ * Para un contrato eso basta: atrapa el dedazo, que es el error real.
+ * Para FACTURAR con NCF no basta —hace falta que el RNC exista de
+ * verdad en la DGII, que publica el padrón y una consulta en línea—.
+ * Cuando entre el cobro de la Fase 9, esta función se queda corta y hay
+ * que consultar a la DGII.
  */
 export function validateRNC(input: string): RncCheck {
   if (!input) {

@@ -86,7 +86,7 @@ export default function TipoDeCuenta() {
               className={inputClass}
             />
             <p id="rnc-ayuda" className="mt-1 text-xs text-slate-500">
-              Nueve dígitos. Lo necesitaremos para tu factura.
+              Nueve dígitos si es una sociedad, u once si tributas con tu cédula. Lo necesitaremos para tu factura.
             </p>
           </div>
         </>
