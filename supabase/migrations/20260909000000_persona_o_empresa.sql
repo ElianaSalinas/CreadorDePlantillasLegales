@@ -66,6 +66,14 @@ CREATE INDEX IF NOT EXISTS profiles_cumple_idx
 -- ==========================================================
 -- El trigger de alta, ampliado
 --
+-- OJO: esta version NO lleva el enlace del revisor de catalogo ni el
+-- EXCEPTION WHEN OTHERS. Se perdieron aqui por escribirla partiendo de
+-- una version anterior a la del 2 de septiembre. La migracion
+-- 20260910, que corre justo despues, ya deja la funcion completa; y la
+-- 20260911 la comprueba y falla si volvieran a faltar. Se deja tal
+-- cual y no se retoca para no reescribir una migracion que puede haber
+-- corrido ya en produccion.
+--
 -- Dos cosas nuevas:
 --   1. lee tipo de cuenta, fecha de nacimiento, razon social y RNC
 --   2. entiende los nombres que manda GOOGLE, que no son los nuestros:

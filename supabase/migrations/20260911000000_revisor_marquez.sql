@@ -1,36 +1,43 @@
 -- ==========================================================
 -- SA&VE Comercial, S.R.L.
--- Entrar con Google, y lo que Google no cuenta
+-- Segundo revisor del catalogo, y reparacion de handle_new_user
 --
--- Google devuelve nombre, correo y foto. No devuelve si quien entra es
--- una persona o una empresa, ni su fecha de nacimiento —eso exige
--- permisos aparte y sensibles, que asustan al usuario y obligan a una
--- revisión de Google.
+-- 1. jmarquez@saveconsult.net recibe el mismo permiso que
+--    legalcifuentes@gmail.com: ver, corregir y aprobar el catalogo
+--    maestro. Ni panel de administracion, ni acceso a un solo
+--    documento de cliente.
 --
--- Así que quien entre por Google llega con la cuenta creada y el perfil
--- a medias. Esta columna es la que distingue "no lo ha contestado" de
--- "lo contestó y dijo que no", que no es lo mismo:
+--    NO HACE FALTA UN TRIGGER NUEVO. El que enlaza a un revisor con su
+--    cuenta ya existe desde el 2 de septiembre, dentro de
+--    handle_new_user: cuando esa persona se registre, el permiso que
+--    le esperaba se le engancha solo. Se apunta el correo ANTES de que
+--    tenga cuenta, y se enlaza por NEW.email -el que Supabase
+--    verifico- y nunca por los metadatos del registro, que los
+--    controla quien llama a la API.
 --
---   tipo_cuenta viene con DEFAULT 'PERSONA' y fecha_nacimiento es
---   opcional, así que mirar esas dos columnas NO permite saber si la
---   persona llegó a ver la pregunta. Sin una marca explícita, a quien
---   dejó la fecha en blanco a propósito se le volvería a preguntar en
---   cada visita.
+-- 2. REPARACION. Las migraciones 20260909 y 20260910 reescribieron
+--    handle_new_user partiendo de una version anterior a la del 2 de
+--    septiembre, y al hacerlo perdieron dos bloques:
+--
+--      · el enlace del revisor. La abogada no habria recibido su
+--        permiso al registrarse, y la Fase 2 -el camino critico del
+--        proyecto- se habria quedado parada sin causa visible.
+--      · el EXCEPTION WHEN OTHERS. Sin el, cualquier error dentro del
+--        trigger ABORTA el alta: la persona no puede crear su cuenta.
+--
+--    Aqui se vuelve a dejar la funcion completa. Es idempotente y no
+--    importa si las otras dos ya se corrieron o no.
 -- ==========================================================
 
-ALTER TABLE profiles
-  ADD COLUMN IF NOT EXISTS perfil_completado BOOLEAN NOT NULL DEFAULT false;
+INSERT INTO revisores_contenido (email, nombre)
+VALUES ('jmarquez@saveconsult.net', 'Revisor de contenido de SA&VE')
+ON CONFLICT (email) DO UPDATE SET activo = true, nombre = EXCLUDED.nombre;
 
-COMMENT ON COLUMN profiles.perfil_completado IS
-  'true cuando la persona ya vio y contesto la pantalla de bienvenida. Quien se registra por el formulario nace en true; quien entra por Google, en false.';
-
--- Los que ya existen pasaron por el formulario completo: no se les
--- vuelve a preguntar nada.
-UPDATE profiles SET perfil_completado = true WHERE perfil_completado = false;
-
--- ==========================================================
--- El trigger marca completado solo si el alta trajo los datos
--- ==========================================================
+-- Si ya tuviera cuenta creada antes de esta migracion, se enlaza ahora.
+UPDATE revisores_contenido r
+   SET user_id = u.id, linked_at = timezone('utc', now())
+  FROM auth.users u
+ WHERE r.user_id IS NULL AND LOWER(u.email) = r.email;
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -164,13 +171,35 @@ CREATE TRIGGER on_auth_user_created
 
 -- ---------- Comprobacion ----------
 DO $$
+DECLARE
+  v_def TEXT;
+  v_rev INT;
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-     WHERE table_schema='public' AND table_name='profiles' AND column_name='perfil_completado'
-  ) THEN
-    RAISE EXCEPTION 'falta profiles.perfil_completado';
+  SELECT prosrc INTO v_def FROM pg_proc
+   WHERE proname = 'handle_new_user'
+     AND pronamespace = 'public'::regnamespace;
+
+  IF v_def IS NULL THEN
+    RAISE EXCEPTION 'handle_new_user no existe';
   END IF;
-  RAISE NOTICE 'Perfiles sin completar: %',
-    (SELECT count(*) FROM profiles WHERE NOT perfil_completado);
+
+  -- Las dos piezas que se perdieron. Si vuelven a caerse, esto falla
+  -- en vez de dejarlo pasar en silencio, que es como se perdieron.
+  IF position('revisores_contenido' in v_def) = 0 THEN
+    RAISE EXCEPTION 'handle_new_user NO enlaza a los revisores: el permiso no se concederia al registrarse';
+  END IF;
+
+  IF position('EXCEPTION WHEN OTHERS' in v_def) = 0 THEN
+    RAISE EXCEPTION 'handle_new_user NO captura errores: un fallo impediria crear cuentas';
+  END IF;
+
+  SELECT count(*) INTO v_rev FROM revisores_contenido WHERE activo;
+
+  SELECT string_agg(
+           email || CASE WHEN user_id IS NULL THEN ' (sin cuenta todavia)' ELSE ' (enlazado)' END,
+           E'\n  - ' ORDER BY email)
+    INTO v_def
+    FROM revisores_contenido WHERE activo;
+
+  RAISE NOTICE 'Revisores activos (%):%s  - %', v_rev, E'\n', v_def;
 END $$;

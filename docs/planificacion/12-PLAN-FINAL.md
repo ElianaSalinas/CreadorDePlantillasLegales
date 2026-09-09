@@ -670,30 +670,23 @@ El código está escrito y subido. Lo que queda aquí es casi todo tuyo.
 
 **Esto es lo que quita el texto feo. Es gratis y es lo primero.**
 
-### 10.2 Dominio propio de Supabase · P3 · 👤 · 10 USD/mes
-
-**Qué.** El complemento de dominio personalizado, para que la autenticación viva en `auth.savedocumentos.com`.
-
-**Qué compra, y qué NO.** No es lo que arregla la pantalla de permisos —eso es la 10.1—. Lo que compra es que la barra de direcciones del navegador no enseñe `supabase.co` mientras el usuario va y vuelve de Google, y que el día que se cambie de proveedor las URLs no cambien.
-
-**Es cosmético y postergable.** Hazlo si te apetece, pero que no bloquee nada: **si la 10.1 no está hecha, pagar esto no arregla lo que viste en la captura.**
-
-### 10.3 Quién llama a la tarea de cumpleaños · ⬜ decisión abierta
+### 10.2 Quién llama a la tarea de cumpleaños · ✅ decidido: GitHub Actions
 
 La ruta `/api/tareas/cumpleanos` existe y está protegida por clave, pero **nadie la llama todavía**. Sin esto, el correo no sale nunca; el mensaje dentro de la aplicación sí funciona ya.
 
-Dos opciones:
+**Decidido: GitHub Actions**, en `.github/workflows/cumpleanos.yml`. Se descartaron `pg_cron` —la clave acabaría guardada en la propia base y los errores solo se ven consultando una tabla interna de `pg_net`— y el cron de Railway, que obliga a un servicio aparte.
 
-- **`pg_cron` dentro de Supabase.** Sin servicios nuevos. Hay que habilitar la extensión y guardar la clave en la base.
-- **Cron de Railway.** Más visible y más fácil de depurar; es un servicio más.
+Lo que decidió: **qué pasa el día que falle**. Aquí el horario está versionado, los registros están en la pestaña Actions, y hay un botón para dispararlo a mano. Además el paso comprueba el código HTTP y **falla si no es 200**: sin eso, una clave mal puesta devolvería 401, el trabajo saldría en verde, y estaríamos meses sin enviar nada.
 
-### 10.4 Variables de correo en Railway · 👤
+**Falta:** poner el secreto `TAREAS_CLAVE` en GitHub → Settings → Secrets and variables → Actions, con el mismo valor que en Railway.
+
+### 10.3 Variables de correo en Railway · 👤
 
 `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` y `TAREAS_CLAVE`.
 
 **`SMTP_PASS` no puede llevar el prefijo `NEXT_PUBLIC_`**: eso la metería en el JavaScript que descarga cualquier visitante.
 
-### 10.5 Probarlo de punta a punta
+### 10.4 Probarlo de punta a punta
 
 Ponerse una fecha de nacimiento de hoy, llamar a la tarea a mano con la clave, y comprobar que llega **un solo** correo aunque se llame dos veces. Esa segunda llamada es la prueba que importa: es la que verifica que `cumple_felicitado_en` hace su trabajo.
 
@@ -734,8 +727,7 @@ Si F3 y F5 se hacen **en paralelo** con la revisión legal, para cuando el catá
 | D7 | Comprobante fiscal (NCF) e ITBIS | ⬜ **Abierta · bloquea 9.2** · el endpoint de CardNET exige número de factura. Es consulta para tu contador |
 | D8 | Prorrateo al añadir integrante a mitad de mes | ⬜ Abierta · bloquea 9.1 |
 | D9 | Saludo con género | ✅ **Descartado el 8 de septiembre** — Google no devuelve el género sin un permiso sensible. Saludo neutro |
-| D10 | Quién programa la tarea de cumpleaños | ⬜ Abierta · bloquea 10.3 · `pg_cron` en Supabase o cron de Railway |
-| D11 | Dominio propio de Supabase (10 USD/mes) | ⬜ Abierta · **no bloquea nada**, es cosmético; lo que arregla la pantalla de Google es la 10.1, que es gratis |
+| D10 | Quién programa la tarea de cumpleaños | ✅ **GitHub Actions**, decidido el 9 de septiembre. Se ve cuando falla, que es lo que decide estas cosas |
 
 **Sobre D7**, que es la que ahora bloquea: el campo `DataDo` del endpoint de compra de
 CardNET exige un número de factura. En República Dominicana vender a empresas obliga
