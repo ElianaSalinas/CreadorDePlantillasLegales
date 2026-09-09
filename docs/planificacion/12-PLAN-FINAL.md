@@ -686,9 +686,102 @@ Lo que decidió: **qué pasa el día que falle**. Aquí el horario está version
 
 **`SMTP_PASS` no puede llevar el prefijo `NEXT_PUBLIC_`**: eso la metería en el JavaScript que descarga cualquier visitante.
 
-### 10.4 Probarlo de punta a punta
+### 10.4 Lo que falta hacer a mano · 👤 · TODO ESTO ESTÁ PENDIENTE
+
+Sin esto, el código está subido y no funciona nada de lo nuevo.
+
+1. `npm install` — falta `nodemailer`. Hasta entonces el proyecto **no compila**.
+2. Las tres migraciones en el SQL Editor, **en orden**: `20260909 persona_o_empresa`, `20260910 alta_con_google`, `20260911 revisor_marquez`.
+3. En Railway: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` y `TAREAS_CLAVE`.
+4. En GitHub → Settings → Secrets and variables → Actions: el secreto `TAREAS_CLAVE`, **con el mismo valor** que en Railway. Si no coinciden, el trabajo diario devuelve 401.
+5. `npm run build` y `git push origin main`.
+6. La pantalla de consentimiento de Google (10.1).
+
+### 10.5 Probarlo de punta a punta
 
 Ponerse una fecha de nacimiento de hoy, llamar a la tarea a mano con la clave, y comprobar que llega **un solo** correo aunque se llame dos veces. Esa segunda llamada es la prueba que importa: es la que verifica que `cumple_felicitado_en` hace su trabajo.
+
+---
+
+# FASE 11 · Catálogo de cartas
+
+**Añadida el 9 de septiembre. 219 cartas, no 227.**
+
+Cartas para trámites: autorizaciones, constancias, solicitudes, reclamaciones. Es un producto distinto del catálogo actual —contratos y actos notariales— y probablemente el que más gente busca en Google.
+
+### 11.0 Lo primero: NO son 227
+
+Se contaron: **227 entradas, 219 títulos únicos, 8 duplicados** entre categorías.
+
+| Repetida | Aparece en |
+|---|---|
+| Declaración de dependencia económica | Trámites personales, Migración, Familia |
+| Solicitud de certificación | Trámites personales, Instituciones públicas |
+| Solicitud de corrección de datos | Trámites personales, Instituciones públicas |
+| Carta de descargo | Laborales, Legales |
+| Autorización de representante | Empresas, Instituciones públicas |
+| Referencia comercial | Empresas, Compras y ventas |
+| Respuesta a requerimiento | Impuestos, Instituciones públicas |
+
+**Hay que decidir si son una carta que aparece en varias categorías o cartas distintas.** Si se cargan tal cual, los revisores aprobarán la misma carta tres veces y el usuario la encontrará repetida.
+
+### 11.1 El problema de secuencia, y es serio
+
+Hoy hay **251 plantillas y 123 cláusulas esperando revisión desde el 2 de septiembre, y cero aprobadas**. Añadir 219 cartas más al montón antes de que se apruebe la primera es la forma más segura de que no se apruebe ninguna.
+
+**Empezar por las 30 que la dueña marcó como más usadas.** Son el 14% del catálogo de cartas y probablemente el 80% de la demanda. Y son revisables en una sesión.
+
+### 11.2 La observación técnica que cambia el esfuerzo
+
+**Las cartas no son como los contratos.** Un contrato de alquiler y uno de compraventa no se parecen en nada. Pero *"Carta de autorización para retirar documentos"* y *"Carta de autorización para retirar paquetes"* son **la misma carta con una palabra distinta**.
+
+Casi todas comparten el mismo esqueleto: lugar y fecha, destinatario, quien la firma con su cédula, el objeto, la fórmula de cierre, la firma.
+
+Eso significa que **219 cartas salen probablemente de 12 a 15 moldes**, no de 219 redacciones. Antes de encargar nada, hay que agrupar por estructura. La diferencia es entre semanas de trabajo y meses.
+
+### 11.3 Quién las revisa
+
+`legalcifuentes@gmail.com` y `jmarquez@saveconsult.net`, que ya tienen el permiso. Ambos pueden ver, corregir y aprobar el catálogo maestro; ninguno puede ver un documento de cliente.
+
+**Hecho cuando:** las 30 prioritarias están aprobadas y publicadas.
+
+---
+
+# FASE 12 · Animaciones y UX de la portada
+
+**Añadida el 9 de septiembre, a partir de un plan externo. Recogida con reservas, y las digo.**
+
+El plan propone microinteracciones, scroll storytelling en los 4 pasos, bento grid, tabs por segmento, FAQ acordeón, CTA con gradiente animado y una **demo interactiva embebida**.
+
+### 12.0 Lo que NO se va a construir
+
+**Los trust signals inventados.** El plan pide logos de clientes, un contador de *"15,000+ documentos"* y testimonios con foto, nombre y cargo.
+
+**SAVE no tiene clientes todavía, y hasta esta semana tenía cero documentos generados en producción.** Poner eso sería fabricar prueba social: inventar cifras y personas que no existen para que alguien confíe. En cualquier producto está mal; en uno legal, que vende confianza y cuyo argumento entero es *"nosotros no inventamos, lo revisa una abogada"*, es suicida.
+
+**No lo voy a construir.** Cuando haya clientes reales con permiso para citarlos, y documentos de verdad que contar, esa sección se hace en una tarde y valdrá diez veces más.
+
+Lo mismo con el *A/B testing* de la Fase 4 del plan externo: con el tráfico de hoy, comparar dos versiones no da un resultado, da ruido.
+
+### 12.1 El conflicto con el rendimiento
+
+El plan propone **GSAP + ScrollTrigger + Lenis + Lottie**, y fija un presupuesto de 50 kB de JavaScript. Solo GSAP con ScrollTrigger ya se acerca a ese tope, y Lenis y Lottie van encima.
+
+Ayer la portada sacó **97 en móvil y 100 en escritorio**, con 193 kB en total y 12 peticiones. Ese número se consiguió quitando cosas: la hoja de Google Fonts que bloqueaba el renderizado y una llamada a Supabase en cada visita.
+
+**No se meten cuatro librerías para volver a perderlo.** El orden correcto es: hacer con CSS todo lo que se pueda —que es casi todo lo de la lista— y traer una librería solo cuando haya algo que CSS no pueda, midiendo antes y después.
+
+### 12.2 Lo que sí vale la pena, por orden
+
+1. **Microinteracciones en CSS.** Hover, focus, el subrayado que se dibuja, el acordeón del FAQ con `grid-template-rows`. Cero JavaScript. Es el 70% de la sensación que busca el plan.
+2. **`prefers-reduced-motion` desde la primera línea**, no al final. El plan lo pone en la Fase 4; va en la primera.
+3. **La sección Antes / Con SAVE.** No necesita animación para funcionar y es el argumento más fuerte de la página: 30-45 minutos contra 3-5.
+4. **La demo interactiva.** Es lo mejor del plan externo: probar sin registrarse, con un contrato real y variables que se rellenan. Merece su propia semana.
+5. **El scroll storytelling de los 4 pasos.** Lo último, y solo si mide bien. Es lo que más JavaScript pide y lo que peor se comporta en móvil.
+
+### 12.3 Antes y después, medido
+
+PageSpeed antes de tocar nada y después de cada entrega. **Si el móvil baja de 90, se revierte.** Los números de hoy —97 móvil, 100 escritorio, LCP 2,3 s, CLS 0— son la línea que no se cruza.
 
 ---
 
@@ -707,6 +800,8 @@ Ponerse una fecha de nacimiento de hoy, llamar a la tarea a mano con la clave, y
 | **F8** | Rendimiento y accesibilidad | 1 semana | F9 |
 | **F9** | Cobros con CardNET | 1–2 semanas + afiliación | — |
 | **F10** | Google y trato personal | ✅ **código hecho** · falta configuración | — |
+| **F11** | Catálogo de cartas (219) | 30 primero · resto por moldes | — |
+| **F12** | Animaciones y UX de la portada | 4–6 semanas | — |
 
 **Camino crítico hasta poder hacer adquisición orgánica en serio: F0 → F2 → F6 → F7.** Entre siete y once semanas, y la mitad son de la abogada.
 
@@ -727,6 +822,8 @@ Si F3 y F5 se hacen **en paralelo** con la revisión legal, para cuando el catá
 | D7 | Comprobante fiscal (NCF) e ITBIS | ⬜ **Abierta · bloquea 9.2** · el endpoint de CardNET exige número de factura. Es consulta para tu contador |
 | D8 | Prorrateo al añadir integrante a mitad de mes | ⬜ Abierta · bloquea 9.1 |
 | D9 | Saludo con género | ✅ **Descartado el 8 de septiembre** — Google no devuelve el género sin un permiso sensible. Saludo neutro |
+| D12 | Las 8 cartas duplicadas, ¿una en varias categorías o cartas distintas? | ⬜ Abierta · bloquea 11.1 |
+| D13 | Prueba social inventada en la portada | 🚫 **Descartado el 9 de septiembre** — no hay clientes ni documentos que contar. Se hará cuando los haya y con permiso |
 | D10 | Quién programa la tarea de cumpleaños | ✅ **GitHub Actions**, decidido el 9 de septiembre. Se ve cuando falla, que es lo que decide estas cosas |
 
 **Sobre D7**, que es la que ahora bloquea: el campo `DataDo` del endpoint de compra de
