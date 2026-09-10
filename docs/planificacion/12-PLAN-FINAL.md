@@ -723,7 +723,7 @@ Se contaron: **227 entradas, 219 títulos únicos, 8 duplicados** entre categor�
 | Referencia comercial | Empresas, Compras y ventas |
 | Respuesta a requerimiento | Impuestos, Instituciones públicas |
 
-**Hay que decidir si son una carta que aparece en varias categorías o cartas distintas.** Si se cargan tal cual, los revisores aprobarán la misma carta tres veces y el usuario la encontrará repetida.
+**Resuelto el 10 de septiembre.** Cada carta se carga **una sola vez**, en la categoría donde el usuario la busca primero. Que aparezca en varias categorías es un problema de navegación, no de catálogo: se resuelve en la Fase 6 con etiquetas. Cargarla tres veces habría hecho que los revisores aprobaran el mismo texto tres veces y que el usuario lo encontrara repetido.
 
 ### 11.1 El problema de secuencia, y es serio
 
@@ -739,11 +739,36 @@ Casi todas comparten el mismo esqueleto: lugar y fecha, destinatario, quien la f
 
 Eso significa que **219 cartas salen probablemente de 12 a 15 moldes**, no de 219 redacciones. Antes de encargar nada, hay que agrupar por estructura. La diferencia es entre semanas de trabajo y meses.
 
-### 11.3 Quién las revisa
+### 11.3 Lo construido el 10 de septiembre
+
+**32 cartas generadas y listas para revisar.** Con su propio generador, porque una carta no es un contrato: no tiene comparecientes, ni cláusulas numeradas, ni dos firmas. Tiene lugar y fecha, destinatario, asunto, cuerpo y **una** firma. Pasarlas por el generador de contratos las habría encabezado a todas con un *"SE HA CONVENIDO Y PACTADO LO SIGUIENTE"* que no viene a cuento.
+
+Lo que comparten con los contratos es el motor: son filas de `templates` con secciones y variables. El editor, la vista previa, el PDF y el paso DRAFT → PUBLISHED son los mismos. **No hay un segundo motor.**
+
+| Archivo | Qué es |
+|---|---|
+| `scripts/catalog/cartas.ts` | Las 32 cartas y sus 160 variables. **Aquí se corrige.** |
+| `scripts/generate-cartas.ts` | `npm run cartas:build` |
+| `docs/cartas-para-revision.md` | **Lo que leen Cifuentes y Márquez.** Las 32 completas, con su base legal y las preguntas que se le hacen al usuario. |
+| `supabase/migrations/20260912*_cartas_*.sql` | Tres archivos para el SQL Editor. El 00 primero. |
+
+Reparto: 9 laborales, 6 de trámites personales, 3 de instituciones públicas, 3 de migración, 3 de empresas, 2 de familia, 2 de compras y ventas, 2 legales, 2 de impuestos.
+
+**Las advertencias son parte del producto.** Varias cartas llevan un aviso en mayúsculas al final: que la renuncia no genera cesantía y la dimisión es otra cosa; que un poder simple no sirve para vender un inmueble; que la puesta en mora surte efecto pleno por acto de alguacil; que firmar un descargo cierra la reclamación; que la salida de un menor del país exige la formalidad que exige. Una carta que no las lleve le puede costar un derecho a quien la firma.
+
+**Una plantilla se movió de sitio.** *Intimación de Pago* estaba en el catálogo de contratos, montada con comparecientes y dos firmas. Una intimación es una carta. Se pasó a `cartas.ts` y el SQL archiva la fila antigua, **solo si sigue en DRAFT**: si un revisor ya la aprobó, no se toca.
+
+**Lo que falta:** las 187 cartas restantes, cuando estas 32 estén aprobadas.
+
+**NO VERIFICADO:** ninguna de las 32 ha sido revisada por un abogado dominicano. Las redacté yo. Las bases legales citadas —Ley 16-92, Ley 358-05, Ley 172-13, Ley 136-03, artículo 1139 del Código Civil— hay que comprobarlas una por una.
+
+### 11.4 Quién las revisa
 
 `legalcifuentes@gmail.com` y `jmarquez@saveconsult.net`, que ya tienen el permiso. Ambos pueden ver, corregir y aprobar el catálogo maestro; ninguno puede ver un documento de cliente.
 
-**Hecho cuando:** las 30 prioritarias están aprobadas y publicadas.
+Para revisar, leen `docs/cartas-para-revision.md`. Las correcciones vuelven a `cartas.ts`, se vuelve a ejecutar `npm run cartas:build` y se corre el SQL: reescribe el texto de la carta **sin tocar su estado**, así que lo ya aprobado sigue aprobado.
+
+**Hecho cuando:** las 32 están aprobadas y publicadas.
 
 ---
 
@@ -822,7 +847,7 @@ Si F3 y F5 se hacen **en paralelo** con la revisión legal, para cuando el catá
 | D7 | Comprobante fiscal (NCF) e ITBIS | ⬜ **Abierta · bloquea 9.2** · el endpoint de CardNET exige número de factura. Es consulta para tu contador |
 | D8 | Prorrateo al añadir integrante a mitad de mes | ⬜ Abierta · bloquea 9.1 |
 | D9 | Saludo con género | ✅ **Descartado el 8 de septiembre** — Google no devuelve el género sin un permiso sensible. Saludo neutro |
-| D12 | Las 8 cartas duplicadas, ¿una en varias categorías o cartas distintas? | ⬜ Abierta · bloquea 11.1 |
+| D12 | Las 8 cartas duplicadas, ¿una en varias categorías o cartas distintas? | ✅ **Resuelta el 10 de septiembre** — una sola carta, una sola categoría. La navegación cruzada se resuelve con etiquetas en la Fase 6 |
 | D13 | Prueba social inventada en la portada | 🚫 **Descartado el 9 de septiembre** — no hay clientes ni documentos que contar. Se hará cuando los haya y con permiso |
 | D10 | Quién programa la tarea de cumpleaños | ✅ **GitHub Actions**, decidido el 9 de septiembre. Se ve cuando falla, que es lo que decide estas cosas |
 

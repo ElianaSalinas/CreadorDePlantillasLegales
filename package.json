@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "next build",
+    "cartas:build": "tsc scripts/generate-cartas.ts --outDir .tmp-cartas --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-cartas/scripts/generate-cartas.js",
     "catalog:build": "tsc scripts/generate-catalog.ts --outDir .tmp-catalog --rootDir . --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-catalog/scripts/generate-catalog.js",
     "dev": "next dev",
     "lint": "next lint",

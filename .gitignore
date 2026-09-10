@@ -10,6 +10,7 @@ coverage/
 # Salida temporal de npm run verify:engine
 .tmp-verify/
 .tmp-catalog/
+.tmp-cartas/
 _to_delete/
 
 # Caché incremental de TypeScript: se regenera en cada compilación.

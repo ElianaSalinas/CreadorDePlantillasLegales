@@ -102,7 +102,12 @@ export const TEMPLATES: TemplateSeed[] = [
 ['legal-general', 'Contrato de Fianza', 'Un tercero garantiza el cumplimiento de una obligación.', ['p-garantia-prestamo', 'g-obligaciones-partes', 'g-penalidad']],
 ['legal-general', 'Acuerdo de Terminación Anticipada', 'Poner fin a un contrato antes de su vencimiento.', ['g-terminacion-mutuo-acuerdo', 'e-reembolso-gastos', 'g-declaraciones-partes']],
 ['legal-general', 'Adenda Contractual', 'Modificación de un contrato ya firmado.', ['g-modificaciones', 'g-declaraciones-partes']],
-['legal-general', 'Intimación de Pago', 'Requerimiento formal de pago de una deuda vencida.', ['g-intereses-moratorios', 'g-notificaciones', 'g-penalidad']],
+/* 'Intimación de Pago' salió de aquí el 10 de septiembre. Estaba montada
+   como contrato —comparecientes, cláusulas numeradas, dos firmas— y una
+   intimación no es un contrato: es una carta que una parte le dirige a la
+   otra, y la firma uno solo. Vive ahora en scripts/catalog/cartas.ts, con
+   la forma que le corresponde. La fila que ya se cargó en la base se
+   archiva desde el SQL de las cartas, y solo si sigue en DRAFT. */
 ['legal-general', 'Contrato de Prestación de Garantía', 'Constitución de garantía sobre bienes muebles.', ['p-garantia-prestamo', 'g-declaraciones-partes']],
 ['legal-general', 'Acuerdo de No Divulgación de Empleados', 'Confidencialidad exigida al personal.', ['l-confidencialidad', 'l-propiedad-intelectual', 'g-penalidad']],
 
