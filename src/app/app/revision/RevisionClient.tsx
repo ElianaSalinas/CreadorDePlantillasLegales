@@ -16,12 +16,14 @@ import {
   X,
 } from 'lucide-react'
 import {
-  aprobarClausulas,
-  aprobarPlantillas,
-  devolverClausulas,
-  devolverPlantillas,
-  guardarClausula,
-  type RevisionResult,
+    aprobarClausulas,
+    aprobarPlantillas,
+    cargarResumenPlantilla,
+    devolverClausulas,
+    devolverPlantillas,
+    guardarClausula,
+    type ResumenPlantilla,
+    type RevisionResult,
 } from './actions'
 
 export type PendientePlantilla = {
@@ -62,7 +64,36 @@ export default function RevisionClient({
   const [busqueda, setBusqueda] = useState('')
   const [soloPendientes, setSoloPendientes] = useState(true)
   const [marcadas, setMarcadas] = useState<Set<string>>(new Set())
-  const [abierta, setAbierta] = useState<string | null>(null)
+    const [abierta, setAbierta] = useState<string | null>(null)
+    const [resumenes, setResumenes] = useState<Map<string, ResumenPlantilla | 'cargando' | 'error'>>(
+        new Map()
+    )
+
+    function alternarPlantilla(id: string) {
+        const yaAbierta = abierta === id
+        setAbierta(yaAbierta ? null : id)
+        if (!yaAbierta && !resumenes.has(id)) {
+            setResumenes((prev) => new Map(prev).set(id, 'cargando'))
+            cargarResumenPlantilla(id).then((r) => {
+                setResumenes((prev) => new Map(prev).set(id, r.ok ? r.data : 'error'))
+            })
+        }
+    }
+
+    function aprobarUna(id: string) {
+        setResultado(null)
+        empezar(async () => {
+            const r = await aprobarPlantillas([id])
+            setResultado(r)
+            if (r.ok) {
+                setMarcadas((prev) => {
+                    const s = new Set(prev)
+                    s.delete(id)
+                    return s
+                })
+            }
+        })
+    }
   const [resultado, setResultado] = useState<RevisionResult | null>(null)
   const [enCurso, empezar] = useTransition()
 

@@ -1,5 +1,7 @@
 'use server'
 
+import { loadTemplateBundle } from '@/lib/engine/repository'
+import { checkTemplateQuality } from '@/lib/engine/quality'
 import { revalidatePath } from 'next/cache'
 import { requireSession } from '@/lib/session'
 import { logAudit } from '@/lib/audit'
@@ -158,7 +160,55 @@ export async function guardarClausula(
     return wrap(err)
   }
 }
+export type ResumenPlantilla = {
+  issues: { level: 'blocker' | 'warning' | 'hint'; title: string; detail: string }[]
+  blockers: number
+  warnings: number
+  preview: string
+}
 
+/**
+ * Lo mismo que ve el editor completo (blockers, avisos, texto), pero sin
+ * cargar todo lo demás del editor. Se llama solo cuando se despliega una
+ * fila en /app/revision, así que nunca se piden las 251 plantillas de una.
+ */
+export async function cargarResumenPlantilla(
+  id: string
+): Promise<{ ok: true; data: ResumenPlantilla } | { ok: false; error: string }> {
+  try {
+    const { supabase } = await requireRevisor()
+
+    const { data: meta } = await supabase
+      .from('templates')
+      .select('id, title, description, category_id, status, is_master, reviewed_by, reviewed_at')
+      .eq('id', id)
+      .maybeSingle()
+    if (!meta) return { ok: false, error: 'Esa plantilla no existe.' }
+
+    const bundle = await loadTemplateBundle(id)
+    if (!bundle) return { ok: false, error: 'No se pudo cargar el contenido.' }
+
+    const report = checkTemplateQuality(bundle, meta)
+
+    const preview = bundle.sections
+      .filter((s) => !s.is_annex)
+      .map((s) => s.body ?? '')
+      .join('\n\n')
+      .slice(0, 4000)
+
+    return {
+      ok: true,
+      data: {
+        issues: report.issues.map((i) => ({ level: i.level, title: i.title, detail: i.detail })),
+        blockers: report.blockers,
+        warnings: report.warnings,
+        preview,
+      },
+    }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Error inesperado.' }
+  }
+}
 /* ══════════════ PLANTILLAS ══════════════ */
 
 /**
