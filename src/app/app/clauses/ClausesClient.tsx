@@ -1,10 +1,11 @@
-'use client'
+﻿'use client'
 
 import { useMemo, useState, useTransition } from 'react'
 import { Plus, Pencil, Trash2, Copy, Loader2, Search, Scale, Info } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import EmptyState from '@/components/ui/EmptyState'
-import { createClause, updateClause, deleteClause, forkClause, CLAUSE_FAMILIES, type ClauseResult } from './actions'
+import { createClause, updateClause, deleteClause, forkClause, type ClauseResult } from './actions'
+import { CLAUSE_FAMILIES } from '@/lib/engine/clauseFamilies'
 import { extractTags } from '@/lib/engine/variables'
 
 export type ClauseRow = {
@@ -76,7 +77,7 @@ export default function ClausesClient({
               ? 'rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white'
               : 'rounded-md px-4 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-400'}
           >
-            Mis cláusulas ({mine.length})
+            Mis clÃ¡usulas ({mine.length})
           </button>
           <button
             onClick={() => setTab('library')}
@@ -93,7 +94,7 @@ export default function ClausesClient({
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar cláusula…"
+            placeholder="Buscar clÃ¡usulaâ€¦"
             className="w-full rounded-lg border border-slate-300 bg-white py-2 pr-4 pl-9 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
           />
         </div>
@@ -103,7 +104,7 @@ export default function ClausesClient({
             onClick={() => { setEditing(null); setCreating(true); setResult(null) }}
             className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-emerald-700"
           >
-            <Plus size={18} /> Nueva cláusula
+            <Plus size={18} /> Nueva clÃ¡usula
           </button>
         )}
       </div>
@@ -118,10 +119,10 @@ export default function ClausesClient({
 
       {visible.length === 0 ? (
         <EmptyState
-          title={tab === 'mine' ? 'Aún no tienes cláusulas propias' : 'La biblioteca está vacía'}
+          title={tab === 'mine' ? 'AÃºn no tienes clÃ¡usulas propias' : 'La biblioteca estÃ¡ vacÃ­a'}
           description={tab === 'mine'
-            ? 'Crea las cláusulas que siempre añades a mano, o adapta una de la biblioteca de SA&VE.'
-            : 'El equipo de SA&VE todavía no ha publicado cláusulas revisadas.'}
+            ? 'Crea las clÃ¡usulas que siempre aÃ±ades a mano, o adapta una de la biblioteca de SA&VE.'
+            : 'El equipo de SA&VE todavÃ­a no ha publicado clÃ¡usulas revisadas.'}
         />
       ) : (
         <div className="space-y-8">
@@ -166,7 +167,7 @@ export default function ClausesClient({
                             </button>
                             <button
                               onClick={() => {
-                                if (confirm(`¿Eliminar "${c.title}"? Se quitará de todas las plantillas que la usan.`)) {
+                                if (confirm(`Â¿Eliminar "${c.title}"? Se quitarÃ¡ de todas las plantillas que la usan.`)) {
                                   run(() => deleteClause(c.id))
                                 }
                               }}
@@ -192,7 +193,7 @@ export default function ClausesClient({
                           className={knownTags.includes(t)
                             ? 'rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-300'
                             : 'rounded bg-red-50 px-1.5 py-0.5 font-mono text-[11px] text-red-600 dark:bg-red-900/20'}
-                          title={knownTags.includes(t) ? 'Variable existente' : 'Esta variable no existe todavía'}
+                          title={knownTags.includes(t) ? 'Variable existente' : 'Esta variable no existe todavÃ­a'}
                         >
                           {t}
                         </code>
@@ -254,13 +255,13 @@ function ClauseModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={clause ? 'Editar cláusula' : 'Nueva cláusula'}
+      title={clause ? 'Editar clÃ¡usula' : 'Nueva clÃ¡usula'}
       widthClass="max-w-2xl"
     >
       <form action={onSubmit} className="space-y-4" key={clause?.id ?? 'new'}>
         <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Título</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">TÃ­tulo</label>
             <input name="title" required defaultValue={clause?.title ?? ''} placeholder="Ej. Mascotas" className={inputClass} />
           </div>
           <div>
@@ -273,12 +274,12 @@ function ClauseModal({
 
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Para qué sirve
+            Para quÃ© sirve
           </label>
           <input
             name="description"
             defaultValue={clause?.description ?? ''}
-            placeholder="Una línea que explique cuándo usarla."
+            placeholder="Una lÃ­nea que explique cuÃ¡ndo usarla."
             className={inputClass}
           />
         </div>
@@ -291,7 +292,7 @@ function ClauseModal({
             rows={10}
             defaultValue={clause?.body ?? ''}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Escribe la cláusula. Usa {{variable}} donde vaya un dato del formulario."
+            placeholder="Escribe la clÃ¡usula. Usa {{variable}} donde vaya un dato del formulario."
             className={`${inputClass} resize-y font-serif text-[15px] leading-relaxed`}
           />
         </div>
@@ -299,7 +300,7 @@ function ClauseModal({
         {tags.length > 0 && (
           <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
             <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400">
-              <Info size={13} /> Variables que usa esta cláusula
+              <Info size={13} /> Variables que usa esta clÃ¡usula
             </p>
             <div className="flex flex-wrap gap-1.5">
               {tags.map((t) => (
@@ -315,8 +316,8 @@ function ClauseModal({
             </div>
             {unknown.length > 0 && (
               <p className="mt-2 text-xs text-red-600">
-                {unknown.length === 1 ? 'Esa variable no existe' : 'Esas variables no existen'} todavía.
-                Si no la creas, el documento saldrá con el hueco sin rellenar.
+                {unknown.length === 1 ? 'Esa variable no existe' : 'Esas variables no existen'} todavÃ­a.
+                Si no la creas, el documento saldrÃ¡ con el hueco sin rellenar.
               </p>
             )}
           </div>
@@ -329,7 +330,7 @@ function ClauseModal({
           <input
             name="legal_reference"
             defaultValue={clause?.legal_reference ?? ''}
-            placeholder="Ej. Código Civil Dominicano, artículo 1708"
+            placeholder="Ej. CÃ³digo Civil Dominicano, artÃ­culo 1708"
             className={inputClass}
           />
         </div>
@@ -344,10 +345,11 @@ function ClauseModal({
             className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
           >
             {pending && <Loader2 size={16} className="animate-spin" />}
-            {clause ? 'Guardar cambios' : 'Crear cláusula'}
+            {clause ? 'Guardar cambios' : 'Crear clÃ¡usula'}
           </button>
         </div>
       </form>
     </Modal>
   )
 }
+
