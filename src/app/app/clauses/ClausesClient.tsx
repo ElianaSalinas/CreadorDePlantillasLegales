@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 
-import { useMemo, useState, useTransition } from 'react'
-import { Plus, Pencil, Trash2, Copy, Loader2, Search, Scale, Info } from 'lucide-react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
+import { Plus, Pencil, Trash2, Copy, Loader2, Search, Scale, Info, ChevronLeft, ChevronRight } from 'lucide-react'
 import Modal from '@/components/ui/Modal'
 import EmptyState from '@/components/ui/EmptyState'
 import { createClause, updateClause, deleteClause, forkClause, type ClauseResult } from './actions'
@@ -18,6 +18,8 @@ export type ClauseRow = {
   legal_reference: string | null
   status: string
 }
+
+const POR_PAGINA = 20
 
 export default function ClausesClient({
   mine,
@@ -36,6 +38,7 @@ export default function ClausesClient({
   const [creating, setCreating] = useState(false)
   const [result, setResult] = useState<ClauseResult | null>(null)
   const [pending, startTransition] = useTransition()
+  const [pagina, setPagina] = useState(1)
 
   const rows = tab === 'mine' ? mine : library
   const visible = useMemo(() => {
@@ -49,14 +52,31 @@ export default function ClausesClient({
     )
   }, [rows, query])
 
+  const totalPaginas = Math.max(1, Math.ceil(visible.length / POR_PAGINA))
+
+  // Si cambia la pestaña o la búsqueda, se vuelve a la primera página; si
+  // el resultado se achica y la página actual ya no existe, también.
+  useEffect(() => {
+    setPagina(1)
+  }, [tab, query])
+
+  useEffect(() => {
+    if (pagina > totalPaginas) setPagina(totalPaginas)
+  }, [pagina, totalPaginas])
+
+  const paginaActual = useMemo(() => {
+    const inicio = (pagina - 1) * POR_PAGINA
+    return visible.slice(inicio, inicio + POR_PAGINA)
+  }, [visible, pagina])
+
   const byFamily = useMemo(() => {
     const map = new Map<string, ClauseRow[]>()
-    for (const c of visible) {
+    for (const c of paginaActual) {
       if (!map.has(c.family)) map.set(c.family, [])
       map.get(c.family)!.push(c)
     }
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
-  }, [visible])
+  }, [paginaActual])
 
   function run(fn: () => Promise<ClauseResult>, after?: () => void) {
     setResult(null)
@@ -77,7 +97,7 @@ export default function ClausesClient({
               ? 'rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white'
               : 'rounded-md px-4 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-400'}
           >
-            Mis clÃ¡usulas ({mine.length})
+            Mis cláusulas ({mine.length})
           </button>
           <button
             onClick={() => setTab('library')}
@@ -94,7 +114,7 @@ export default function ClausesClient({
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar clÃ¡usulaâ€¦"
+            placeholder="Buscar cláusula…"
             className="w-full rounded-lg border border-slate-300 bg-white py-2 pr-4 pl-9 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
           />
         </div>
@@ -104,7 +124,7 @@ export default function ClausesClient({
             onClick={() => { setEditing(null); setCreating(true); setResult(null) }}
             className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-emerald-700"
           >
-            <Plus size={18} /> Nueva clÃ¡usula
+            <Plus size={18} /> Nueva cláusula
           </button>
         )}
       </div>
@@ -119,97 +139,123 @@ export default function ClausesClient({
 
       {visible.length === 0 ? (
         <EmptyState
-          title={tab === 'mine' ? 'AÃºn no tienes clÃ¡usulas propias' : 'La biblioteca estÃ¡ vacÃ­a'}
+          title={tab === 'mine' ? 'Aún no tienes cláusulas propias' : 'La biblioteca está vacía'}
           description={tab === 'mine'
-            ? 'Crea las clÃ¡usulas que siempre aÃ±ades a mano, o adapta una de la biblioteca de SA&VE.'
-            : 'El equipo de SA&VE todavÃ­a no ha publicado clÃ¡usulas revisadas.'}
+            ? 'Crea las cláusulas que siempre añades a mano, o adapta una de la biblioteca de SA&VE.'
+            : 'El equipo de SA&VE todavía no ha publicado cláusulas revisadas.'}
         />
       ) : (
-        <div className="space-y-8">
-          {byFamily.map(([family, items]) => (
-            <section key={family}>
-              <h2 className="mb-3 text-xs font-extrabold tracking-wider text-slate-500 uppercase">
-                {family}
-              </h2>
-              <div className="space-y-2">
-                {items.map((c) => (
-                  <article
-                    key={c.id}
-                    className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-slate-900 dark:text-white">{c.title}</h3>
-                        {c.description && (
-                          <p className="mt-0.5 text-sm text-slate-500">{c.description}</p>
-                        )}
+        <>
+          <div className="space-y-8">
+            {byFamily.map(([family, items]) => (
+              <section key={family}>
+                <h2 className="mb-3 text-xs font-extrabold tracking-wider text-slate-500 uppercase">
+                  {family}
+                </h2>
+                <div className="space-y-2">
+                  {items.map((c) => (
+                    <article
+                      key={c.id}
+                      className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-slate-900 dark:text-white">{c.title}</h3>
+                          {c.description && (
+                            <p className="mt-0.5 text-sm text-slate-500">{c.description}</p>
+                          )}
+                        </div>
+
+                        <div className="flex shrink-0 gap-1">
+                          {tab === 'library' ? (
+                            canEdit && (
+                              <button
+                                onClick={() => run(() => forkClause(c.id), () => setTab('mine'))}
+                                disabled={pending}
+                                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 disabled:opacity-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                              >
+                                <Copy size={15} /> Adaptar
+                              </button>
+                            )
+                          ) : canEdit && (
+                            <>
+                              <button
+                                onClick={() => { setEditing(c); setCreating(false); setResult(null) }}
+                                className="rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                                title="Editar"
+                              >
+                                <Pencil size={15} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm(`¿Eliminar "${c.title}"? Se quitará de todas las plantillas que la usan.`)) {
+                                    run(() => deleteClause(c.id))
+                                  }
+                                }}
+                                disabled={pending}
+                                className="rounded-md p-2 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-900/20"
+                                title="Eliminar"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="flex shrink-0 gap-1">
-                        {tab === 'library' ? (
-                          canEdit && (
-                            <button
-                              onClick={() => run(() => forkClause(c.id), () => setTab('mine'))}
-                              disabled={pending}
-                              className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 disabled:opacity-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
-                            >
-                              <Copy size={15} /> Adaptar
-                            </button>
-                          )
-                        ) : canEdit && (
-                          <>
-                            <button
-                              onClick={() => { setEditing(c); setCreating(false); setResult(null) }}
-                              className="rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-                              title="Editar"
-                            >
-                              <Pencil size={15} />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (confirm(`Â¿Eliminar "${c.title}"? Se quitarÃ¡ de todas las plantillas que la usan.`)) {
-                                  run(() => deleteClause(c.id))
-                                }
-                              }}
-                              disabled={pending}
-                              className="rounded-md p-2 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-900/20"
-                              title="Eliminar"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </>
+                      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                        {c.body}
+                      </p>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {extractTags(c.body).slice(0, 6).map((t) => (
+                          <code
+                            key={t}
+                            className={knownTags.includes(t)
+                              ? 'rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                              : 'rounded bg-red-50 px-1.5 py-0.5 font-mono text-[11px] text-red-600 dark:bg-red-900/20'}
+                            title={knownTags.includes(t) ? 'Variable existente' : 'Esta variable no existe todavía'}
+                          >
+                            {t}
+                          </code>
+                        ))}
+                        {c.legal_reference && (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-slate-500">
+                            <Scale size={11} /> {c.legal_reference}
+                          </span>
                         )}
                       </div>
-                    </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
 
-                    <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                      {c.body}
-                    </p>
-
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      {extractTags(c.body).slice(0, 6).map((t) => (
-                        <code
-                          key={t}
-                          className={knownTags.includes(t)
-                            ? 'rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-                            : 'rounded bg-red-50 px-1.5 py-0.5 font-mono text-[11px] text-red-600 dark:bg-red-900/20'}
-                          title={knownTags.includes(t) ? 'Variable existente' : 'Esta variable no existe todavÃ­a'}
-                        >
-                          {t}
-                        </code>
-                      ))}
-                      {c.legal_reference && (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-slate-500">
-                          <Scale size={11} /> {c.legal_reference}
-                        </span>
-                      )}
-                    </div>
-                  </article>
-                ))}
+          {totalPaginas > 1 && (
+            <div className="mt-8 flex items-center justify-between border-t border-slate-200 pt-5 dark:border-slate-800">
+              <p className="text-sm text-slate-500">
+                Página {pagina} de {totalPaginas} · {visible.length} cláusula(s)
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPagina((p) => Math.max(1, p - 1))}
+                  disabled={pagina === 1}
+                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+                >
+                  <ChevronLeft size={15} /> Anterior
+                </button>
+                <button
+                  onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                  disabled={pagina === totalPaginas}
+                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+                >
+                  Siguiente <ChevronRight size={15} />
+                </button>
               </div>
-            </section>
-          ))}
-        </div>
+            </div>
+          )}
+        </>
       )}
 
       <ClauseModal
@@ -255,13 +301,13 @@ function ClauseModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={clause ? 'Editar clÃ¡usula' : 'Nueva clÃ¡usula'}
+      title={clause ? 'Editar cláusula' : 'Nueva cláusula'}
       widthClass="max-w-2xl"
     >
       <form action={onSubmit} className="space-y-4" key={clause?.id ?? 'new'}>
         <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">TÃ­tulo</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Título</label>
             <input name="title" required defaultValue={clause?.title ?? ''} placeholder="Ej. Mascotas" className={inputClass} />
           </div>
           <div>
@@ -274,12 +320,12 @@ function ClauseModal({
 
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Para quÃ© sirve
+            Para qué sirve
           </label>
           <input
             name="description"
             defaultValue={clause?.description ?? ''}
-            placeholder="Una lÃ­nea que explique cuÃ¡ndo usarla."
+            placeholder="Una línea que explique cuándo usarla."
             className={inputClass}
           />
         </div>
@@ -292,7 +338,7 @@ function ClauseModal({
             rows={10}
             defaultValue={clause?.body ?? ''}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Escribe la clÃ¡usula. Usa {{variable}} donde vaya un dato del formulario."
+            placeholder="Escribe la cláusula. Usa {{variable}} donde vaya un dato del formulario."
             className={`${inputClass} resize-y font-serif text-[15px] leading-relaxed`}
           />
         </div>
@@ -300,7 +346,7 @@ function ClauseModal({
         {tags.length > 0 && (
           <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
             <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400">
-              <Info size={13} /> Variables que usa esta clÃ¡usula
+              <Info size={13} /> Variables que usa esta cláusula
             </p>
             <div className="flex flex-wrap gap-1.5">
               {tags.map((t) => (
@@ -316,8 +362,8 @@ function ClauseModal({
             </div>
             {unknown.length > 0 && (
               <p className="mt-2 text-xs text-red-600">
-                {unknown.length === 1 ? 'Esa variable no existe' : 'Esas variables no existen'} todavÃ­a.
-                Si no la creas, el documento saldrÃ¡ con el hueco sin rellenar.
+                {unknown.length === 1 ? 'Esa variable no existe' : 'Esas variables no existen'} todavía.
+                Si no la creas, el documento saldrá con el hueco sin rellenar.
               </p>
             )}
           </div>
@@ -330,7 +376,7 @@ function ClauseModal({
           <input
             name="legal_reference"
             defaultValue={clause?.legal_reference ?? ''}
-            placeholder="Ej. CÃ³digo Civil Dominicano, artÃ­culo 1708"
+            placeholder="Ej. Código Civil Dominicano, artículo 1708"
             className={inputClass}
           />
         </div>
@@ -345,11 +391,10 @@ function ClauseModal({
             className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
           >
             {pending && <Loader2 size={16} className="animate-spin" />}
-            {clause ? 'Guardar cambios' : 'Crear clÃ¡usula'}
+            {clause ? 'Guardar cambios' : 'Crear cláusula'}
           </button>
         </div>
       </form>
     </Modal>
   )
 }
-
