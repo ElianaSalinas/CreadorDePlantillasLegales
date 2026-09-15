@@ -1,0 +1,28 @@
+name: Tarea diaria - cumpleaños
+
+on:
+  # 13:00 UTC = 9:00 AM en República Dominicana (UTC-4, sin horario de verano).
+  schedule:
+    - cron: '0 13 * * *'
+  # Permite correrlo a mano desde la pestaña Actions de GitHub, con el
+  # botón "Run workflow", para probarlo sin esperar al cron.
+  workflow_dispatch:
+
+jobs:
+  felicitar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar al endpoint de cumpleaños
+        run: |
+          respuesta=$(curl -s -o /tmp/respuesta.json -w "%{http_code}" \
+            -X POST "https://savedocumentos.com/api/tareas/cumpleanos" \
+            -H "x-tarea-clave: ${{ secrets.TAREAS_CLAVE }}")
+
+          echo "Código HTTP: $respuesta"
+          echo "Respuesta del servidor:"
+          cat /tmp/respuesta.json
+
+          if [ "$respuesta" -ne 200 ]; then
+            echo "::error::La tarea de cumpleaños falló con código $respuesta"
+            exit 1
+          fi
