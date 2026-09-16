@@ -14,7 +14,16 @@ export default async function AppLayout({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center">
+      {/*
+        sticky + top-0: el header queda fijo al hacer scroll sin depender de
+        que min-h-screen calcule bien la altura real del dispositivo. En
+        móvil, la barra de direcciones del navegador aparece y desaparece y
+        cambia esa altura, lo que rompía el enfoque anterior (header fuera
+        de un contenedor con scroll interno) y hacía que se fuera con el
+        resto de la página. z-20 lo mantiene por encima del contenido al
+        quedar pegado.
+      */}
+      <header className="sticky top-0 z-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <MenuMovil isAdmin={isAdmin} esRevisor={esRevisor} />
           <div className="w-8 h-8 bg-emerald-600 rounded flex items-center justify-center text-white font-bold">
@@ -49,12 +58,19 @@ export default async function AppLayout({
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
-        <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hidden md:block">
+      <div className="flex-1 flex">
+        {/*
+          sticky también en el menú lateral, con top-[73px] (la altura
+          aproximada del header) para que en pantallas donde el contenido
+          es más largo que el menú, este no se vaya hacia arriba por
+          detrás del header al hacer scroll. self-start es necesario para
+          que sticky funcione dentro de un contenedor flex.
+        */}
+        <aside className="w-64 shrink-0 self-start sticky top-[73px] max-h-[calc(100vh-73px)] overflow-y-auto border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hidden md:block">
           <AppNav isAdmin={isAdmin} esRevisor={esRevisor} />
         </aside>
 
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        <main className="flex-1 p-8">{children}</main>
       </div>
     </div>
   )
