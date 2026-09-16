@@ -20,6 +20,7 @@ import {
   ArrowRight,
   PlayCircle,
   Download,
+  ChevronDown,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -584,15 +585,38 @@ export default async function HomePage() {
             Antes de que preguntes
           </h2>
 
-          <div className="flex flex-col gap-1">
+          {/*
+            Acordeón con <details>/<summary> nativo: sin JavaScript, con
+            teclado y lector de pantalla funcionando de fábrica (el navegador
+            ya sabe que un <summary> se activa con Enter/Espacio y anuncia
+            "expandido/contraído"). Antes las 5 respuestas se mostraban
+            siempre abiertas.
+
+            "group" en el <details> permite que el ícono de la flecha
+            (dentro del <summary>) reaccione al estado abierto del propio
+            <details> con la variante `open:` de Tailwind, sin código.
+
+            `marker:content-none` quita el triángulo por defecto del
+            navegador, porque ya tenemos nuestra propia flecha (ChevronDown)
+            que gira 180° al abrir.
+          */}
+          <div className="flex flex-col gap-3">
             {FAQ.map(({ q, a }) => (
-              <div
+              <details
                 key={q}
-                className="flex flex-col gap-2.5 rounded-2xl border border-slate-200 bg-white px-7 py-6"
+                className="group rounded-2xl border border-slate-200 bg-white px-7 py-6 open:pb-6 transition-colors hover:border-slate-300 open:border-[#0D2C24]/20"
               >
-                <h3 className="font-serif text-[17px] font-bold text-[#0D2C24]">{q}</h3>
-                <p className="text-[15px] leading-relaxed text-slate-600">{a}</p>
-              </div>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-serif text-[17px] font-bold text-[#0D2C24] marker:content-none [&::-webkit-details-marker]:hidden">
+                  {q}
+                  <ChevronDown
+                    size={19}
+                    strokeWidth={2}
+                    aria-hidden
+                    className="shrink-0 text-slate-400 transition-transform duration-300 group-open:rotate-180 group-open:text-[#0D2C24]"
+                  />
+                </summary>
+                <p className="mt-3 text-[15px] leading-relaxed text-slate-600">{a}</p>
+              </details>
             ))}
           </div>
         </div>
@@ -684,7 +708,7 @@ export default async function HomePage() {
   )
 }
 
-/* ─────────────────────── piezas reutilizadas ─────────────────────── */
+/* ──────────────────────────── piezas reutilizadas ──────────────────────────── */
 
 function SectionHead({
   eyebrow,
