@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { contarCatalogoPublicado, fraseDelCatalogo } from '@/lib/catalogo'
 import { DOMICILIO, EMPRESA } from '@/lib/empresa'
 import { OG_IMAGE } from '@/lib/og'
+import DemoInteractiva from '@/components/site/DemoInteractiva'
 import {
   FileText,
   Braces,
@@ -21,6 +22,7 @@ import {
   PlayCircle,
   Download,
   ChevronDown,
+  Zap,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -134,6 +136,7 @@ const SITE_SCHEMA = {
 
 const NAV_LINKS = [
   { href: '#como-funciona', label: 'Cómo funciona' },
+  { href: '#pruebalo', label: 'Pruébalo' },
   { href: '#automatizacion', label: 'Automatización' },
   { href: '#para-quien', label: 'Para quién es' },
   { href: '#plantillas', label: 'Plantillas' },
@@ -258,7 +261,7 @@ export default async function HomePage() {
   const { plantillas } = await contarCatalogoPublicado()
 
   return (
-    <div className="w-full bg-slate-50 text-[#1A1A1A]">
+    <div className="h-screen w-full snap-y snap-mandatory overflow-y-scroll scroll-smooth bg-slate-50 text-[#1A1A1A]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_SCHEMA) }}
@@ -281,7 +284,7 @@ export default async function HomePage() {
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm font-medium text-slate-600 transition-colors hover:text-[#0D2C24]"
+                className="text-base font-medium text-slate-600 transition-colors hover:text-[#0D2C24]"
               >
                 {l.label}
               </a>
@@ -308,17 +311,17 @@ export default async function HomePage() {
       </header>
 
       {/* ═══════════ HÉROE ═══════════ */}
-      <section className="relative overflow-hidden">
+      <section className="relative flex min-h-screen items-center overflow-hidden snap-start">
         <div aria-hidden className="pointer-events-none absolute inset-0">
           <div className="absolute -top-44 -right-28 h-[620px] w-[620px] rounded-full bg-[#c8eadd] opacity-35 blur-[90px]" />
           <div className="absolute -bottom-52 -left-40 h-[520px] w-[520px] rounded-full bg-[#ffdea5] opacity-40 blur-[100px]" />
         </div>
 
-        <div className="relative mx-auto grid max-w-[1200px] items-center gap-16 px-6 py-20 md:px-12 lg:grid-cols-2 lg:py-24">
+        <div className="relative mx-auto grid w-full max-w-[1200px] items-center gap-10 px-6 py-10 md:gap-16 md:px-12 lg:grid-cols-2 lg:py-12">
           <div className="flex flex-col items-start gap-6">
             <div className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 shadow-sm">
               <span className="h-[7px] w-[7px] rounded-full bg-[#C5A059]" />
-              <span className="text-xs font-bold tracking-wide text-slate-600">
+              <span className="text-sm font-bold tracking-wide text-slate-600">
                 Hecho para República Dominicana
               </span>
             </div>
@@ -345,7 +348,7 @@ export default async function HomePage() {
               </span>
             </h1>
 
-            <p className="max-w-[520px] text-lg leading-relaxed text-slate-600 md:text-[19px]">
+            <p className="max-w-[520px] text-lg leading-relaxed text-slate-600 md:text-[25px]">
               Convierte los contratos que ya usas en plantillas inteligentes. Rellenas un
               formulario, ajustas lo que haga falta en el editor y exportas en Word o PDF. Sin
               volver a empezar de cero.
@@ -356,21 +359,21 @@ export default async function HomePage() {
                 href="/register"
                 data-analitica="cta_click"
                 data-analitica-etiqueta="heroe"
-                className="flex items-center justify-center gap-2.5 rounded-full bg-[#0D2C24] px-8 py-4 text-[15px] font-bold text-white shadow-lg shadow-[#0D2C24]/20 transition-colors hover:bg-[#164E3E]"
+                className="flex items-center justify-center gap-2.5 rounded-full bg-[#0D2C24] px-8 py-4 text-[20px] font-bold text-white shadow-lg shadow-[#0D2C24]/20 transition-colors hover:bg-[#164E3E]"
               >
                 Empieza gratis
-                <ArrowRight size={17} />
+                <ArrowRight size={22} />
               </Link>
               <a
                 href="#como-funciona"
-                className="flex items-center justify-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-4 text-[15px] font-semibold text-[#0D2C24] transition-colors hover:bg-[#F5F2ED]"
+                className="flex items-center justify-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-4 text-[20px] font-semibold text-[#0D2C24] transition-colors hover:bg-[#F5F2ED]"
               >
-                <PlayCircle size={17} />
+                <PlayCircle size={22} />
                 Ver cómo funciona
               </a>
             </div>
 
-            <p className="text-[13px] text-slate-500">Gratis para empezar. Sin tarjeta de crédito.</p>
+            <p className="text-[17px] text-slate-500">Gratis para empezar. Sin tarjeta de crédito.</p>
           </div>
 
           {/* Escenario de la animación */}
@@ -380,7 +383,7 @@ export default async function HomePage() {
                 <span className="font-serif text-sm font-bold text-[#0D2C24]">
                   Contrato de Alquiler
                 </span>
-                <span className="rounded-full bg-[#FDE8B5] px-2.5 py-1 text-[11px] font-bold tracking-wider text-[#7D6024]">
+                <span className="rounded-full bg-[#FDE8B5] px-2.5 py-1 text-[14px] font-bold tracking-wider text-[#7D6024]">
                   PLANTILLA
                 </span>
               </div>
@@ -422,7 +425,7 @@ export default async function HomePage() {
                   key={f}
                   className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#0D2C24] shadow-sm"
                 >
-                  <Download size={13} />
+                  <Download size={17} />
                   {f}
                 </span>
               ))}
@@ -431,23 +434,129 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════ EL DOLOR ═══════════ */}
-      <section className="bg-[#0D2C24]">
-        <div className="mx-auto max-w-[900px] px-6 py-20 text-center md:px-12 md:py-24">
-          <p className="font-serif text-xl leading-relaxed text-[#c8eadd] md:text-[26px]">
-            Abrir el contrato del mes pasado, cambiar los nombres a mano, revisar tres veces que no
-            quedó una cédula vieja escondida en la cláusula seis.
-          </p>
-          <p className="mt-7 font-serif text-2xl leading-snug font-bold text-white md:text-[30px]">
-            Así se sigue trabajando en demasiados despachos del país.
-          </p>
-          <div className="mx-auto mt-9 h-[3px] w-14 rounded-full bg-[#C5A059]" />
+      {/* ═══════════ ANTES / CON SAVE ═══════════ */}
+      {/*
+        Sustituye a la sección "El dolor". Dos tarjetas ilustradas en vez de
+        solo texto: la izquierda reutiliza el mismo lenguaje visual del
+        mockup del héroe (SkeletonLines, la píldora Word/PDF), para que se
+        sienta parte del mismo sitio y no una sección pegada aparte.
+
+        Los tiempos (30-45 min / 3-5 min) y el 85% son una ESTIMACIÓN
+        razonable del proceso típico, no una medición sobre documentos
+        reales: hoy no hay histórico de uso en producción para medirlo de
+        verdad (ver D13 del plan, que por la misma razón descarta cifras y
+        testimonios inventados). Por eso todo dice "aprox." Cuando haya uso
+        real que medir, esto se reemplaza por el número de verdad.
+      */}
+      <section className="flex min-h-screen items-center bg-[#0D2C24] snap-start">
+        <div className="mx-auto w-full max-w-[1200px] px-6 py-10 md:px-12">
+          <div className="mx-auto mb-10 flex max-w-[700px] flex-col items-center gap-4 text-center">
+            <span className="text-base font-extrabold tracking-[0.12em] text-[#FDE8B5]">
+              EL MISMO DOCUMENTO
+            </span>
+            <h2 className="font-serif text-[38px] leading-tight font-bold tracking-tight text-balance text-white md:text-[48px]">
+              Mucho menos trabajo para llegar a él
+            </h2>
+            <p className="text-[24px] leading-relaxed text-[#c8eadd]">
+              Los mismos datos, rellenados una vez en vez de corregidos a mano cada vez.
+            </p>
+          </div>
+
+          <div className="mx-auto grid max-w-[1120px] items-center gap-6 lg:grid-cols-[1fr_auto_1fr]">
+            {/* A mano */}
+            <div className="relative flex flex-col gap-5 overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04] p-8">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2 text-base font-bold tracking-[0.12em] text-white/50">
+                  <FileText size={22} />A MANO
+                </span>
+                <span className="rounded-full bg-white/10 px-4 py-1.5 text-base font-bold text-white/80">
+                  30–45 min
+                </span>
+              </div>
+
+              <ul className="flex flex-col gap-3.5 text-xl leading-snug text-[#c8eadd]">
+                {[
+                  'Buscar el contrato del mes pasado',
+                  'Cambiar nombres, cédulas y montos a mano',
+                  'Revisar que no quedó nada del cliente anterior',
+                ].map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span
+                      aria-hidden
+                      className="mt-2 h-3.5 w-3.5 shrink-0 rounded-full border border-white/25"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <p className="mt-auto text-base text-white/40">
+                Mismo documento, mucho más trabajo manual.
+              </p>
+            </div>
+
+            {/* Separador con el ahorro estimado */}
+            <div className="flex items-center justify-center gap-4 lg:flex-col lg:gap-4">
+              <ArrowRight size={28} className="hidden text-[#C5A059] lg:block" />
+              <div className="flex h-[124px] w-[124px] shrink-0 flex-col items-center justify-center rounded-full border-2 border-[#C5A059] bg-[#0D2C24]">
+                <span className="font-serif text-3xl font-bold text-[#FDE8B5]">85%</span>
+                <span className="px-2 text-center text-sm leading-tight text-white/60">
+                  menos tiempo, aprox.
+                </span>
+              </div>
+              <div aria-hidden className="h-6 w-[2px] rounded-full bg-[#C5A059]/40 lg:hidden" />
+            </div>
+
+            {/* Con SAVE */}
+            <div className="relative flex flex-col gap-5 overflow-hidden rounded-[22px] border border-[#C5A059]/30 bg-[#F5F2ED] p-8">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2 text-base font-bold tracking-[0.12em] text-[#7D6024]">
+                  <span className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] bg-[#0D2C24] font-serif text-sm font-bold text-white">
+                    S
+                  </span>
+                  CON SAVE
+                </span>
+                <span className="rounded-full bg-[#FDE8B5] px-4 py-1.5 text-base font-bold text-[#7D6024]">
+                  3–5 min
+                </span>
+              </div>
+
+              <ul className="flex flex-col gap-3.5 text-xl leading-snug text-[#3a3a38]">
+                {[
+                  'Elegir la plantilla del contrato',
+                  'Rellenar el formulario una sola vez',
+                  'Exportar en Word o PDF, ya limpio',
+                ].map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <CheckCheck size={26} className="mt-0.5 shrink-0 text-[#0D2C24]" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <p className="mt-auto text-base text-slate-500">Más tiempo para lo que sí requiere tu criterio.</p>
+            </div>
+          </div>
+
+          {/* Tres razones cortas, sin sonar a testimonio inventado */}
+          <div className="mx-auto mt-10 flex max-w-[820px] flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            {[
+              { Icon: Zap, label: 'Más rápido' },
+              { Icon: ShieldCheck, label: 'Menos errores' },
+              { Icon: BadgeCheck, label: 'Documentos profesionales' },
+            ].map(({ Icon, label }) => (
+              <span key={label} className="flex items-center gap-2.5 text-lg font-semibold text-[#c8eadd]">
+                <Icon size={24} className="text-[#C5A059]" />
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ═══════════ QUÉ ES SAVE ═══════════ */}
-      <section className="bg-slate-50">
-        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+      <section className="flex min-h-screen items-center bg-slate-50 snap-start">
+        <div className="mx-auto w-full max-w-[1200px] px-6 py-10 md:px-12">
           <SectionHead
             eyebrow="QUÉ ES SAVE"
             title="Un documento deja de ser un archivo y pasa a ser un sistema"
@@ -461,19 +570,19 @@ export default async function HomePage() {
                 className="flex flex-col gap-3.5 rounded-[18px] border border-slate-200 bg-white p-7"
               >
                 <span className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-[#F5F2ED] text-[#0D2C24]">
-                  <Icon size={21} strokeWidth={1.8} />
+                  <Icon size={27} strokeWidth={1.8} />
                 </span>
                 <h3 className="font-serif text-lg font-bold text-[#0D2C24]">{title}</h3>
-                <p className="text-sm leading-relaxed text-slate-500">{body}</p>
+                <p className="text-base leading-relaxed text-slate-500">{body}</p>
               </article>
             ))}
 
             <article className="flex flex-col gap-3.5 rounded-[18px] border border-[#0D2C24] bg-[#0D2C24] p-7">
               <span className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-white/10 text-[#FDE8B5]">
-                <CheckCheck size={21} strokeWidth={1.8} />
+                <CheckCheck size={27} strokeWidth={1.8} />
               </span>
               <h3 className="font-serif text-lg font-bold text-white">Documento</h3>
-              <p className="text-sm leading-relaxed text-[#c8eadd]">
+              <p className="text-base leading-relaxed text-[#c8eadd]">
                 Listo para revisar, firmar y archivar. En Word o en PDF, como lo necesites.
               </p>
             </article>
@@ -484,9 +593,9 @@ export default async function HomePage() {
       {/* ═══════════ CÓMO FUNCIONA ═══════════ */}
       <section
         id="como-funciona"
-        className="scroll-mt-20 border-y border-slate-200 bg-[#F5F2ED]"
+        className="flex min-h-screen scroll-mt-20 items-center border-y border-slate-200 bg-[#F5F2ED] snap-start"
       >
-        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+        <div className="mx-auto w-full max-w-[1200px] px-6 py-10 md:px-12">
           <SectionHead eyebrow="CÓMO FUNCIONA" title="Cuatro pasos. Ninguno técnico." />
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -495,34 +604,54 @@ export default async function HomePage() {
                 <span className="font-serif text-[44px] leading-none font-bold text-[#7D6024]">
                   {n}
                 </span>
-                <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
-                <p className="text-sm leading-relaxed text-slate-600">{body}</p>
+                <h3 className="font-serif text-[25px] font-bold text-[#0D2C24]">{title}</h3>
+                <p className="text-base leading-relaxed text-slate-600">{body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ═══════════ DEMO INTERACTIVA ═══════════ */}
+      {/*
+        Punto 4 de la Fase 12 del plan: probar el motor real sin
+        registrarse. La lógica vive en DemoInteractiva.tsx (Client
+        Component); esta sección solo pone el encabezado y el marco.
+      */}
+      <section
+        id="pruebalo"
+        className="flex min-h-screen scroll-mt-20 items-center bg-slate-50 snap-start"
+      >
+        <div className="mx-auto w-full max-w-[1100px] px-6 py-10 md:px-12">
+          <SectionHead
+            eyebrow="PRUÉBALO TÚ MISMO"
+            title="Sin registrarte. Con el motor real."
+            body="Escribe unos datos y mira cómo se arma el texto legal, con la misma validación de cédula y el mismo formato de montos que usa SAVE de verdad."
+          />
+          <DemoInteractiva />
+        </div>
+      </section>
+
       {/* ═══════════ AUTOMATIZACIÓN ═══════════ */}
-      <section id="automatizacion" className="scroll-mt-20 bg-slate-50">
-        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+      <section id="automatizacion" className="flex min-h-screen scroll-mt-20 items-center bg-slate-50 snap-start">
+        <div className="mx-auto w-full max-w-[1200px] px-6 py-10 md:px-12">
           <SectionHead
             eyebrow="AUTOMATIZACIÓN"
             title="La diferencia está en lo que no tienes que hacer"
             body="Cualquiera puede venderte plantillas. SAVE se ocupa del trabajo repetitivo que viene después."
           />
 
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {AUTOMATION.map(({ Icon, title, body }) => (
               <article
                 key={title}
-                className="flex flex-col gap-4 rounded-[18px] border border-slate-200 bg-white p-8"
+                className="flex flex-col gap-3 rounded-[18px] border border-slate-200 bg-white p-6"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#c8eadd] text-[#0D2C24]">
-                  <Icon size={22} strokeWidth={1.8} />
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#c8eadd] text-[#0D2C24]">
+                  <Icon size={26} strokeWidth={1.8} />
                 </span>
-                <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
-                <p className="text-[14.5px] leading-relaxed text-slate-500">{body}</p>
+                <h3 className="font-serif text-[22px] font-bold text-[#0D2C24]">{title}</h3>
+                <p className="text-[18px] leading-snug text-slate-500">{body}</p>
               </article>
             ))}
           </div>
@@ -530,8 +659,8 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ PARA QUIÉN ES ═══════════ */}
-      <section id="para-quien" className="scroll-mt-20 border-t border-slate-200 bg-[#F5F2ED]">
-        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+      <section id="para-quien" className="flex min-h-screen scroll-mt-20 items-center border-t border-slate-200 bg-[#F5F2ED] snap-start">
+        <div className="mx-auto w-full max-w-[1200px] px-6 py-10 md:px-12">
           <SectionHead
             eyebrow="PARA QUIÉN ES"
             title="Si redactas lo mismo cada semana, es para ti"
@@ -543,9 +672,9 @@ export default async function HomePage() {
                 key={title}
                 className="flex flex-col gap-3 rounded-[18px] border border-slate-200 bg-white p-7"
               >
-                <Icon size={24} strokeWidth={1.7} className="text-[#0D2C24]" />
-                <h3 className="font-serif text-[17px] font-bold text-[#0D2C24]">{title}</h3>
-                <p className="text-sm leading-relaxed text-slate-500">{body}</p>
+                <Icon size={31} strokeWidth={1.7} className="text-[#0D2C24]" />
+                <h3 className="font-serif text-[22px] font-bold text-[#0D2C24]">{title}</h3>
+                <p className="text-base leading-relaxed text-slate-500">{body}</p>
               </article>
             ))}
           </div>
@@ -553,8 +682,8 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ PLANTILLAS ═══════════ */}
-      <section id="plantillas" className="scroll-mt-20 bg-slate-50">
-        <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
+      <section id="plantillas" className="flex min-h-screen scroll-mt-20 items-center bg-slate-50 snap-start">
+        <div className="mx-auto w-full max-w-[1200px] px-6 py-10 md:px-12">
           <SectionHead
             eyebrow="PLANTILLAS"
             title="Diez categorías, un mismo motor"
@@ -565,23 +694,23 @@ export default async function HomePage() {
             {CATEGORIES.map((c) => (
               <span
                 key={c}
-                className="rounded-full border border-slate-200 bg-white px-6 py-3 text-[15px] font-semibold text-[#0D2C24]"
+                className="rounded-full border border-slate-200 bg-white px-6 py-3 text-[20px] font-semibold text-[#0D2C24]"
               >
                 {c}
               </span>
             ))}
           </div>
 
-          <p className="mt-8 text-center text-sm text-slate-500">
+          <p className="mt-8 text-center text-base text-slate-500">
             {fraseDelCatalogo(plantillas)}
           </p>
         </div>
       </section>
 
       {/* ═══════════ FAQ ═══════════ */}
-      <section className="border-t border-slate-200 bg-[#F5F2ED]">
-        <div className="mx-auto max-w-[840px] px-6 py-24 md:px-12">
-          <h2 className="mb-12 text-center font-serif text-3xl leading-tight font-bold tracking-tight text-[#0D2C24] md:text-[38px]">
+      <section className="flex min-h-screen items-center border-t border-slate-200 bg-[#F5F2ED] snap-start">
+        <div className="mx-auto w-full max-w-[840px] px-6 py-10 md:px-12">
+          <h2 className="mb-8 text-center font-serif text-3xl leading-tight font-bold tracking-tight text-[#0D2C24] md:text-[38px]">
             Antes de que preguntes
           </h2>
 
@@ -606,16 +735,16 @@ export default async function HomePage() {
                 key={q}
                 className="group rounded-2xl border border-slate-200 bg-white px-7 py-6 open:pb-6 transition-colors hover:border-slate-300 open:border-[#0D2C24]/20"
               >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-serif text-[17px] font-bold text-[#0D2C24] marker:content-none [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-serif text-[22px] font-bold text-[#0D2C24] marker:content-none [&::-webkit-details-marker]:hidden">
                   {q}
                   <ChevronDown
-                    size={19}
+                    size={25}
                     strokeWidth={2}
                     aria-hidden
                     className="shrink-0 text-slate-400 transition-transform duration-300 group-open:rotate-180 group-open:text-[#0D2C24]"
                   />
                 </summary>
-                <p className="mt-3 text-[15px] leading-relaxed text-slate-600">{a}</p>
+                <p className="mt-3 text-[20px] leading-relaxed text-slate-600">{a}</p>
               </details>
             ))}
           </div>
@@ -623,13 +752,13 @@ export default async function HomePage() {
       </section>
 
       {/* ═══════════ CTA FINAL ═══════════ */}
-      <section className="relative overflow-hidden bg-[#0D2C24]">
+      <section className="relative flex min-h-screen items-center overflow-hidden bg-[#0D2C24] snap-start">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-36 -right-20 h-[460px] w-[460px] rounded-full bg-[#C5A059] opacity-15 blur-[90px]"
         />
 
-        <div className="relative mx-auto flex max-w-[800px] flex-col items-center gap-6 px-6 py-24 text-center md:px-12 md:py-28">
+        <div className="relative mx-auto flex w-full max-w-[800px] flex-col items-center gap-5 px-6 py-10 text-center md:px-12">
           <h2 className="font-serif text-4xl leading-[1.12] font-bold tracking-tight text-balance text-white md:text-[50px]">
             Tu tiempo vale más que redactar papeles
           </h2>
@@ -644,16 +773,16 @@ export default async function HomePage() {
             className="mt-2 flex items-center gap-2.5 rounded-full bg-white px-10 py-5 text-base font-bold text-[#0D2C24] shadow-2xl transition-transform hover:scale-[1.02]"
           >
             Empieza gratis
-            <ArrowRight size={18} />
+            <ArrowRight size={23} />
           </Link>
-          <p className="text-[13px] text-[#c8eadd]/75">
+          <p className="text-[17px] text-[#c8eadd]/75">
             Sin tarjeta. Sin instalar nada. En español y pensado para RD.
           </p>
         </div>
       </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
-      <footer className="border-t border-slate-200 bg-slate-50">
+      <footer className="snap-start border-t border-slate-200 bg-slate-50">
         <div className="mx-auto grid max-w-[1200px] gap-10 px-6 pt-14 pb-10 md:px-12 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="flex flex-col gap-3.5">
             <div className="flex items-center gap-2.5">
@@ -662,7 +791,7 @@ export default async function HomePage() {
               </span>
               <span className="font-serif text-xl font-bold text-[#0D2C24]">SAVE</span>
             </div>
-            <p className="max-w-[280px] text-[13.5px] leading-relaxed text-slate-500">
+            <p className="max-w-[280px] text-[18px] leading-relaxed text-slate-500">
               Creación y automatización de documentos profesionales. Hecho en República Dominicana.
             </p>
           </div>
@@ -696,11 +825,11 @@ export default async function HomePage() {
 
         <div className="mx-auto max-w-[1200px] px-6 pb-11 md:px-12">
           <div className="flex flex-col justify-between gap-3 border-t border-slate-200 pt-6 sm:flex-row">
-            <p className="text-[12.5px] text-slate-500">
+            <p className="text-[16px] text-slate-500">
               © {new Date().getFullYear()} {EMPRESA.nombreLegal} · RNC {EMPRESA.rnc} ·{' '}
               {EMPRESA.dominio}
             </p>
-            <p className="text-[12.5px] text-slate-500">{DOMICILIO}</p>
+            <p className="text-[16px] text-slate-500">{DOMICILIO}</p>
           </div>
         </div>
       </footer>
@@ -720,12 +849,12 @@ function SectionHead({
   body?: string
 }) {
   return (
-    <div className="mx-auto mb-14 flex max-w-[660px] flex-col gap-4 text-center">
-      <span className="text-xs font-extrabold tracking-[0.14em] text-[#7D6024]">{eyebrow}</span>
+    <div className="mx-auto mb-8 flex max-w-[660px] flex-col gap-3 text-center">
+      <span className="text-sm font-extrabold tracking-[0.12em] text-[#7D6024]">{eyebrow}</span>
       <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-balance text-[#0D2C24] md:text-[42px]">
         {title}
       </h2>
-      {body && <p className="text-[17px] leading-relaxed text-slate-600">{body}</p>}
+      {body && <p className="text-[22px] leading-relaxed text-slate-600">{body}</p>}
     </div>
   )
 }
@@ -745,7 +874,7 @@ function FooterCol({
           <a
             key={l.href}
             href={l.href}
-            className="text-[13.5px] text-slate-500 transition-colors hover:text-[#0D2C24]"
+            className="text-[18px] text-slate-500 transition-colors hover:text-[#0D2C24]"
           >
             {l.label}
           </a>
@@ -753,7 +882,7 @@ function FooterCol({
           <Link
             key={l.href}
             href={l.href}
-            className="text-[13.5px] text-slate-500 transition-colors hover:text-[#0D2C24]"
+            className="text-[18px] text-slate-500 transition-colors hover:text-[#0D2C24]"
           >
             {l.label}
           </Link>
@@ -795,17 +924,17 @@ function VariableRow({
   return (
     <div className="relative h-[26px]">
       <span
-        className="save-ghost absolute inset-0 flex items-center rounded-[7px] border border-dashed border-slate-300 bg-slate-50 px-2.5 font-mono text-xs text-slate-500"
+        className="save-ghost absolute inset-0 flex items-center rounded-[7px] border border-dashed border-slate-300 bg-slate-50 px-2.5 font-mono text-base text-slate-500"
         style={style}
       >
         {placeholder}
       </span>
       <span
-        className="save-chip absolute inset-0 flex items-center gap-1.5 rounded-[7px] bg-[#c8eadd] px-2.5 text-[13px] font-semibold text-[#0D2C24]"
+        className="save-chip absolute inset-0 flex items-center gap-1.5 rounded-[7px] bg-[#c8eadd] px-2.5 text-[17px] font-semibold text-[#0D2C24]"
         style={style}
       >
         {value}
-        {check && <CheckCheck size={12} strokeWidth={2.4} />}
+        {check && <CheckCheck size={16} strokeWidth={2.4} />}
       </span>
     </div>
   )
