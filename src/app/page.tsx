@@ -4,6 +4,7 @@ import { contarCatalogoPublicado, fraseDelCatalogo } from '@/lib/catalogo'
 import { DOMICILIO, EMPRESA } from '@/lib/empresa'
 import { OG_IMAGE } from '@/lib/og'
 import DemoInteractiva from '@/components/site/DemoInteractiva'
+import PasoRevelado from '@/components/site/PasoRevelado'
 import {
   FileText,
   Braces,
@@ -22,6 +23,7 @@ import {
   PlayCircle,
   Download,
   Zap,
+  ChevronDown,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -278,7 +280,7 @@ export default async function HomePage() {
               href="/register"
               data-analitica="cta_click"
               data-analitica-etiqueta="cabecera"
-              className="rounded-full bg-[#0D2C24] px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#164E3E]"
+              className="rounded-full bg-[#0D2C24] px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#164E3E] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C5A059]"
             >
               Empieza gratis
             </Link>
@@ -335,14 +337,14 @@ export default async function HomePage() {
                 href="/register"
                 data-analitica="cta_click"
                 data-analitica-etiqueta="heroe"
-                className="flex items-center justify-center gap-2.5 rounded-full bg-[#0D2C24] px-8 py-4 text-[15px] font-bold text-white shadow-lg shadow-[#0D2C24]/20 transition-colors hover:bg-[#164E3E]"
+                className="flex items-center justify-center gap-2.5 rounded-full bg-[#0D2C24] px-8 py-4 text-[15px] font-bold text-white shadow-lg shadow-[#0D2C24]/20 transition-colors hover:bg-[#164E3E] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C5A059]"
               >
                 Empieza gratis
                 <ArrowRight size={17} />
               </Link>
               <a
                 href="#como-funciona"
-                className="flex items-center justify-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-4 text-[15px] font-semibold text-[#0D2C24] transition-colors hover:bg-[#F5F2ED]"
+                className="flex items-center justify-center gap-2.5 rounded-full border border-slate-200 bg-white px-7 py-4 text-[15px] font-semibold text-[#0D2C24] transition-colors hover:bg-[#F5F2ED] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0D2C24]"
               >
                 <PlayCircle size={17} />
                 Ver cómo funciona
@@ -423,13 +425,11 @@ export default async function HomePage() {
         verdad (ver D13 del plan, que por la misma razón descarta cifras y
         testimonios inventados). Por eso todo dice "aprox."
       */}
-      <section className="bg-[#0D2C24]">
+      <section className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] bg-[#0D2C24]">
+        <PasoRevelado>
         <div className="mx-auto max-w-[1200px] px-6 py-20 md:px-12 md:py-24">
           <div className="mx-auto mb-14 flex max-w-[660px] flex-col items-center gap-4 text-center">
-            <span className="text-xs font-extrabold tracking-[0.14em] text-[#FDE8B5]">
-              EL MISMO DOCUMENTO
-            </span>
-            <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-balance text-white md:text-[42px]">
+            <h2 className="font-serif text-[32px] leading-[1.12] font-bold tracking-tight text-balance text-white md:text-[44px]">
               Mucho menos trabajo para llegar a él
             </h2>
             <p className="text-[17px] leading-relaxed text-[#c8eadd]">
@@ -531,13 +531,14 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
+        </PasoRevelado>
       </section>
 
       {/* ═══════════ QUÉ ES SAVE ═══════════ */}
-      <section className="bg-slate-50">
+      <section className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] bg-white">
+        <PasoRevelado>
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
           <SectionHead
-            eyebrow="QUÉ ES SAVE"
             title="Un documento deja de ser un archivo y pasa a ser un sistema"
             body="En vez de guardar cien versiones de un mismo contrato, guardas una plantilla que sabe qué datos necesita. Cada documento nuevo sale de ahí, completo y consistente."
           />
@@ -567,22 +568,25 @@ export default async function HomePage() {
             </article>
           </div>
         </div>
+        </PasoRevelado>
       </section>
 
       {/* ═══════════ CÓMO FUNCIONA ═══════════ */}
-      <section id="como-funciona" className="scroll-mt-20 border-y border-slate-200 bg-[#F5F2ED]">
+      <section id="como-funciona" className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] scroll-mt-20 bg-[#EAF3EC]">
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
-          <SectionHead eyebrow="CÓMO FUNCIONA" title="Cuatro pasos. Ninguno técnico." />
+          <SectionHead title="Cuatro pasos. Ninguno técnico." />
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map(({ n, title, body }) => (
-              <div key={n} className="flex flex-col gap-4">
-                <span className="font-serif text-[44px] leading-none font-bold text-[#7D6024]">
-                  {n}
-                </span>
-                <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
-                <p className="text-sm leading-relaxed text-slate-600">{body}</p>
-              </div>
+            {STEPS.map(({ n, title, body }, i) => (
+              <PasoRevelado key={n} delayMs={i * 100}>
+                <div className="flex flex-col gap-4">
+                  <span className="font-serif text-[44px] leading-none font-bold text-[#7D6024]">
+                    {n}
+                  </span>
+                  <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-600">{body}</p>
+                </div>
+              </PasoRevelado>
             ))}
           </div>
         </div>
@@ -596,71 +600,100 @@ export default async function HomePage() {
         —sin min-h-screen ni scroll-snap—, para no desentonar con el resto,
         que volvió a como estaba antes.
       */}
-      <section id="pruebalo" className="scroll-mt-20 bg-slate-50">
+      <section id="pruebalo" className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] scroll-mt-20 bg-white">
+        <PasoRevelado>
         <div className="mx-auto max-w-[1000px] px-6 py-24 md:px-12">
           <SectionHead
-            eyebrow="PRUÉBALO TÚ MISMO"
             title="Sin registrarte. Con el motor real."
             body="Escribe unos datos y mira cómo se arma el texto, con la misma validación de cédula que usa SAVE de verdad."
           />
           <DemoInteractiva />
         </div>
+        </PasoRevelado>
       </section>
 
       {/* ═══════════ AUTOMATIZACIÓN ═══════════ */}
-      <section id="automatizacion" className="scroll-mt-20 bg-slate-50">
+      {/*
+        A propósito NO son tarjetas como el resto del sitio: seis cajas
+        blancas idénticas en fila no dejan nada memorable. Una lista con
+        divisores rompe ese patrón sin inventar jerarquía donde no la hay
+        (nada de números 01-06: estas seis funciones no son una secuencia,
+        y la guía de diseño pide reservar los marcadores numerados para
+        cuando sí lo son, como en "Cómo funciona").
+      */}
+      <section id="automatizacion" className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] scroll-mt-20 bg-slate-50">
+        <PasoRevelado>
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
           <SectionHead
-            eyebrow="AUTOMATIZACIÓN"
             title="La diferencia está en lo que no tienes que hacer"
             body="Cualquiera puede venderte plantillas. SAVE se ocupa del trabajo repetitivo que viene después."
           />
 
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {AUTOMATION.map(({ Icon, title, body }) => (
-              <article
+          <div className="mx-auto grid max-w-[880px] gap-x-12 md:grid-cols-2">
+            {AUTOMATION.map(({ Icon, title, body }, i) => (
+              <div
                 key={title}
-                className="flex flex-col gap-4 rounded-[18px] border border-slate-200 bg-white p-8"
+                className={`group flex gap-5 py-7 transition-colors ${
+                  i < AUTOMATION.length - 2 ? 'border-b border-slate-200' : ''
+                }`}
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#c8eadd] text-[#0D2C24]">
-                  <Icon size={22} strokeWidth={1.8} />
-                </span>
-                <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
-                <p className="text-[14.5px] leading-relaxed text-slate-500">{body}</p>
-              </article>
+                <Icon
+                  size={26}
+                  strokeWidth={1.6}
+                  className="mt-0.5 shrink-0 text-[#0D2C24] transition-colors group-hover:text-[#C5A059]"
+                />
+                <div className="transition-transform duration-300 group-hover:translate-x-1">
+                  <h3 className="font-serif text-[19px] font-bold text-[#0D2C24]">{title}</h3>
+                  <p className="mt-1.5 text-[14.5px] leading-relaxed text-slate-500">{body}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
+        </PasoRevelado>
       </section>
 
       {/* ═══════════ PARA QUIÉN ES ═══════════ */}
-      <section id="para-quien" className="scroll-mt-20 border-t border-slate-200 bg-[#F5F2ED]">
+      {/*
+        Cuatro tintes de marca distintos en vez de cuatro tarjetas blancas
+        iguales: además de romper el patrón repetido, es una forma
+        honesta de usar los colores de la marca como superficie real, no
+        solo como acento decorativo en un ícono.
+      */}
+      <section id="para-quien" className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] scroll-mt-20 bg-white">
+        <PasoRevelado>
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
-          <SectionHead
-            eyebrow="PARA QUIÉN ES"
-            title="Si redactas lo mismo cada semana, es para ti"
-          />
+          <SectionHead title="Si redactas lo mismo cada semana, es para ti" />
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {AUDIENCES.map(({ Icon, title, body }) => (
-              <article
-                key={title}
-                className="flex flex-col gap-3 rounded-[18px] border border-slate-200 bg-white p-7"
-              >
-                <Icon size={24} strokeWidth={1.7} className="text-[#0D2C24]" />
-                <h3 className="font-serif text-[17px] font-bold text-[#0D2C24]">{title}</h3>
-                <p className="text-sm leading-relaxed text-slate-500">{body}</p>
-              </article>
-            ))}
+            {AUDIENCES.map(({ Icon, title, body }, i) => {
+              const estilos = [
+                { bg: 'bg-[#0D2C24]', icon: 'text-[#FDE8B5]', h: 'text-white', p: 'text-[#c8eadd]' },
+                { bg: 'bg-[#c8eadd]', icon: 'text-[#0D2C24]', h: 'text-[#0D2C24]', p: 'text-[#164E3E]' },
+                { bg: 'bg-[#FDE8B5]', icon: 'text-[#7D6024]', h: 'text-[#0D2C24]', p: 'text-[#7D6024]' },
+                { bg: 'bg-[#F5F2ED]', icon: 'text-[#0D2C24]', h: 'text-[#0D2C24]', p: 'text-slate-600' },
+              ][i]
+              return (
+                <article
+                  key={title}
+                  className={`flex flex-col gap-3 rounded-[18px] ${estilos.bg} p-7 transition-transform duration-300 hover:-translate-y-1.5`}
+                >
+                  <Icon size={24} strokeWidth={1.7} className={estilos.icon} />
+                  <h3 className={`font-serif text-[17px] font-bold ${estilos.h}`}>{title}</h3>
+                  <p className={`text-sm leading-relaxed ${estilos.p}`}>{body}</p>
+                </article>
+              )
+            })}
           </div>
         </div>
+        </PasoRevelado>
       </section>
 
       {/* ═══════════ PLANTILLAS ═══════════ */}
-      <section id="plantillas" className="scroll-mt-20 bg-slate-50">
+      <section id="plantillas" className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] scroll-mt-20 bg-[#EAF3EC]">
+        <PasoRevelado>
         <div className="mx-auto max-w-[1200px] px-6 py-24 md:px-12">
           <SectionHead
-            eyebrow="PLANTILLAS"
             title="Diez categorías, un mismo motor"
             body="SAVE no está encerrado en lo legal. Cualquier documento que repitas puede volverse una plantilla."
           />
@@ -669,7 +702,7 @@ export default async function HomePage() {
             {CATEGORIES.map((c) => (
               <span
                 key={c}
-                className="rounded-full border border-slate-200 bg-white px-6 py-3 text-[15px] font-semibold text-[#0D2C24]"
+                className="rounded-full border border-slate-200 bg-white px-6 py-3 text-[15px] font-semibold text-[#0D2C24] transition-colors hover:border-[#0D2C24] hover:bg-[#0D2C24] hover:text-white"
               >
                 {c}
               </span>
@@ -680,31 +713,43 @@ export default async function HomePage() {
             {fraseDelCatalogo(plantillas)}
           </p>
         </div>
+        </PasoRevelado>
       </section>
 
       {/* ═══════════ FAQ ═══════════ */}
-      <section className="border-t border-slate-200 bg-[#F5F2ED]">
+      <section className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] bg-slate-50">
+        <PasoRevelado>
         <div className="mx-auto max-w-[840px] px-6 py-24 md:px-12">
           <h2 className="mb-12 text-center font-serif text-3xl leading-tight font-bold tracking-tight text-[#0D2C24] md:text-[38px]">
             Antes de que preguntes
           </h2>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-3">
             {FAQ.map(({ q, a }) => (
-              <div
+              <details
                 key={q}
-                className="flex flex-col gap-2.5 rounded-2xl border border-slate-200 bg-white px-7 py-6"
+                className="group rounded-2xl border border-slate-200 bg-white px-7 py-6 open:border-[#0D2C24]/20 transition-colors hover:border-slate-300"
               >
-                <h3 className="font-serif text-[17px] font-bold text-[#0D2C24]">{q}</h3>
-                <p className="text-[15px] leading-relaxed text-slate-600">{a}</p>
-              </div>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-serif text-[17px] font-bold text-[#0D2C24] marker:content-none [&::-webkit-details-marker]:hidden">
+                  {q}
+                  <ChevronDown
+                    size={18}
+                    strokeWidth={2}
+                    aria-hidden
+                    className="shrink-0 text-slate-400 transition-transform duration-300 group-open:rotate-180 group-open:text-[#0D2C24]"
+                  />
+                </summary>
+                <p className="mt-3 text-[15px] leading-relaxed text-slate-600">{a}</p>
+              </details>
             ))}
           </div>
         </div>
+        </PasoRevelado>
       </section>
 
       {/* ═══════════ CTA FINAL ═══════════ */}
-      <section className="relative overflow-hidden bg-[#0D2C24]">
+      <section className="relative z-10 -mt-8 rounded-t-[36px] shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px] relative overflow-hidden bg-[#0D2C24]">
+        <PasoRevelado>
         <div
           aria-hidden
           className="pointer-events-none absolute -top-36 -right-20 h-[460px] w-[460px] rounded-full bg-[#C5A059] opacity-15 blur-[90px]"
@@ -722,7 +767,7 @@ export default async function HomePage() {
             href="/register"
             data-analitica="cta_click"
             data-analitica-etiqueta="cierre"
-            className="mt-2 flex items-center gap-2.5 rounded-full bg-white px-10 py-5 text-base font-bold text-[#0D2C24] shadow-2xl transition-transform hover:scale-[1.02]"
+            className="mt-2 flex items-center gap-2.5 rounded-full bg-white px-10 py-5 text-base font-bold text-[#0D2C24] shadow-2xl transition-transform hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C5A059]"
           >
             Empieza gratis
             <ArrowRight size={18} />
@@ -731,10 +776,11 @@ export default async function HomePage() {
             Sin tarjeta. Sin instalar nada. En español y pensado para RD.
           </p>
         </div>
+        </PasoRevelado>
       </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
-      <footer className="border-t border-slate-200 bg-slate-50">
+      <footer className="relative z-10 -mt-8 rounded-t-[36px] bg-slate-50 shadow-[0_-14px_30px_-24px_rgba(13,44,36,0.18)] md:-mt-12 md:rounded-t-[52px]">
         <div className="mx-auto grid max-w-[1200px] gap-10 px-6 pt-14 pb-10 md:px-12 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="flex flex-col gap-3.5">
             <div className="flex items-center gap-2.5">
@@ -792,18 +838,15 @@ export default async function HomePage() {
 /* ──────────────────────────── piezas reutilizadas ──────────────────────────── */
 
 function SectionHead({
-  eyebrow,
   title,
   body,
 }: {
-  eyebrow: string
   title: string
   body?: string
 }) {
   return (
-    <div className="mx-auto mb-14 flex max-w-[660px] flex-col gap-4 text-center">
-      <span className="text-xs font-extrabold tracking-[0.14em] text-[#7D6024]">{eyebrow}</span>
-      <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-balance text-[#0D2C24] md:text-[42px]">
+    <div className="mx-auto mb-12 flex max-w-[620px] flex-col gap-4 text-center">
+      <h2 className="font-serif text-[32px] leading-[1.12] font-bold tracking-tight text-balance text-[#0D2C24] md:text-[44px]">
         {title}
       </h2>
       {body && <p className="text-[17px] leading-relaxed text-slate-600">{body}</p>}
