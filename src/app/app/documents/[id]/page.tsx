@@ -7,6 +7,7 @@ import EditorClient from './EditorClient'
 import SharePanel, { type Companero } from './SharePanel'
 import PrivacidadToggle from './PrivacidadToggle'
 import { MEMBER_ROLE_LABEL } from '@/lib/labels'
+import type { Variable } from '@/lib/engine/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,20 +24,26 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
 
   if (!org) notFound()
 
-  // No hace falta filtrar por org_id: la política de documents ya decide.
-  // Desde la Fase 4 un miembro del despacho ve los documentos de sus
-  // compañeros, salvo los marcados privados, que siguen requiriendo ser su
-  // autor, el titular, o tenerlo compartido.
   const { data: doc } = await supabase
     .from('documents')
-    .select('id, title, status, content, created_at, creator_id, es_privado, template_version_id, templates(title, version), profiles:creator_id(first_name, last_name, email)')
+    .select(
+      'id, title, status, content, data_payload, template_version_id, created_at, creator_id, es_privado, templates(title, version), profiles:creator_id(first_name, last_name, email)'
+    )
     .eq('id', id)
     .maybeSingle()
 
   if (!doc) notFound()
 
-  // Con quién se puede compartir: los demás miembros del despacho, sin el
-  // titular -que ya lo ve todo- ni uno mismo.
+  let templateVariables: Variable[] = []
+  if ((doc as any).template_version_id) {
+    const { data: version } = await supabase
+      .from('template_versions')
+      .select('snapshot')
+      .eq('id', (doc as any).template_version_id)
+      .maybeSingle()
+    templateVariables = (version?.snapshot as { variables?: Variable[] } | null)?.variables ?? []
+  }
+
   const puedeCompartir = (doc as any).creator_id === user.id || org.owner_id === user.id
   const esPrivado = Boolean((doc as any).es_privado)
 
@@ -64,8 +71,6 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
     .filter((m) => m.user_id !== user.id && m.user_id !== org.owner_id)
     .map((m) => ({
       userId: m.user_id,
-      // displayName espera un Profile entero y aquí solo pedimos tres
-      // campos, así que se compone a mano.
       nombre:
         [m.profiles?.first_name, m.profiles?.last_name].filter(Boolean).join(' ').trim() ||
         m.profiles?.email ||
@@ -98,7 +103,7 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
           .join(' · ')}
       />
 
-      {!doc.template_version_id && (
+      {!(doc as any).template_version_id && (
         <p className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
           Este documento no quedó anclado a una versión concreta de la plantilla. Si la plantilla
           cambia, no podrás reconstruirlo exactamente igual.
@@ -112,9 +117,6 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
           puedeCambiar={puedeCompartir}
         />
 
-        {/* Compartir solo tiene sentido en un documento privado. En uno
-            visible ya lo ve todo el despacho, y ofrecer el botón haría
-            creer que hay alguien a quien todavía hay que darle acceso. */}
         {esPrivado && (
           <SharePanel
             documentId={doc.id}
@@ -131,6 +133,8 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
         isOwner={memberRole === 'OWNER'}
         canEdit={permissions.documents}
         canDelete={permissions.delete}
+        dataPayload={((doc as any).data_payload as Record<string, unknown>) ?? {}}
+        templateVariables={templateVariables}
       />
     </div>
   )

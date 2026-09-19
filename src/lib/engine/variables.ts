@@ -21,7 +21,7 @@ import {
 } from './dominican'
 import type { Answers, Variable, VariableDataType } from './types'
 
-/* ══════════════ ETIQUETAS ══════════════ */
+/* ═══════════════════ ETIQUETAS ═══════════════════ */
 
 /** Normaliza el nombre de una variable: minúsculas, sin acentos, con guion bajo. */
 export function normalizeTag(input: string): string {
@@ -45,7 +45,7 @@ export function extractTags(text: string): string[] {
   return [...found]
 }
 
-/* ══════════════ FORMATEO POR TIPO ══════════════ */
+/* ═══════════════════ FORMATEO POR TIPO ═══════════════════ */
 
 const CURRENCIES: Currency[] = ['DOP', 'USD', 'EUR']
 
@@ -107,7 +107,7 @@ function labelForOption(value: string, variable?: Variable): string {
   return opt?.label ?? value
 }
 
-/* ══════════════ TRANSFORMACIONES ══════════════ */
+/* ═══════════════════ TRANSFORMACIONES ═══════════════════ */
 
 export const TRANSFORMS: Record<string, (raw: unknown, variable?: Variable) => string> = {
   letras: (raw, v) => montoALetras(raw as number, currencyOf(v)),
@@ -147,7 +147,7 @@ export function buildSubstitutions(variables: Variable[], answers: Answers): Rec
   return out
 }
 
-/* ══════════════ SUSTITUCIÓN ══════════════ */
+/* ═══════════════════ SUSTITUCIÓN ═══════════════════ */
 
 export type SubstitutionResult = {
   text: string
@@ -200,7 +200,67 @@ export function substitute(
   return { text: result, missing: [...missing] }
 }
 
-/* ══════════════ VALIDACIÓN DEL FORMULARIO ══════════════ */
+/* ═══════════════════ NEGRITAS EN EL DOCUMENTO FINAL ═══════════════════ */
+
+export type BoldRange = { start: number; end: number }
+
+/**
+ * Ubica, dentro del texto ya armado, en qué tramos aparece un valor que
+ * vino del formulario — para poder ponerlos en negrita al exportar.
+ *
+ * Se recalcula sobre el texto final en vez de guardarse aparte al generar
+ * el documento, por dos razones:
+ *
+ *   1. Funciona también con documentos generados ANTES de que esto
+ *      existiera, sin ninguna migración de base de datos.
+ *   2. Si alguien edita el texto a mano después, lo que siga calzando con
+ *      un valor del formulario se sigue marcando; lo que ya no calce
+ *      simplemente deja de aparecer en negrita, sin romper nada.
+ *
+ * Los valores más largos se buscan primero: si "María Fernández" y
+ * "Fernández" fueran ambos valores de variables distintas, buscar primero
+ * el más largo evita que el más corto le gane la posición por buscarse
+ * antes.
+ */
+export function computeBoldRanges(text: string, variables: Variable[], answers: Answers): BoldRange[] {
+  if (!text) return []
+
+  const substitutions = buildSubstitutions(variables, answers)
+  const valores = Object.entries(substitutions)
+    // Los alias `__raw` no se usan aquí; ya se filtran solos porque
+    // buildSubstitutions no los genera (esos los agrega render.ts aparte).
+    .map(([, v]) => v)
+    .filter((v) => v && v.trim().length > 0)
+
+  const unicos = [...new Set(valores)].sort((a, b) => b.length - a.length)
+
+  const crudos: BoldRange[] = []
+  for (const valor of unicos) {
+    let desde = 0
+    while (true) {
+      const idx = text.indexOf(valor, desde)
+      if (idx === -1) break
+      crudos.push({ start: idx, end: idx + valor.length })
+      desde = idx + valor.length
+    }
+  }
+
+  // Fusiona rangos solapados o pegados: un exportador no puede procesar
+  // rangos desordenados ni que se pisen entre sí.
+  crudos.sort((a, b) => a.start - b.start)
+  const fusionados: BoldRange[] = []
+  for (const r of crudos) {
+    const ultimo = fusionados[fusionados.length - 1]
+    if (ultimo && r.start <= ultimo.end) {
+      ultimo.end = Math.max(ultimo.end, r.end)
+    } else {
+      fusionados.push({ ...r })
+    }
+  }
+  return fusionados
+}
+
+/* ═══════════════════ VALIDACIÓN DEL FORMULARIO ═══════════════════ */
 
 export type FieldError = { tag: string; label: string; message: string }
 

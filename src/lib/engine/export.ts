@@ -8,6 +8,7 @@
  */
 
 import JSZip from 'jszip'
+import type { BoldRange } from './variables'
 
 /** Escapa lo que XML no admite en un nodo de texto. */
 function xmlEscape(text: string): string {
@@ -25,23 +26,57 @@ function isHeading(line: string): boolean {
   return t === t.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(t)
 }
 
-function paragraph(line: string): string {
-  const text = xmlEscape(line)
+/**
+ * Parte una línea en tramos planos y en negrita, según los rangos que le
+ * tocan (ya recortados a las coordenadas de ESTA línea, no del documento
+ * entero). Sin rangos, devuelve la línea entera como un solo tramo plano.
+ */
+function partirEnTramos(line: string, rangos: BoldRange[]): { texto: string; negrita: boolean }[] {
+  if (rangos.length === 0) return [{ texto: line, negrita: false }]
 
+  const tramos: { texto: string; negrita: boolean }[] = []
+  let cursor = 0
+  for (const r of rangos) {
+    if (r.start > cursor) tramos.push({ texto: line.slice(cursor, r.start), negrita: false })
+    tramos.push({ texto: line.slice(r.start, r.end), negrita: true })
+    cursor = r.end
+  }
+  if (cursor < line.length) tramos.push({ texto: line.slice(cursor), negrita: false })
+  return tramos.filter((t) => t.texto.length > 0)
+}
+
+function paragraph(line: string, rangos: BoldRange[] = []): string {
   if (isHeading(line)) {
+    const text = xmlEscape(line)
     return `<w:p><w:pPr><w:spacing w:before="240" w:after="120"/><w:jc w:val="center"/></w:pPr>` +
       `<w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">${text}</w:t></w:r></w:p>`
   }
 
-  return `<w:p><w:pPr><w:spacing w:after="160" w:line="276" w:lineRule="auto"/><w:jc w:val="both"/></w:pPr>` +
-    `<w:r><w:t xml:space="preserve">${text}</w:t></w:r></w:p>`
+  const runs = partirEnTramos(line, rangos)
+    .map(
+      (t) =>
+        `<w:r>${t.negrita ? '<w:rPr><w:b/></w:rPr>' : ''}<w:t xml:space="preserve">${xmlEscape(t.texto)}</w:t></w:r>`
+    )
+    .join('')
+
+  return `<w:p><w:pPr><w:spacing w:after="160" w:line="276" w:lineRule="auto"/><w:jc w:val="both"/></w:pPr>${runs}</w:p>`
 }
 
 /**
  * Genera un .docx real. Devuelve el archivo como bytes para que una
  * Route Handler lo entregue.
+ *
+ * `boldRanges` son posiciones de caracteres dentro de `content` (no de
+ * `title`, que nunca lleva negrita parcial) que corresponden a datos que
+ * vinieron del formulario. Se recortan línea por línea llevando la cuenta
+ * del desplazamiento acumulado, porque `content.split('\n')` descarta esa
+ * información.
  */
-export async function buildDocx(title: string, content: string): Promise<Uint8Array> {
+export async function buildDocx(
+  title: string,
+  content: string,
+  boldRanges: BoldRange[] = []
+): Promise<Uint8Array> {
   const zip = new JSZip()
 
   zip.file(
@@ -85,7 +120,19 @@ export async function buildDocx(title: string, content: string): Promise<Uint8Ar
 </w:styles>`
   )
 
-  const body = [title, '', ...content.split('\n')].map(paragraph).join('')
+  let offset = 0
+  const contentParagraphs = content.split('\n').map((line) => {
+    const rangosDeEstaLinea = boldRanges
+      .map((r) => ({ start: r.start - offset, end: r.end - offset }))
+      .filter((r) => r.end > 0 && r.start < line.length)
+      .map((r) => ({ start: Math.max(0, r.start), end: Math.min(line.length, r.end) }))
+
+    const p = paragraph(line, rangosDeEstaLinea)
+    offset += line.length + 1 // +1 por el '\n' que split() ya quitó
+    return p
+  })
+
+  const body = [paragraph(title), paragraph(''), ...contentParagraphs].join('')
 
   word.file(
     'document.xml',

@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { requireSession } from '@/lib/session'
 import { buildDocx, safeFileName } from '@/lib/engine/export'
+import { computeBoldRanges } from '@/lib/engine/variables'
+import type { Variable } from '@/lib/engine/types'
 
 /**
  * Descarga del documento. ?format=docx entrega un Word real;
@@ -24,7 +26,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
   const { data: doc } = await supabase
     .from('documents')
-    .select('title, content')
+    .select('title, content, data_payload, template_version_id')
     .eq('id', id)
     .eq('org_id', org.id)
     .maybeSingle()
@@ -44,7 +46,26 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     })
   }
 
-  const bytes = await buildDocx(doc.title, content)
+  // Las negritas de los datos del formulario: se recalculan aquí, no se
+  // guardaron aparte al generar el documento. Si el documento no quedó
+  // anclado a una versión de plantilla (documents.template_version_id
+  // nulo) o esa versión no trae variables, sale sin negritas — nunca
+  // rompe la descarga por esto.
+  let boldRanges: ReturnType<typeof computeBoldRanges> = []
+  if (doc.template_version_id && doc.data_payload) {
+    const { data: version } = await supabase
+      .from('template_versions')
+      .select('snapshot')
+      .eq('id', doc.template_version_id)
+      .maybeSingle()
+
+    const variables = (version?.snapshot as { variables?: Variable[] } | null)?.variables
+    if (variables && variables.length > 0) {
+      boldRanges = computeBoldRanges(content, variables, doc.data_payload as Record<string, unknown>)
+    }
+  }
+
+  const bytes = await buildDocx(doc.title, content, boldRanges)
 
   return new NextResponse(bytes as unknown as BodyInit, {
     headers: {
