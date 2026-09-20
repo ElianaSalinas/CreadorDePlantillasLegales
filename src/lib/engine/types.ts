@@ -14,13 +14,24 @@ export type ContentStatus = 'DRAFT' | 'REVIEW' | 'APPROVED' | 'PUBLISHED' | 'ARC
 
 export type SelectOption = { value: string; label: string }
 
-/** Transformación automática aplicada al valor antes de sustituirlo. */
+/**
+ * Transformación automática aplicada al valor antes de sustituirlo.
+ *
+ * `extra` existe para el caso de género: una sola variable
+ * ("masculino"/"femenino") necesita producir DOS alias a la vez
+ * ({{parte_primera_portador}} y {{parte_primera_domiciliado}}, por
+ * ejemplo), y hasta ahora una variable solo podía declarar un derivado.
+ * Los ~100 derivados que ya existen (montos en letras, fechas notariales)
+ * siguen usando solo `transform`/`as`, sin tocarlos: `extra` es aditivo.
+ */
 export type DerivedConfig = {
   /** montoALetras, fechaNotarial, fechaLarga, mayusculas, cedulaFormato */
   transform?: string
   currency?: 'DOP' | 'USD' | 'EUR'
   /** Etiqueta con la que se expone la versión transformada: {{monto_letras}} */
   as?: string
+  /** Derivados adicionales de la misma variable, más allá del primero. */
+  extra?: { transform: string; as: string }[]
 }
 
 export type Variable = {
@@ -80,7 +91,7 @@ export type TemplateClause = {
   condition: Condition | null
 }
 
-/* ══════════════ CONDICIONES ══════════════ */
+/* ═══════════════════ CONDICIONES ═══════════════════ */
 
 export type ConditionOperator =
   | 'equals' | 'not_equals'
@@ -111,7 +122,7 @@ export function isGroup(c: Condition): c is ConditionGroup {
   return typeof (c as ConditionGroup).op === 'string'
 }
 
-/* ══════════════ REGLAS ══════════════ */
+/* ═══════════════════ REGLAS ═══════════════════ */
 
 export type RuleAction =
   | 'SHOW_CLAUSE' | 'HIDE_CLAUSE'

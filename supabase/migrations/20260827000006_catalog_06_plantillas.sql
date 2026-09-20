@@ -6,97 +6,14 @@
 --   npm run catalog:build
 -- a partir de scripts/catalog/clauses.ts y templates.ts
 --
--- ⚠️  101 cláusulas y 250 plantillas, TODAS en estado DRAFT.
+-- ⚠️  101 cláusulas y 249 plantillas, TODAS en estado DRAFT.
 --     Ningún usuario las ve hasta que un abogado dominicano las
 --     revise y las publique. Al final hay instrucciones.
 -- ==========================================================
 
 -- PARTE 6 de 10: plantillas 126–150. Requiere la parte 0.
 
--- ── Contrato de Consultoría ──
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'servicios';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-consultoria';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-consultoria', 'Contrato de Consultoría', 'Asesoría especializada por proyecto.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
-
-SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 2) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 3)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('e-precio-servicios', 1),
-    ('e-forma-pago', 2),
-    ('e-impuestos-retenciones', 3),
-    ('e-facturacion', 4),
-    ('b-relacion-independiente', 5),
-    ('t-aceptacion-entregables', 6),
-    ('b-propiedad-intelectual', 7),
-    ('g-declaraciones-partes', 8),
-    ('g-modificaciones', 9),
-    ('g-divisibilidad', 10),
-    ('g-notificaciones', 11),
-    ('g-ley-aplicable', 12),
-    ('integridad-contractual', 13)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('ciudad_firma', 1),
-    ('dias_aceptacion', 2),
-    ('dias_pago', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_propiedad_intelectual', 14)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Coaching Ejecutivo ──
+-- ── Contrato de Coaching Ejecutivo ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -119,9 +36,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -131,7 +48,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -158,24 +75,30 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anios_confidencialidad', 1),
-    ('ciudad_firma', 2),
-    ('dias_pago', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('cantidad_ejemplares', 2),
+    ('ciudad_firma', 3),
+    ('dias_pago', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Capacitación ──
+-- ── Contrato de Capacitación ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -198,9 +121,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -210,7 +133,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -238,27 +161,33 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('cantidad_revisiones', 1),
-    ('ciudad_firma', 2),
-    ('descripcion_entregables', 3),
-    ('dias_pago', 4),
-    ('distrito_judicial', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('cantidad_ejemplares', 1),
+    ('cantidad_revisiones', 2),
+    ('ciudad_firma', 3),
+    ('descripcion_entregables', 4),
+    ('dias_pago', 5),
+    ('distrito_judicial', 6),
+    ('fecha_firma', 7),
+    ('monto_total_letras', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_genero', 11),
+    ('parte_primera_nacionalidad', 12),
+    ('parte_primera_nombre', 13),
+    ('parte_primera_tipo_documento', 14),
+    ('parte_segunda_cedula', 15),
+    ('parte_segunda_domicilio', 16),
+    ('parte_segunda_genero', 17),
+    ('parte_segunda_nacionalidad', 18),
+    ('parte_segunda_nombre', 19),
+    ('parte_segunda_tipo_documento', 20),
+    ('titular_propiedad_intelectual', 21)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Traducción ──
+-- ── Contrato de Traducción ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -281,9 +210,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -293,7 +222,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -321,26 +250,32 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anios_confidencialidad', 1),
-    ('ciudad_firma', 2),
-    ('dias_pago', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('penalidad_diaria_porcentaje', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('cantidad_ejemplares', 2),
+    ('ciudad_firma', 3),
+    ('dias_pago', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19),
+    ('penalidad_diaria_porcentaje', 20),
+    ('titular_propiedad_intelectual', 21)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Interpretación ──
+-- ── Contrato de Interpretación ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -363,9 +298,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -375,7 +310,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -401,24 +336,30 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anios_confidencialidad', 1),
-    ('ciudad_firma', 2),
-    ('dias_pago', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('cantidad_ejemplares', 2),
+    ('ciudad_firma', 3),
+    ('dias_pago', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios Médicos ──
+-- ── Contrato de Servicios Médicos ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -441,9 +382,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -453,7 +394,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -480,23 +421,29 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anios_confidencialidad', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('cantidad_ejemplares', 2),
+    ('ciudad_firma', 3),
+    ('distrito_judicial', 4),
+    ('fecha_firma', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_genero', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_primera_tipo_documento', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_genero', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17),
+    ('parte_segunda_tipo_documento', 18)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios Odontológicos ──
+-- ── Contrato de Servicios Odontológicos ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -519,9 +466,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -531,7 +478,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -559,25 +506,31 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_confidencialidad', 1),
     ('cantidad_cuotas', 2),
-    ('ciudad_firma', 3),
-    ('dia_pago', 4),
-    ('distrito_judicial', 5),
-    ('monto_cuota_letras', 6),
-    ('monto_total_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15)
+    ('cantidad_ejemplares', 3),
+    ('ciudad_firma', 4),
+    ('dia_pago', 5),
+    ('distrito_judicial', 6),
+    ('fecha_firma', 7),
+    ('monto_cuota_letras', 8),
+    ('monto_total_letras', 9),
+    ('parte_primera_cedula', 10),
+    ('parte_primera_domicilio', 11),
+    ('parte_primera_genero', 12),
+    ('parte_primera_nacionalidad', 13),
+    ('parte_primera_nombre', 14),
+    ('parte_primera_tipo_documento', 15),
+    ('parte_segunda_cedula', 16),
+    ('parte_segunda_domicilio', 17),
+    ('parte_segunda_genero', 18),
+    ('parte_segunda_nacionalidad', 19),
+    ('parte_segunda_nombre', 20),
+    ('parte_segunda_tipo_documento', 21)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios Veterinarios ──
+-- ── Contrato de Servicios Veterinarios ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -600,9 +553,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -612,7 +565,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -637,24 +590,30 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('ciudad_firma', 1),
-    ('dias_pago', 2),
-    ('distrito_judicial', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('dias_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_firma', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_genero', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_primera_tipo_documento', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_genero', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17),
+    ('parte_segunda_tipo_documento', 18)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios de Arquitectura ──
+-- ── Contrato de Servicios de Arquitectura ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -677,9 +636,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -689,7 +648,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -718,27 +677,33 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('ciudad_firma', 1),
-    ('dias_aceptacion', 2),
-    ('dias_pago', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('penalidad_diaria_porcentaje', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('dias_aceptacion', 3),
+    ('dias_pago', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19),
+    ('penalidad_diaria_porcentaje', 20),
+    ('titular_propiedad_intelectual', 21)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios de Ingeniería ──
+-- ── Contrato de Servicios de Ingeniería ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -761,9 +726,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -773,7 +738,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -801,26 +766,32 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('ciudad_firma', 1),
-    ('dias_aceptacion', 2),
-    ('dias_pago', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('dias_aceptacion', 3),
+    ('dias_pago', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19),
+    ('titular_propiedad_intelectual', 20)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios de Seguridad ──
+-- ── Contrato de Servicios de Seguridad ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -843,9 +814,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -855,7 +826,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -881,24 +852,30 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('ciudad_firma', 1),
-    ('dias_pago', 2),
-    ('distrito_judicial', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('dias_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_firma', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_genero', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_primera_tipo_documento', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_genero', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17),
+    ('parte_segunda_tipo_documento', 18)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios de Limpieza ──
+-- ── Contrato de Servicios de Limpieza ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -921,9 +898,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -933,7 +910,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -959,24 +936,30 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('ciudad_firma', 1),
-    ('dias_pago', 2),
-    ('distrito_judicial', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12)
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('dias_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_firma', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_genero', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_primera_tipo_documento', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_genero', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17),
+    ('parte_segunda_tipo_documento', 18)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Catering ──
+-- ── Contrato de Catering ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -999,9 +982,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1011,7 +994,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1038,24 +1021,30 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anticipo_porcentaje', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_segunda_cedula', 9),
-    ('parte_segunda_domicilio', 10),
-    ('parte_segunda_nacionalidad', 11),
-    ('parte_segunda_nombre', 12),
-    ('penalidad_diaria_porcentaje', 13)
+    ('cantidad_ejemplares', 2),
+    ('ciudad_firma', 3),
+    ('distrito_judicial', 4),
+    ('fecha_firma', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_genero', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_primera_tipo_documento', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_genero', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17),
+    ('parte_segunda_tipo_documento', 18),
+    ('penalidad_diaria_porcentaje', 19)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Organización de Eventos ──
+-- ── Contrato de Organización de Eventos ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1078,9 +1067,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1090,7 +1079,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1120,27 +1109,33 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anticipo_porcentaje', 1),
-    ('cantidad_revisiones', 2),
-    ('ciudad_firma', 3),
-    ('descripcion_entregables', 4),
-    ('dias_pago', 5),
-    ('distrito_judicial', 6),
-    ('monto_total_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15),
-    ('penalidad_diaria_porcentaje', 16)
+    ('cantidad_ejemplares', 2),
+    ('cantidad_revisiones', 3),
+    ('ciudad_firma', 4),
+    ('descripcion_entregables', 5),
+    ('dias_pago', 6),
+    ('distrito_judicial', 7),
+    ('fecha_firma', 8),
+    ('monto_total_letras', 9),
+    ('parte_primera_cedula', 10),
+    ('parte_primera_domicilio', 11),
+    ('parte_primera_genero', 12),
+    ('parte_primera_nacionalidad', 13),
+    ('parte_primera_nombre', 14),
+    ('parte_primera_tipo_documento', 15),
+    ('parte_segunda_cedula', 16),
+    ('parte_segunda_domicilio', 17),
+    ('parte_segunda_genero', 18),
+    ('parte_segunda_nacionalidad', 19),
+    ('parte_segunda_nombre', 20),
+    ('parte_segunda_tipo_documento', 21),
+    ('penalidad_diaria_porcentaje', 22)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Fotografía ──
+-- ── Contrato de Fotografía ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1163,9 +1158,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1175,7 +1170,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1204,27 +1199,33 @@ _______________________________          _______________________________
   FROM (VALUES
     ('anios_uso_imagen', 1),
     ('anticipo_porcentaje', 2),
-    ('cantidad_revisiones', 3),
-    ('ciudad_firma', 4),
-    ('descripcion_entregables', 5),
-    ('distrito_judicial', 6),
-    ('monto_total_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15),
-    ('titular_imagen', 16),
-    ('titular_propiedad_intelectual', 17)
+    ('cantidad_ejemplares', 3),
+    ('cantidad_revisiones', 4),
+    ('ciudad_firma', 5),
+    ('descripcion_entregables', 6),
+    ('distrito_judicial', 7),
+    ('fecha_firma', 8),
+    ('monto_total_letras', 9),
+    ('parte_primera_cedula', 10),
+    ('parte_primera_domicilio', 11),
+    ('parte_primera_genero', 12),
+    ('parte_primera_nacionalidad', 13),
+    ('parte_primera_nombre', 14),
+    ('parte_primera_tipo_documento', 15),
+    ('parte_segunda_cedula', 16),
+    ('parte_segunda_domicilio', 17),
+    ('parte_segunda_genero', 18),
+    ('parte_segunda_nacionalidad', 19),
+    ('parte_segunda_nombre', 20),
+    ('parte_segunda_tipo_documento', 21),
+    ('titular_imagen', 22),
+    ('titular_propiedad_intelectual', 23)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Video y Producción Audiovisual ──
+-- ── Contrato de Video y Producción Audiovisual ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1247,9 +1248,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1259,7 +1260,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1289,28 +1290,34 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anios_uso_imagen', 1),
-    ('cantidad_revisiones', 2),
-    ('ciudad_firma', 3),
-    ('descripcion_entregables', 4),
-    ('dias_pago', 5),
-    ('distrito_judicial', 6),
-    ('monto_total_letras', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_nacionalidad', 10),
-    ('parte_primera_nombre', 11),
-    ('parte_segunda_cedula', 12),
-    ('parte_segunda_domicilio', 13),
-    ('parte_segunda_nacionalidad', 14),
-    ('parte_segunda_nombre', 15),
-    ('titular_imagen', 16),
-    ('titular_propiedad_intelectual', 17)
+    ('cantidad_ejemplares', 2),
+    ('cantidad_revisiones', 3),
+    ('ciudad_firma', 4),
+    ('descripcion_entregables', 5),
+    ('dias_pago', 6),
+    ('distrito_judicial', 7),
+    ('fecha_firma', 8),
+    ('monto_total_letras', 9),
+    ('parte_primera_cedula', 10),
+    ('parte_primera_domicilio', 11),
+    ('parte_primera_genero', 12),
+    ('parte_primera_nacionalidad', 13),
+    ('parte_primera_nombre', 14),
+    ('parte_primera_tipo_documento', 15),
+    ('parte_segunda_cedula', 16),
+    ('parte_segunda_domicilio', 17),
+    ('parte_segunda_genero', 18),
+    ('parte_segunda_nacionalidad', 19),
+    ('parte_segunda_nombre', 20),
+    ('parte_segunda_tipo_documento', 21),
+    ('titular_imagen', 22),
+    ('titular_propiedad_intelectual', 23)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios de Transporte de Personas ──
+-- ── Contrato de Servicios de Transporte de Personas ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1333,9 +1340,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1345,7 +1352,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1371,25 +1378,31 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('ciudad_firma', 1),
-    ('dias_pago', 2),
-    ('distrito_judicial', 3),
-    ('monto_total_letras', 4),
-    ('parte_primera_cedula', 5),
-    ('parte_primera_domicilio', 6),
-    ('parte_primera_nacionalidad', 7),
-    ('parte_primera_nombre', 8),
-    ('parte_responsable_seguro', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('dias_pago', 3),
+    ('distrito_judicial', 4),
+    ('fecha_firma', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_genero', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_primera_tipo_documento', 12),
+    ('parte_responsable_seguro', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Mensajería ──
+-- ── Contrato de Mensajería ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1412,9 +1425,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1424,7 +1437,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1449,26 +1462,32 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('ciudad_firma', 1),
-    ('distrito_judicial', 2),
-    ('fecha_entrega_larga', 3),
-    ('lugar_entrega', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('penalidad_diaria_porcentaje', 14)
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('distrito_judicial', 3),
+    ('fecha_entrega_larga', 4),
+    ('fecha_firma', 5),
+    ('lugar_entrega', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19),
+    ('penalidad_diaria_porcentaje', 20)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios de Recursos Humanos ──
+-- ── Contrato de Servicios de Recursos Humanos ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1491,9 +1510,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1503,7 +1522,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1532,24 +1551,30 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anios_confidencialidad', 1),
-    ('ciudad_firma', 2),
-    ('dias_pago', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('cantidad_ejemplares', 2),
+    ('ciudad_firma', 3),
+    ('dias_pago', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Headhunting ──
+-- ── Contrato de Headhunting ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1572,9 +1597,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1584,7 +1609,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1611,25 +1636,31 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anios_confidencialidad', 1),
-    ('ciudad_firma', 2),
-    ('comision_porcentaje', 3),
-    ('distrito_judicial', 4),
-    ('monto_penalidad_letras', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14)
+    ('cantidad_ejemplares', 2),
+    ('ciudad_firma', 3),
+    ('comision_porcentaje', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_penalidad_letras', 7),
+    ('monto_total_letras', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_genero', 11),
+    ('parte_primera_nacionalidad', 12),
+    ('parte_primera_nombre', 13),
+    ('parte_primera_tipo_documento', 14),
+    ('parte_segunda_cedula', 15),
+    ('parte_segunda_domicilio', 16),
+    ('parte_segunda_genero', 17),
+    ('parte_segunda_nacionalidad', 18),
+    ('parte_segunda_nombre', 19),
+    ('parte_segunda_tipo_documento', 20)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios de Diseño Gráfico ──
+-- ── Contrato de Servicios de Diseño Gráfico ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1652,9 +1683,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1664,7 +1695,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1690,27 +1721,33 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('cantidad_revisiones', 1),
-    ('ciudad_firma', 2),
-    ('descripcion_entregables', 3),
-    ('dias_aceptacion', 4),
-    ('distrito_judicial', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_nacionalidad', 9),
-    ('parte_primera_nombre', 10),
-    ('parte_segunda_cedula', 11),
-    ('parte_segunda_domicilio', 12),
-    ('parte_segunda_nacionalidad', 13),
-    ('parte_segunda_nombre', 14),
-    ('titular_propiedad_intelectual', 15)
+    ('cantidad_ejemplares', 1),
+    ('cantidad_revisiones', 2),
+    ('ciudad_firma', 3),
+    ('descripcion_entregables', 4),
+    ('dias_aceptacion', 5),
+    ('distrito_judicial', 6),
+    ('fecha_firma', 7),
+    ('monto_total_letras', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_genero', 11),
+    ('parte_primera_nacionalidad', 12),
+    ('parte_primera_nombre', 13),
+    ('parte_primera_tipo_documento', 14),
+    ('parte_segunda_cedula', 15),
+    ('parte_segunda_domicilio', 16),
+    ('parte_segunda_genero', 17),
+    ('parte_segunda_nacionalidad', 18),
+    ('parte_segunda_nombre', 19),
+    ('parte_segunda_tipo_documento', 20),
+    ('titular_propiedad_intelectual', 21)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Redacción de Contenidos ──
+-- ── Contrato de Redacción de Contenidos ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1733,9 +1770,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1745,7 +1782,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1771,26 +1808,32 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('cantidad_revisiones', 1),
-    ('ciudad_firma', 2),
-    ('descripcion_entregables', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13),
-    ('titular_propiedad_intelectual', 14)
+    ('cantidad_ejemplares', 1),
+    ('cantidad_revisiones', 2),
+    ('ciudad_firma', 3),
+    ('descripcion_entregables', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19),
+    ('titular_propiedad_intelectual', 20)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Servicios de Mantenimiento Técnico ──
+-- ── Contrato de Servicios de Mantenimiento Técnico ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1813,9 +1856,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1825,7 +1868,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1850,23 +1893,29 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('ciudad_firma', 1),
-    ('distrito_judicial', 2),
-    ('monto_total_letras', 3),
-    ('parte_primera_cedula', 4),
-    ('parte_primera_domicilio', 5),
-    ('parte_primera_nacionalidad', 6),
-    ('parte_primera_nombre', 7),
-    ('parte_segunda_cedula', 8),
-    ('parte_segunda_domicilio', 9),
-    ('parte_segunda_nacionalidad', 10),
-    ('parte_segunda_nombre', 11)
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('distrito_judicial', 3),
+    ('fecha_firma', 4),
+    ('monto_total_letras', 5),
+    ('parte_primera_cedula', 6),
+    ('parte_primera_domicilio', 7),
+    ('parte_primera_genero', 8),
+    ('parte_primera_nacionalidad', 9),
+    ('parte_primera_nombre', 10),
+    ('parte_primera_tipo_documento', 11),
+    ('parte_segunda_cedula', 12),
+    ('parte_segunda_domicilio', 13),
+    ('parte_segunda_genero', 14),
+    ('parte_segunda_nacionalidad', 15),
+    ('parte_segunda_nombre', 16),
+    ('parte_segunda_tipo_documento', 17)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Peritaje ──
+-- ── Contrato de Peritaje ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1889,9 +1938,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1901,7 +1950,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -1928,24 +1977,30 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('anios_confidencialidad', 1),
-    ('ciudad_firma', 2),
-    ('dias_aceptacion', 3),
-    ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('cantidad_ejemplares', 2),
+    ('ciudad_firma', 3),
+    ('dias_aceptacion', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Propuesta de Servicios Profesionales ──
+-- ── Propuesta de Servicios Profesionales ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1968,9 +2023,9 @@ BEGIN
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
 
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
 
 SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
   RETURNING id INTO s_partes;
@@ -1980,7 +2035,7 @@ SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
 
   INSERT INTO template_sections (template_id, title, body, sort_order)
   VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
 
 
 _______________________________          _______________________________
@@ -2004,19 +2059,116 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('cantidad_revisiones', 1),
+    ('cantidad_ejemplares', 1),
+    ('cantidad_revisiones', 2),
+    ('ciudad_firma', 3),
+    ('descripcion_entregables', 4),
+    ('distrito_judicial', 5),
+    ('fecha_firma', 6),
+    ('monto_total_letras', 7),
+    ('parte_primera_cedula', 8),
+    ('parte_primera_domicilio', 9),
+    ('parte_primera_genero', 10),
+    ('parte_primera_nacionalidad', 11),
+    ('parte_primera_nombre', 12),
+    ('parte_primera_tipo_documento', 13),
+    ('parte_segunda_cedula', 14),
+    ('parte_segunda_domicilio', 15),
+    ('parte_segunda_genero', 16),
+    ('parte_segunda_nacionalidad', 17),
+    ('parte_segunda_nombre', 18),
+    ('parte_segunda_tipo_documento', 19)
+  ) AS t(tag, ord)
+  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
+  ON CONFLICT DO NOTHING;
+END $$;
+
+-- ── Contrato de Construcción a Precio Alzado ── 
+DO $$
+DECLARE
+  v_template UUID;
+  v_cat      UUID;
+  s_partes   UUID;
+  s_cuerpo   UUID;
+  s_cierre   UUID;
+BEGIN
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'construccion';
+  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-construccion-a-precio-alzado';
+  IF v_template IS NULL THEN
+    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
+    VALUES (NULL, 'contrato-de-construccion-a-precio-alzado', 'Contrato de Construcción a Precio Alzado', 'Obra por un precio fijo global.',
+      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
+    RETURNING id INTO v_template;
+  END IF;
+
+  DELETE FROM template_clauses  WHERE template_id = v_template;
+  DELETE FROM template_sections WHERE template_id = v_template;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Comparecientes',
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.
+
+SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)
+  RETURNING id INTO s_partes;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Cláusulas', NULL, 2) RETURNING id INTO s_cuerpo;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Firmas',
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
+
+
+_______________________________          _______________________________
+      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 3)
+  RETURNING id INTO s_cierre;
+
+  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
+  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
+  FROM (VALUES
+    ('o-plazo-obra', 1),
+    ('o-materiales', 2),
+    ('o-recepcion-obra', 3),
+    ('e-retencion-garantia', 4),
+    ('e-precio-servicios', 5),
+    ('e-penalidad-retraso', 6),
+    ('c-vicios-ocultos', 7),
+    ('g-declaraciones-partes', 8),
+    ('g-modificaciones', 9),
+    ('g-divisibilidad', 10),
+    ('g-notificaciones', 11),
+    ('g-ley-aplicable', 12),
+    ('integridad-contractual', 13)
+  ) AS t(slug, ord)
+  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
+
+  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
+  SELECT v_template, v.id, s_partes, t.ord
+  FROM (VALUES
+    ('cantidad_ejemplares', 1),
     ('ciudad_firma', 2),
-    ('descripcion_entregables', 3),
+    ('dias_recepcion_definitiva', 3),
     ('distrito_judicial', 4),
-    ('monto_total_letras', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_nacionalidad', 8),
-    ('parte_primera_nombre', 9),
-    ('parte_segunda_cedula', 10),
-    ('parte_segunda_domicilio', 11),
-    ('parte_segunda_nacionalidad', 12),
-    ('parte_segunda_nombre', 13)
+    ('fecha_firma', 5),
+    ('monto_total_letras', 6),
+    ('parte_primera_cedula', 7),
+    ('parte_primera_domicilio', 8),
+    ('parte_primera_genero', 9),
+    ('parte_primera_nacionalidad', 10),
+    ('parte_primera_nombre', 11),
+    ('parte_primera_tipo_documento', 12),
+    ('parte_segunda_cedula', 13),
+    ('parte_segunda_domicilio', 14),
+    ('parte_segunda_genero', 15),
+    ('parte_segunda_nacionalidad', 16),
+    ('parte_segunda_nombre', 17),
+    ('parte_segunda_tipo_documento', 18),
+    ('parte_suministra_materiales', 19),
+    ('penalidad_diaria_porcentaje', 20),
+    ('plazo_obra_dias', 21),
+    ('retencion_porcentaje', 22)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;

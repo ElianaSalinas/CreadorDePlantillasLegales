@@ -6,14 +6,14 @@
 --   npm run catalog:build
 -- a partir de scripts/catalog/clauses.ts y templates.ts
 --
--- ⚠️  101 cláusulas y 250 plantillas, TODAS en estado DRAFT.
+-- ⚠️  101 cláusulas y 249 plantillas, TODAS en estado DRAFT.
 --     Ningún usuario las ve hasta que un abogado dominicano las
 --     revise y las publique. Al final hay instrucciones.
 -- ==========================================================
 
 -- PARTE 0 de 10: cláusulas y variables. Ejecutar PRIMERO.
 
--- ══════════════ CLÁUSULAS ══════════════
+-- ═══════════════════ CLÁUSULAS ═══════════════════
 
 INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)
 VALUES (NULL, 'g-definiciones', 'Definiciones', 'Generales', 'Fija el significado de los términos que se repiten en el contrato.',
@@ -621,7 +621,7 @@ VALUES (NULL, 'p-garantia-prestamo', 'Garantía del préstamo', 'Económicas', '
   NULL, 'DRAFT')
 ON CONFLICT DO NOTHING;
 
--- ══════════════ VARIABLES ══════════════
+-- ═══════════════════ VARIABLES ═══════════════════
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'anios_confidencialidad', 'Años de confidencialidad', NULL, NULL,
@@ -644,7 +644,7 @@ VALUES (NULL, 'cantidad_cuotas', 'Número de cuotas', NULL, NULL,
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
-VALUES (NULL, 'cantidad_ejemplares', 'Número de ejemplares', NULL, NULL,
+VALUES (NULL, 'cantidad_ejemplares', 'Cantidad de ejemplares que se firman', '¿En cuántos originales se firma el documento?', 'Escríbelo como "dos (2)" o "tres (3)": así es como sale en el texto del documento.',
   'text'::variable_data_type, '[]'::jsonb, 'dos (2)', true, NULL)
 ON CONFLICT DO NOTHING;
 
@@ -666,6 +666,11 @@ ON CONFLICT DO NOTHING;
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'certificado_titulo', 'Número de Certificado de Título', NULL, NULL,
   'text'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'ciudad_firma', 'Ciudad de firma', '¿Dónde se firma?', NULL,
+  'text'::variable_data_type, '[]'::jsonb, 'Punta Cana', true, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
@@ -714,6 +719,11 @@ VALUES (NULL, 'destino_uso', 'Destino o uso del bien', '¿Para qué se usará el
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'dia_pago', 'Día de pago', '¿Qué día de cada mes se paga?', 'Un número del 1 al 31.',
+  'number'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'dias_aceptacion', 'Días para aceptar entregables', NULL, NULL,
   'number'::variable_data_type, '[]'::jsonb, '10', true, NULL)
 ON CONFLICT DO NOTHING;
@@ -734,6 +744,11 @@ VALUES (NULL, 'dias_recepcion_definitiva', 'Días hasta la recepción definitiva
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'direccion_inmueble', 'Dirección del inmueble', '¿Dónde está el inmueble?', NULL,
+  'address'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'disponibilidad_porcentaje', 'Disponibilidad garantizada', NULL, NULL,
   'percentage'::variable_data_type, '[]'::jsonb, '99.5', true, NULL)
 ON CONFLICT DO NOTHING;
@@ -746,6 +761,11 @@ ON CONFLICT DO NOTHING;
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'fecha_entrega_larga', 'Fecha de entrega', NULL, NULL,
   'date'::variable_data_type, '[]'::jsonb, NULL, true, '{"transform":"fecha_larga","as":"fecha_entrega_larga"}'::jsonb)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'fecha_firma', 'Fecha de firma', '¿Cuándo se firma?', NULL,
+  'date'::variable_data_type, '[]'::jsonb, NULL, true, '{"transform":"fecha_notarial","as":"fecha_firma_notarial"}'::jsonb)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
@@ -834,7 +854,7 @@ VALUES (NULL, 'parte_paga_traspaso', 'Quién paga el traspaso', NULL, NULL,
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
-VALUES (NULL, 'parte_primera_cedula', 'Cédula de la primera parte', NULL, NULL,
+VALUES (NULL, 'parte_primera_cedula', 'Número de identificación de la primera parte', NULL, NULL,
   'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
 ON CONFLICT DO NOTHING;
 
@@ -844,8 +864,13 @@ VALUES (NULL, 'parte_primera_domicilio', 'Domicilio de la primera parte', NULL, 
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_genero', 'Género de la primera parte', '¿La primera parte es hombre o mujer?', NULL,
+  'select'::variable_data_type, '[{"value":"M","label":"Masculino"},{"value":"F","label":"Femenino"}]'::jsonb, 'M', true, '{"transform":"genero_portador","as":"parte_primera_portador","extra":[{"transform":"genero_domiciliado","as":"parte_primera_domiciliado"}]}'::jsonb)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_primera_nacionalidad', 'Nacionalidad de la primera parte', NULL, NULL,
-  'text'::variable_data_type, '[]'::jsonb, 'dominicana', true, NULL)
+  'select'::variable_data_type, '[{"value":"dominicana","label":"Dominicana"},{"value":"dominicano","label":"Dominicano"},{"value":"estadounidense","label":"Estadounidense"},{"value":"haitiana","label":"Haitiana"},{"value":"haitiano","label":"Haitiano"},{"value":"española","label":"Española"},{"value":"español","label":"Español"},{"value":"colombiana","label":"Colombiana"},{"value":"colombiano","label":"Colombiano"},{"value":"venezolana","label":"Venezolana"},{"value":"venezolano","label":"Venezolano"},{"value":"cubana","label":"Cubana"},{"value":"cubano","label":"Cubano"},{"value":"puertorriqueña","label":"Puertorriqueña"},{"value":"puertorriqueño","label":"Puertorriqueño"},{"value":"mexicana","label":"Mexicana"},{"value":"mexicano","label":"Mexicano"},{"value":"argentina","label":"Argentina"},{"value":"argentino","label":"Argentino"},{"value":"canadiense","label":"Canadiense"},{"value":"brasileña","label":"Brasileña"},{"value":"brasileño","label":"Brasileño"},{"value":"peruana","label":"Peruana"},{"value":"peruano","label":"Peruano"},{"value":"chilena","label":"Chilena"},{"value":"chileno","label":"Chileno"},{"value":"ecuatoriana","label":"Ecuatoriana"},{"value":"ecuatoriano","label":"Ecuatoriano"},{"value":"panameña","label":"Panameña"},{"value":"panameño","label":"Panameño"},{"value":"costarricense","label":"Costarricense"},{"value":"francesa","label":"Francesa"},{"value":"francés","label":"Francés"},{"value":"italiana","label":"Italiana"},{"value":"italiano","label":"Italiano"},{"value":"alemana","label":"Alemana"},{"value":"alemán","label":"Alemán"},{"value":"china","label":"China"},{"value":"chino","label":"Chino"},{"value":"otra","label":"Otra"}]'::jsonb, 'dominicana', true, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
@@ -854,12 +879,17 @@ VALUES (NULL, 'parte_primera_nombre', 'Nombre de la primera parte', '¿Quién es
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_tipo_documento', 'Tipo de documento de la primera parte', '¿Con qué documento se identifica?', NULL,
+  'select'::variable_data_type, '[{"value":"la cédula de identidad y electoral","label":"Cédula de identidad y electoral"},{"value":"el pasaporte","label":"Pasaporte"},{"value":"la licencia de conducir","label":"Licencia de conducir"},{"value":"el carnet de residencia","label":"Carnet de residencia"}]'::jsonb, 'la cédula de identidad y electoral', true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_responsable_seguro', 'Parte que contrata el seguro', '¿Quién contrata y paga la póliza?', NULL,
   'text'::variable_data_type, '[]'::jsonb, 'LA PRIMERA PARTE', true, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
-VALUES (NULL, 'parte_segunda_cedula', 'Cédula de la segunda parte', NULL, NULL,
+VALUES (NULL, 'parte_segunda_cedula', 'Número de identificación de la segunda parte', NULL, NULL,
   'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
 ON CONFLICT DO NOTHING;
 
@@ -869,13 +899,23 @@ VALUES (NULL, 'parte_segunda_domicilio', 'Domicilio de la segunda parte', NULL, 
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_genero', 'Género de la segunda parte', '¿La segunda parte es hombre o mujer?', NULL,
+  'select'::variable_data_type, '[{"value":"M","label":"Masculino"},{"value":"F","label":"Femenino"}]'::jsonb, 'M', true, '{"transform":"genero_portador","as":"parte_segunda_portador","extra":[{"transform":"genero_domiciliado","as":"parte_segunda_domiciliado"}]}'::jsonb)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_segunda_nacionalidad', 'Nacionalidad de la segunda parte', NULL, NULL,
-  'text'::variable_data_type, '[]'::jsonb, 'dominicana', true, NULL)
+  'select'::variable_data_type, '[{"value":"dominicana","label":"Dominicana"},{"value":"dominicano","label":"Dominicano"},{"value":"estadounidense","label":"Estadounidense"},{"value":"haitiana","label":"Haitiana"},{"value":"haitiano","label":"Haitiano"},{"value":"española","label":"Española"},{"value":"español","label":"Español"},{"value":"colombiana","label":"Colombiana"},{"value":"colombiano","label":"Colombiano"},{"value":"venezolana","label":"Venezolana"},{"value":"venezolano","label":"Venezolano"},{"value":"cubana","label":"Cubana"},{"value":"cubano","label":"Cubano"},{"value":"puertorriqueña","label":"Puertorriqueña"},{"value":"puertorriqueño","label":"Puertorriqueño"},{"value":"mexicana","label":"Mexicana"},{"value":"mexicano","label":"Mexicano"},{"value":"argentina","label":"Argentina"},{"value":"argentino","label":"Argentino"},{"value":"canadiense","label":"Canadiense"},{"value":"brasileña","label":"Brasileña"},{"value":"brasileño","label":"Brasileño"},{"value":"peruana","label":"Peruana"},{"value":"peruano","label":"Peruano"},{"value":"chilena","label":"Chilena"},{"value":"chileno","label":"Chileno"},{"value":"ecuatoriana","label":"Ecuatoriana"},{"value":"ecuatoriano","label":"Ecuatoriano"},{"value":"panameña","label":"Panameña"},{"value":"panameño","label":"Panameño"},{"value":"costarricense","label":"Costarricense"},{"value":"francesa","label":"Francesa"},{"value":"francés","label":"Francés"},{"value":"italiana","label":"Italiana"},{"value":"italiano","label":"Italiano"},{"value":"alemana","label":"Alemana"},{"value":"alemán","label":"Alemán"},{"value":"china","label":"China"},{"value":"chino","label":"Chino"},{"value":"otra","label":"Otra"}]'::jsonb, 'dominicana', true, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_segunda_nombre', 'Nombre de la segunda parte', '¿Quién es la segunda parte?', NULL,
   'person'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_tipo_documento', 'Tipo de documento de la segunda parte', '¿Con qué documento se identifica?', NULL,
+  'select'::variable_data_type, '[{"value":"la cédula de identidad y electoral","label":"Cédula de identidad y electoral"},{"value":"el pasaporte","label":"Pasaporte"},{"value":"la licencia de conducir","label":"Licencia de conducir"},{"value":"el carnet de residencia","label":"Carnet de residencia"}]'::jsonb, 'la cédula de identidad y electoral', true, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)

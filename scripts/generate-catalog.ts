@@ -91,7 +91,7 @@ out('--     revise y las publique. Al final hay instrucciones.')
 out('-- ==========================================================')
 out()
 
-out('-- ══════════════ CLÁUSULAS ══════════════')
+out('-- ═══════════════════ CLÁUSULAS ═══════════════════')
 out()
 for (const c of CLAUSES) {
   out('INSERT INTO clauses (org_id, slug, title, family, description, body, legal_reference, status)')
@@ -122,6 +122,14 @@ function tagsOf(text: string): string[] {
  * siempre; el ON CONFLICT DO NOTHING hace que no pase nada si ya están.
  *
  * Lo que queda aquí es solo lo que el catálogo general NO usa.
+ *
+ * IMPORTANTE al agregar un tag nuevo a TAGS_SECCIONES: si el tag YA
+ * EXISTE en la base de datos (viene de aquí, o de una corrida anterior
+ * de este mismo script), cambiar su definición en VARIABLE_META NO
+ * actualiza la fila ya insertada —el INSERT usa ON CONFLICT DO
+ * NOTHING—. Hace falta un UPDATE manual aparte para esos casos. Le pasó
+ * a 'cantidad_ejemplares' al ampliar su pregunta y ayuda en esta misma
+ * ronda de cambios: hay un UPDATE para eso en las instrucciones finales.
  */
 const VARS_EXISTENTES = new Set([
   'arrendador_nombre','arrendador_cedula','arrendador_nacionalidad','arrendador_estado_civil','arrendador_domicilio',
@@ -132,9 +140,19 @@ const VARS_EXISTENTES = new Set([
   'mascotas','mantenimiento_incluido','subarriendo_permitido','servicios_incluidos','inventario_descripcion',
 ])
 
-/** Alias que produce una transformación; no son variables propias. */
+/**
+ * Alias que produce una transformación; no son variables propias.
+ *
+ * parte_primera_portador / parte_primera_domiciliado (y su par de la
+ * segunda parte) son los dos derivados que produce parte_primera_genero
+ * -ver DerivedConfig.extra en src/lib/engine/types.ts-: el texto de
+ * Comparecientes los usa, pero la variable que el formulario pide es
+ * el género, no ellos. Mismo motivo por el que fecha_firma_notarial
+ * está en esta lista y no en TAGS_SECCIONES.
+ */
 const DERIVADAS = new Set([
   'precio_renta_letras','deposito_garantia_letras','fecha_inicio_larga','fecha_finalizacion_larga','fecha_firma_notarial',
+  'parte_primera_portador','parte_primera_domiciliado','parte_segunda_portador','parte_segunda_domiciliado',
 ])
 
 // Qué etiquetas usa cada cláusula, para poder enlazar solo lo necesario.
@@ -143,8 +161,8 @@ for (const c of CLAUSES) tagsPorClausula.set(c.slug, tagsOf(c.body))
 
 // Etiquetas de las secciones estándar que lleva toda plantilla generada.
 const TAGS_SECCIONES = [
-  'parte_primera_nombre','parte_primera_nacionalidad','parte_primera_cedula','parte_primera_domicilio',
-  'parte_segunda_nombre','parte_segunda_nacionalidad','parte_segunda_cedula','parte_segunda_domicilio',
+  'parte_primera_nombre','parte_primera_nacionalidad','parte_primera_tipo_documento','parte_primera_cedula','parte_primera_genero','parte_primera_domicilio',
+  'parte_segunda_nombre','parte_segunda_nacionalidad','parte_segunda_tipo_documento','parte_segunda_cedula','parte_segunda_genero','parte_segunda_domicilio',
   // Va 'fecha_firma', NO 'fecha_firma_notarial'. El texto usa el alias,
   // pero lo que se engancha a la plantilla es la variable que lo produce.
   // Poner el alias aquí lo eliminaba el filtro de DERIVADAS de más abajo,
@@ -152,6 +170,10 @@ const TAGS_SECCIONES = [
   // la publicación de las 250, porque quality.ts solo reconoce los alias
   // de las variables que la plantilla tiene enganchadas.
   'ciudad_firma','fecha_firma',
+  // Mismo motivo por el que va 'cantidad_ejemplares' y no algo derivado
+  // de ella: la sección de Firmas ahora la usa en vez de un "dos (2)"
+  // fijo, así que toda plantilla necesita el campo enganchado.
+  'cantidad_ejemplares',
 ]
 
 const todasLasTags = new Set<string>(TAGS_SECCIONES)
@@ -162,7 +184,7 @@ const nuevasVars = [...todasLasTags]
   .filter((t) => !VARS_EXISTENTES.has(t) && !DERIVADAS.has(t))
   .sort()
 
-out('-- ══════════════ VARIABLES ══════════════')
+out('-- ═══════════════════ VARIABLES ═══════════════════')
 out()
 for (const tag of nuevasVars) {
   const meta: VarMeta = VARIABLE_META[tag] ?? { label: inferLabel(tag) }
@@ -185,7 +207,7 @@ for (const tag of nuevasVars) {
 // Hasta aqui va la parte 0: categorias, clausulas y variables.
 const PARTE_CERO = lineas.length
 
-out('-- ══════════════ PLANTILLAS ══════════════')
+out('-- ═══════════════════ PLANTILLAS ═══════════════════')
 out()
 
 /** Linea donde termina cada plantilla, para poder cortar en archivos. */
@@ -196,7 +218,7 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   // El cierre va detrás, sin repetir lo que ya trae la plantilla.
   const todas = [...new Set([...clauses, ...CIERRE])]
 
-  out(`-- ── ${title} ──`)
+  out(`-- ── ${title} ── `)
   out('DO $$')
   out('DECLARE')
   out('  v_template UUID;')
@@ -219,9 +241,9 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
   out(`  VALUES (v_template, 'Comparecientes',`)
-  out(`    'ENTRE: {{parte_primera_nombre}}, {{parte_primera_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_primera_cedula}}, domiciliado(a) en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;`)
+  out(`    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;`)
   out('')
-  out(`Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, {{parte_segunda_nacionalidad}}, mayor de edad, portador(a) de la cédula de identidad y electoral número {{parte_segunda_cedula}}, domiciliado(a) en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.`)
+  out(`Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.`)
   out('')
   out(`SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)`)
   out('  RETURNING id INTO s_partes;')
@@ -231,7 +253,7 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
   out(`  VALUES (v_template, 'Firmas',`)
-  out(`    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en dos (2) originales de un mismo tenor y efecto.`)
+  out(`    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.`)
   out('')
   out('')
   out(`_______________________________          _______________________________`)

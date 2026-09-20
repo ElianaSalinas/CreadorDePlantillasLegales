@@ -121,6 +121,12 @@ export const TRANSFORMS: Record<string, (raw: unknown, variable?: Variable) => s
     String(raw ?? '')
       .toLowerCase()
       .replace(/(^|\s)([a-záéíóúñ])/g, (_, sp, ch) => sp + ch.toUpperCase()),
+  // Género: la variable guarda 'M' o 'F', y de ahí salen las dos palabras
+  // que necesita el texto estándar de comparecientes. No son un caso
+  // genérico de transformación de texto -por eso están hardcodeadas aquí,
+  // en vez de en dominican.ts-, son específicas del catálogo legal.
+  genero_portador: (raw) => (String(raw) === 'F' ? 'portadora' : 'portador'),
+  genero_domiciliado: (raw) => (String(raw) === 'F' ? 'domiciliada' : 'domiciliado'),
 }
 
 /**
@@ -140,6 +146,16 @@ export function buildSubstitutions(variables: Variable[], answers: Answers): Rec
       if (fn) {
         const alias = derived.as || `${v.tag}_${derived.transform}`
         out[alias] = raw === undefined || raw === null || raw === '' ? '' : fn(raw, v)
+      }
+    }
+    // Derivados adicionales de la misma variable (ver DerivedConfig.extra
+    // en types.ts): mismo mecanismo, uno por cada entrada.
+    if (derived?.extra) {
+      for (const e of derived.extra) {
+        const fn = TRANSFORMS[e.transform]
+        if (fn) {
+          out[e.as] = raw === undefined || raw === null || raw === '' ? '' : fn(raw, v)
+        }
       }
     }
   }

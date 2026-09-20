@@ -15,19 +15,155 @@ export type VarMeta = {
   options?: { value: string; label: string }[]
   default?: string
   required?: boolean
-  derived?: { transform: string; as: string; currency?: string }
+  derived?: { transform: string; as: string; currency?: string; extra?: { transform: string; as: string }[] }
 }
+
+/**
+ * Nacionalidades más comunes en la práctica legal dominicana, cada una en
+ * ambas formas de género porque el texto ("de nacionalidad dominicana",
+ * "de nacionalidad dominicano") necesita concordar sin lógica adicional
+ * en el motor. "Otra" queda al final para quien no encuentre la suya
+ * -el campo es un select con texto libre no soportado hoy; si hace falta
+ * escribir una nacionalidad fuera de esta lista, es un pendiente aparte-.
+ */
+const OPCIONES_NACIONALIDAD = [
+  { value: 'dominicana', label: 'Dominicana' },
+  { value: 'dominicano', label: 'Dominicano' },
+  { value: 'estadounidense', label: 'Estadounidense' },
+  { value: 'haitiana', label: 'Haitiana' },
+  { value: 'haitiano', label: 'Haitiano' },
+  { value: 'española', label: 'Española' },
+  { value: 'español', label: 'Español' },
+  { value: 'colombiana', label: 'Colombiana' },
+  { value: 'colombiano', label: 'Colombiano' },
+  { value: 'venezolana', label: 'Venezolana' },
+  { value: 'venezolano', label: 'Venezolano' },
+  { value: 'cubana', label: 'Cubana' },
+  { value: 'cubano', label: 'Cubano' },
+  { value: 'puertorriqueña', label: 'Puertorriqueña' },
+  { value: 'puertorriqueño', label: 'Puertorriqueño' },
+  { value: 'mexicana', label: 'Mexicana' },
+  { value: 'mexicano', label: 'Mexicano' },
+  { value: 'argentina', label: 'Argentina' },
+  { value: 'argentino', label: 'Argentino' },
+  { value: 'canadiense', label: 'Canadiense' },
+  { value: 'brasileña', label: 'Brasileña' },
+  { value: 'brasileño', label: 'Brasileño' },
+  { value: 'peruana', label: 'Peruana' },
+  { value: 'peruano', label: 'Peruano' },
+  { value: 'chilena', label: 'Chilena' },
+  { value: 'chileno', label: 'Chileno' },
+  { value: 'ecuatoriana', label: 'Ecuatoriana' },
+  { value: 'ecuatoriano', label: 'Ecuatoriano' },
+  { value: 'panameña', label: 'Panameña' },
+  { value: 'panameño', label: 'Panameño' },
+  { value: 'costarricense', label: 'Costarricense' },
+  { value: 'francesa', label: 'Francesa' },
+  { value: 'francés', label: 'Francés' },
+  { value: 'italiana', label: 'Italiana' },
+  { value: 'italiano', label: 'Italiano' },
+  { value: 'alemana', label: 'Alemana' },
+  { value: 'alemán', label: 'Alemán' },
+  { value: 'china', label: 'China' },
+  { value: 'chino', label: 'Chino' },
+  { value: 'otra', label: 'Otra' },
+]
+
+/** Tipo de documento con el que se identifica alguien en un contrato. */
+const OPCIONES_TIPO_DOCUMENTO = [
+  { value: 'la cédula de identidad y electoral', label: 'Cédula de identidad y electoral' },
+  { value: 'el pasaporte', label: 'Pasaporte' },
+  { value: 'la licencia de conducir', label: 'Licencia de conducir' },
+  { value: 'el carnet de residencia', label: 'Carnet de residencia' },
+]
+
+const OPCIONES_GENERO = [
+  { value: 'M', label: 'Masculino' },
+  { value: 'F', label: 'Femenino' },
+]
 
 export const VARIABLE_META: Record<string, VarMeta> = {
   /* Partes genéricas */
   parte_primera_nombre: { label: 'Nombre de la primera parte', question: '¿Quién es la primera parte?', type: 'person' },
-  parte_primera_cedula: { label: 'Cédula de la primera parte', type: 'cedula' },
-  parte_primera_nacionalidad: { label: 'Nacionalidad de la primera parte', type: 'text', default: 'dominicana' },
+  parte_primera_cedula: { label: 'Número de identificación de la primera parte', type: 'cedula' },
+  parte_primera_tipo_documento: {
+    label: 'Tipo de documento de la primera parte',
+    question: '¿Con qué documento se identifica?',
+    type: 'select',
+    default: 'la cédula de identidad y electoral',
+    options: OPCIONES_TIPO_DOCUMENTO,
+  },
+  parte_primera_genero: {
+    label: 'Género de la primera parte',
+    question: '¿La primera parte es hombre o mujer?',
+    type: 'select',
+    default: 'M',
+    options: OPCIONES_GENERO,
+    derived: {
+      transform: 'genero_portador',
+      as: 'parte_primera_portador',
+      extra: [{ transform: 'genero_domiciliado', as: 'parte_primera_domiciliado' }],
+    },
+  },
+  parte_primera_nacionalidad: {
+    label: 'Nacionalidad de la primera parte',
+    type: 'select',
+    default: 'dominicana',
+    options: OPCIONES_NACIONALIDAD,
+  },
   parte_primera_domicilio: { label: 'Domicilio de la primera parte', type: 'address' },
+  parte_primera_estado_civil: {
+    label: 'Estado civil de la primera parte',
+    type: 'select',
+    default: 'soltero',
+    options: [
+      { value: 'soltero', label: 'Soltero(a)' },
+      { value: 'casado', label: 'Casado(a)' },
+      { value: 'union_libre', label: 'En unión libre' },
+      { value: 'divorciado', label: 'Divorciado(a)' },
+      { value: 'viudo', label: 'Viudo(a)' },
+    ],
+  },
   parte_segunda_nombre: { label: 'Nombre de la segunda parte', question: '¿Quién es la segunda parte?', type: 'person' },
-  parte_segunda_cedula: { label: 'Cédula de la segunda parte', type: 'cedula' },
-  parte_segunda_nacionalidad: { label: 'Nacionalidad de la segunda parte', type: 'text', default: 'dominicana' },
+  parte_segunda_cedula: { label: 'Número de identificación de la segunda parte', type: 'cedula' },
+  parte_segunda_tipo_documento: {
+    label: 'Tipo de documento de la segunda parte',
+    question: '¿Con qué documento se identifica?',
+    type: 'select',
+    default: 'la cédula de identidad y electoral',
+    options: OPCIONES_TIPO_DOCUMENTO,
+  },
+  parte_segunda_genero: {
+    label: 'Género de la segunda parte',
+    question: '¿La segunda parte es hombre o mujer?',
+    type: 'select',
+    default: 'M',
+    options: OPCIONES_GENERO,
+    derived: {
+      transform: 'genero_portador',
+      as: 'parte_segunda_portador',
+      extra: [{ transform: 'genero_domiciliado', as: 'parte_segunda_domiciliado' }],
+    },
+  },
+  parte_segunda_nacionalidad: {
+    label: 'Nacionalidad de la segunda parte',
+    type: 'select',
+    default: 'dominicana',
+    options: OPCIONES_NACIONALIDAD,
+  },
   parte_segunda_domicilio: { label: 'Domicilio de la segunda parte', type: 'address' },
+  parte_segunda_estado_civil: {
+    label: 'Estado civil de la segunda parte',
+    type: 'select',
+    default: 'soltero',
+    options: [
+      { value: 'soltero', label: 'Soltero(a)' },
+      { value: 'casado', label: 'Casado(a)' },
+      { value: 'union_libre', label: 'En unión libre' },
+      { value: 'divorciado', label: 'Divorciado(a)' },
+      { value: 'viudo', label: 'Viudo(a)' },
+    ],
+  },
 
   /* Firma. El texto de todas las plantillas usa {{fecha_firma_notarial}},
      que es el alias derivado de fecha_firma, no una variable propia. */
@@ -37,6 +173,13 @@ export const VARIABLE_META: Record<string, VarMeta> = {
     question: '¿Cuándo se firma?',
     type: 'date',
     derived: { transform: 'fecha_notarial', as: 'fecha_firma_notarial' },
+  },
+  cantidad_ejemplares: {
+    label: 'Cantidad de ejemplares que se firman',
+    question: '¿En cuántos originales se firma el documento?',
+    help: 'Escríbelo como "dos (2)" o "tres (3)": así es como sale en el texto del documento.',
+    type: 'text',
+    default: 'dos (2)',
   },
 
   dia_pago: { label: 'Día de pago', question: '¿Qué día de cada mes se paga?', help: 'Un número del 1 al 31.', type: 'number' },
@@ -70,7 +213,6 @@ export const VARIABLE_META: Record<string, VarMeta> = {
   moneda_contrato: { label: 'Moneda del contrato', type: 'select', default: 'DOP', options: [{ value: 'DOP', label: 'Pesos dominicanos' }, { value: 'USD', label: 'Dólares' }, { value: 'EUR', label: 'Euros' }] },
 
   /* Plazos y firma */
-  cantidad_ejemplares: { label: 'Número de ejemplares', type: 'text', default: 'dos (2)' },
   fecha_entrega_larga: { label: 'Fecha de entrega', type: 'date', derived: { transform: 'fecha_larga', as: 'fecha_entrega_larga' } },
   lugar_entrega: { label: 'Lugar de entrega', type: 'address' },
   plazo_obra_dias: { label: 'Plazo de la obra en días', type: 'number', default: '90' },

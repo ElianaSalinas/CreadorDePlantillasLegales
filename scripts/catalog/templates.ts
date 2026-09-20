@@ -42,16 +42,16 @@ export const BLOQUE = {
 
 export const TEMPLATES: TemplateSeed[] = [
 
-/* ══════════ INMOBILIARIO (35) ══════════ */
-['inmobiliario', 'Contrato de Alquiler de Local Comercial', 'Arrendamiento de local para actividad comercial, con uso comercial y reglamento de condominio.', [...BLOQUE.arrendamiento, 'uso-comercial', 'i-reglamento-condominio', 'i-servicios-excluidos', 'remodelaciones', 'subarrendamiento-prohibido']],
-['inmobiliario', 'Contrato de Alquiler de Apartamento Amueblado', 'Arrendamiento de apartamento con mobiliario, inventario anexo y depósito reforzado.', [...BLOQUE.arrendamiento, 'uso-residencial', 'inventario-mobiliario', 'i-areas-comunes', 'i-reglamento-condominio', 'servicios-incluidos']],
-['inmobiliario', 'Contrato de Alquiler de Habitación', 'Arrendamiento de habitación en vivienda compartida.', [...BLOQUE.arrendamiento, 'uso-residencial', 'i-areas-comunes', 'i-servicios-excluidos', 'subarrendamiento-prohibido']],
-['inmobiliario', 'Contrato de Alquiler Vacacional', 'Arrendamiento de corta estancia para uso turístico.', ['objeto-arrendamiento', 'precio-renta', 'deposito-garantia', 'i-entrega-inmueble', 'inventario-mobiliario', 'devolucion-inmueble', 'i-reglamento-condominio']],
-['inmobiliario', 'Contrato de Alquiler de Villa', 'Arrendamiento de villa residencial con áreas y servicios propios.', [...BLOQUE.arrendamiento, 'uso-residencial', 'inventario-mobiliario', 'mantenimiento-arrendador', 'estacionamiento', 'i-seguro-inmueble']],
-['inmobiliario', 'Contrato de Alquiler de Oficina', 'Arrendamiento de espacio de oficina en edificio corporativo.', [...BLOQUE.arrendamiento, 'uso-comercial', 'i-areas-comunes', 'i-reglamento-condominio', 'estacionamiento']],
-['inmobiliario', 'Contrato de Alquiler de Nave Industrial', 'Arrendamiento de nave o almacén para uso industrial o logístico.', [...BLOQUE.arrendamiento, 'uso-comercial', 'i-seguro-inmueble', 'remodelaciones', 'i-servicios-excluidos']],
+/* ═══════════ INMOBILIARIO (35) ═══════════ */
+['inmobiliario', 'Contrato de Alquiler de Local Comercial', 'Arrendamiento de local para actividad comercial, con uso comercial y reglamento de condominio.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-comercial', 'i-reglamento-condominio', 'i-servicios-excluidos', 'remodelaciones', 'subarrendamiento-prohibido']],
+['inmobiliario', 'Contrato de Alquiler de Apartamento Amueblado', 'Arrendamiento de apartamento con mobiliario, inventario anexo y depósito reforzado.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-residencial', 'inventario-mobiliario', 'i-areas-comunes', 'i-reglamento-condominio', 'servicios-incluidos']],
+['inmobiliario', 'Contrato de Alquiler de Habitación', 'Arrendamiento de habitación en vivienda compartida.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-residencial', 'i-areas-comunes', 'i-servicios-excluidos', 'subarrendamiento-prohibido']],
+['inmobiliario', 'Contrato de Alquiler Vacacional', 'Arrendamiento de corta estancia para uso turístico.', ['objeto-arrendamiento', 'i-descripcion-inmueble', 'precio-renta', 'deposito-garantia', 'i-entrega-inmueble', 'inventario-mobiliario', 'devolucion-inmueble', 'i-reglamento-condominio']],
+['inmobiliario', 'Contrato de Alquiler de Villa', 'Arrendamiento de villa residencial con áreas y servicios propios.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-residencial', 'inventario-mobiliario', 'mantenimiento-arrendador', 'estacionamiento', 'i-seguro-inmueble']],
+['inmobiliario', 'Contrato de Alquiler de Oficina', 'Arrendamiento de espacio de oficina en edificio corporativo.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-comercial', 'i-areas-comunes', 'i-reglamento-condominio', 'estacionamiento']],
+['inmobiliario', 'Contrato de Alquiler de Nave Industrial', 'Arrendamiento de nave o almacén para uso industrial o logístico.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-comercial', 'i-seguro-inmueble', 'remodelaciones', 'i-servicios-excluidos']],
 ['inmobiliario', 'Contrato de Alquiler de Terreno', 'Arrendamiento de solar o parcela sin edificación.', ['objeto-arrendamiento', 'i-descripcion-inmueble', 'precio-renta', 'vigencia-arrendamiento', 'remodelaciones', 'devolucion-inmueble']],
-['inmobiliario', 'Contrato de Alquiler de Parqueo', 'Arrendamiento de espacio de estacionamiento.', ['objeto-arrendamiento', 'precio-renta', 'vigencia-arrendamiento', 'estacionamiento', 'i-reglamento-condominio']],
+['inmobiliario', 'Contrato de Alquiler de Parqueo', 'Arrendamiento de espacio de estacionamiento.', ['objeto-arrendamiento', 'i-descripcion-inmueble', 'precio-renta', 'vigencia-arrendamiento', 'estacionamiento', 'i-reglamento-condominio']],
 ['inmobiliario', 'Contrato de Compraventa de Inmueble', 'Venta de inmueble con transferencia ante Registro de Títulos.', ['c-objeto-compraventa', 'i-descripcion-inmueble', 'i-garantia-saneamiento', 'i-transferencia-propiedad', 'e-forma-pago', 'c-entrega-bien']],
 ['inmobiliario', 'Promesa de Venta de Inmueble', 'Compromiso de venta futura con arras y plazo para formalizar.', ['i-descripcion-inmueble', 'e-pago-anticipado', 'i-garantia-saneamiento', 'i-transferencia-propiedad', 'g-penalidad']],
 ['inmobiliario', 'Contrato de Opción de Compra', 'Derecho de compra dentro de un plazo determinado.', ['i-descripcion-inmueble', 'e-pago-anticipado', 'i-garantia-saneamiento', 'g-penalidad']],
@@ -59,27 +59,27 @@ export const TEMPLATES: TemplateSeed[] = [
 ['inmobiliario', 'Contrato de Administración de Inmuebles', 'Gestión de uno o varios inmuebles por cuenta del propietario.', ['e-comision-porcentaje', 'b-representacion', 'e-reembolso-gastos', 'g-renovacion-automatica', 'b-relacion-independiente']],
 ['inmobiliario', 'Contrato de Permuta de Inmuebles', 'Intercambio de inmuebles entre dos partes.', ['i-descripcion-inmueble', 'i-garantia-saneamiento', 'i-transferencia-propiedad', 'c-entrega-bien']],
 ['inmobiliario', 'Contrato de Arrendamiento con Opción a Compra', 'Alquiler que permite adquirir el inmueble al final del plazo.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'i-transferencia-propiedad', 'e-pago-anticipado']],
-['inmobiliario', 'Contrato de Subarrendamiento', 'Cesión parcial o total del uso por parte del arrendatario.', ['objeto-arrendamiento', 'subarrendamiento-permitido', 'precio-renta', 'vigencia-arrendamiento', 'devolucion-inmueble']],
-['inmobiliario', 'Acta de Entrega de Inmueble', 'Constancia del estado del inmueble al entregarlo.', ['i-entrega-inmueble', 'inventario-mobiliario', 'i-inspeccion-periodica']],
-['inmobiliario', 'Acta de Devolución de Inmueble', 'Constancia del estado al finalizar el arrendamiento.', ['devolucion-inmueble', 'i-pintura-conservacion', 'deposito-garantia']],
+['inmobiliario', 'Contrato de Subarrendamiento', 'Cesión parcial o total del uso por parte del arrendatario.', ['objeto-arrendamiento', 'i-descripcion-inmueble', 'subarrendamiento-permitido', 'precio-renta', 'vigencia-arrendamiento', 'devolucion-inmueble']],
+['inmobiliario', 'Acta de Entrega de Inmueble', 'Constancia del estado del inmueble al entregarlo.', ['i-descripcion-inmueble', 'i-entrega-inmueble', 'inventario-mobiliario', 'i-inspeccion-periodica']],
+['inmobiliario', 'Acta de Devolución de Inmueble', 'Constancia del estado al finalizar el arrendamiento.', ['i-descripcion-inmueble', 'devolucion-inmueble', 'i-pintura-conservacion', 'deposito-garantia']],
 ['inmobiliario', 'Recibo de Depósito de Garantía', 'Comprobante de entrega del depósito.', ['deposito-garantia']],
-['inmobiliario', 'Carta de Desalojo', 'Requerimiento formal de desocupación del inmueble.', ['incumplimiento-desalojo', 'devolucion-inmueble', 'g-notificaciones']],
-['inmobiliario', 'Notificación de No Renovación', 'Aviso de que el contrato no se prorrogará.', ['g-renovacion-automatica', 'devolucion-inmueble', 'g-notificaciones']],
-['inmobiliario', 'Notificación de Aumento de Renta', 'Comunicación del ajuste del precio del alquiler.', ['e-ajuste-precio-anual', 'g-notificaciones']],
-['inmobiliario', 'Contrato de Mantenimiento de Inmueble', 'Servicio periódico de mantenimiento de una propiedad.', ['mantenimiento-arrendador', 'e-precio-servicios', 'e-forma-pago', 'g-renovacion-automatica']],
-['inmobiliario', 'Reglamento Interno de Condominio', 'Normas de convivencia y uso de áreas comunes.', ['i-reglamento-condominio', 'i-areas-comunes', 'estacionamiento', 'mascotas']],
-['inmobiliario', 'Contrato de Alquiler de Local en Plaza Comercial', 'Arrendamiento en centro comercial con horario y reglamento común.', [...BLOQUE.arrendamiento, 'uso-comercial', 'i-reglamento-condominio', 'i-areas-comunes', 'e-ajuste-precio-anual']],
-['inmobiliario', 'Contrato de Alquiler de Consultorio', 'Arrendamiento de espacio para consulta profesional.', [...BLOQUE.arrendamiento, 'uso-comercial', 'i-areas-comunes', 'servicios-incluidos']],
-['inmobiliario', 'Contrato de Alquiler de Bodega', 'Arrendamiento de espacio de almacenamiento.', [...BLOQUE.arrendamiento, 'uso-comercial', 'i-seguro-inmueble', 'i-servicios-excluidos']],
+['inmobiliario', 'Carta de Desalojo', 'Requerimiento formal de desocupación del inmueble.', ['i-descripcion-inmueble', 'incumplimiento-desalojo', 'devolucion-inmueble', 'g-notificaciones']],
+['inmobiliario', 'Notificación de No Renovación', 'Aviso de que el contrato no se prorrogará.', ['i-descripcion-inmueble', 'g-renovacion-automatica', 'devolucion-inmueble', 'g-notificaciones']],
+['inmobiliario', 'Notificación de Aumento de Renta', 'Comunicación del ajuste del precio del alquiler.', ['i-descripcion-inmueble', 'e-ajuste-precio-anual', 'g-notificaciones']],
+['inmobiliario', 'Contrato de Mantenimiento de Inmueble', 'Servicio periódico de mantenimiento de una propiedad.', ['i-descripcion-inmueble', 'mantenimiento-arrendador', 'e-precio-servicios', 'e-forma-pago', 'g-renovacion-automatica']],
+['inmobiliario', 'Reglamento Interno de Condominio', 'Normas de convivencia y uso de áreas comunes.', ['i-descripcion-inmueble', 'i-reglamento-condominio', 'i-areas-comunes', 'estacionamiento', 'mascotas']],
+['inmobiliario', 'Contrato de Alquiler de Local en Plaza Comercial', 'Arrendamiento en centro comercial con horario y reglamento común.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-comercial', 'i-reglamento-condominio', 'i-areas-comunes', 'e-ajuste-precio-anual']],
+['inmobiliario', 'Contrato de Alquiler de Consultorio', 'Arrendamiento de espacio para consulta profesional.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-comercial', 'i-areas-comunes', 'servicios-incluidos']],
+['inmobiliario', 'Contrato de Alquiler de Bodega', 'Arrendamiento de espacio de almacenamiento.', [...BLOQUE.arrendamiento, 'i-descripcion-inmueble', 'uso-comercial', 'i-seguro-inmueble', 'i-servicios-excluidos']],
 ['inmobiliario', 'Contrato de Alquiler de Equipo de Construcción', 'Arrendamiento de maquinaria para obra.', ['objeto-arrendamiento', 'precio-renta', 'i-entrega-inmueble', 'e-deposito-general', 'g-penalidad']],
 ['inmobiliario', 'Contrato de Usufructo', 'Derecho de uso y disfrute sobre un inmueble ajeno.', ['i-descripcion-inmueble', 'vigencia-arrendamiento', 'reparaciones-menores', 'devolucion-inmueble']],
-['inmobiliario', 'Contrato de Comodato de Inmueble', 'Préstamo gratuito de uso de un inmueble.', ['objeto-arrendamiento', 'vigencia-arrendamiento', 'reparaciones-menores', 'devolucion-inmueble']],
+['inmobiliario', 'Contrato de Comodato de Inmueble', 'Préstamo gratuito de uso de un inmueble.', ['objeto-arrendamiento', 'i-descripcion-inmueble', 'vigencia-arrendamiento', 'reparaciones-menores', 'devolucion-inmueble']],
 ['inmobiliario', 'Declaración Jurada de Ocupación', 'Declaración sobre quién ocupa el inmueble.', ['i-descripcion-inmueble', 'g-declaraciones-partes']],
 ['inmobiliario', 'Contrato de Servidumbre de Paso', 'Constitución de derecho de paso sobre un predio.', ['i-descripcion-inmueble', 'i-transferencia-propiedad', 'g-obligaciones-partes']],
 ['inmobiliario', 'Contrato de Hipoteca', 'Garantía real sobre inmueble en respaldo de una deuda.', ['i-descripcion-inmueble', 'p-capital-prestamo', 'p-garantia-prestamo', 'p-amortizacion', 'g-intereses-moratorios']],
-['inmobiliario', 'Contrato de Alquiler de Espacio para Evento', 'Cesión temporal de un espacio para un evento puntual.', ['objeto-arrendamiento', 'precio-renta', 'e-deposito-general', 'i-entrega-inmueble', 'g-penalidad']],
+['inmobiliario', 'Contrato de Alquiler de Espacio para Evento', 'Cesión temporal de un espacio para un evento puntual.', ['objeto-arrendamiento', 'i-descripcion-inmueble', 'precio-renta', 'e-deposito-general', 'i-entrega-inmueble', 'g-penalidad']],
 
-/* ══════════ LEGAL / GENERAL (25) ══════════ */
+/* ═══════════ LEGAL / GENERAL (25) ═══════════ */
 ['legal-general', 'Poder General', 'Mandato amplio para actuar en nombre del poderdante.', ['b-representacion', 'g-declaraciones-partes', 'g-terminacion-mutuo-acuerdo']],
 ['legal-general', 'Poder Especial', 'Mandato limitado a un acto concreto.', ['b-representacion', 'g-declaraciones-partes', 'vigencia-arrendamiento']],
 ['legal-general', 'Poder para Trámites ante la DGII', 'Representación ante Impuestos Internos.', ['b-representacion', 'g-declaraciones-partes']],
@@ -111,7 +111,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['legal-general', 'Contrato de Prestación de Garantía', 'Constitución de garantía sobre bienes muebles.', ['p-garantia-prestamo', 'g-declaraciones-partes']],
 ['legal-general', 'Acuerdo de No Divulgación de Empleados', 'Confidencialidad exigida al personal.', ['l-confidencialidad', 'l-propiedad-intelectual', 'g-penalidad']],
 
-/* ══════════ EMPRESARIAL / CORPORATIVO (30) ══════════ */
+/* ═══════════ EMPRESARIAL / CORPORATIVO (30) ═══════════ */
 ['empresarial', 'Contrato de Sociedad de Responsabilidad Limitada', 'Constitución de una SRL dominicana.', ['g-declaraciones-partes', 'g-obligaciones-partes', 'b-confidencialidad', 'g-arbitraje']],
 ['empresarial', 'Acuerdo de Socios', 'Reglas entre socios sobre gestión y salida.', ['g-cesion-prohibida', 'b-confidencialidad', 'b-no-competencia', 'g-arbitraje', 'g-solucion-controversias']],
 ['empresarial', 'Contrato de Compraventa de Acciones', 'Transferencia de participación societaria.', ['c-objeto-compraventa', 'g-declaraciones-partes', 'e-forma-pago', 'b-no-competencia']],
@@ -143,7 +143,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['empresarial', 'Contrato de Cesión de Cartera de Clientes', 'Traspaso de una cartera comercial.', ['g-cesion-permitida', 'b-confidencialidad', 'b-no-competencia', 'e-forma-pago']],
 ['empresarial', 'Política de Cumplimiento Anticorrupción', 'Normas internas de integridad y prevención.', ['b-anticorrupcion', 'l-confidencialidad', 'g-obligaciones-partes']],
 
-/* ══════════ LABORAL / RR. HH. (30) ══════════ */
+/* ═══════════ LABORAL / RR. HH. (30) ═══════════ */
 ['laboral', 'Contrato de Trabajo por Tiempo Indefinido', 'Relación laboral sin plazo determinado.', [...BLOQUE.laboralBase, 'l-equipos-trabajo', 'l-propiedad-intelectual']],
 ['laboral', 'Contrato de Trabajo por Tiempo Determinado', 'Relación laboral con fecha de término.', [...BLOQUE.laboralBase, 'vigencia-arrendamiento']],
 ['laboral', 'Contrato de Trabajo para Obra o Servicio', 'Contratación ligada a una obra concreta.', [...BLOQUE.laboralBase, 'o-plazo-obra']],
@@ -175,7 +175,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['laboral', 'Acuerdo de Reducción de Jornada', 'Modificación temporal del horario laboral.', ['l-jornada', 'l-salario', 'g-modificaciones']],
 ['laboral', 'Certificación Laboral', 'Constancia de la relación de trabajo.', ['g-declaraciones-partes']],
 
-/* ══════════ SERVICIOS PROFESIONALES (30) ══════════ */
+/* ═══════════ SERVICIOS PROFESIONALES (30) ═══════════ */
 ['servicios', 'Contrato de Servicios Profesionales', 'Prestación general de servicios por un profesional.', [...BLOQUE.economico, 'b-relacion-independiente', 'b-confidencialidad', 't-aceptacion-entregables']],
 ['servicios', 'Contrato de Servicios Legales', 'Asesoría y representación jurídica.', [...BLOQUE.economico, 'b-confidencialidad', 'b-representacion', 'b-relacion-independiente']],
 ['servicios', 'Contrato de Iguala Legal', 'Honorarios mensuales por asesoría continua.', ['e-precio-servicios', 'e-forma-pago', 'g-renovacion-automatica', 'b-confidencialidad']],
@@ -207,7 +207,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['servicios', 'Contrato de Peritaje', 'Dictamen técnico o valoración.', ['e-precio-servicios', 'b-confidencialidad', 't-aceptacion-entregables', 'b-relacion-independiente']],
 ['servicios', 'Propuesta de Servicios Profesionales', 'Oferta formal de servicios con alcance y precio.', ['e-precio-servicios', 'm-entregables-creativos', 'g-declaraciones-partes']],
 
-/* ══════════ CONSTRUCCIÓN (20) ══════════ */
+/* ═══════════ CONSTRUCCIÓN (20) ═══════════ */
 ['construccion', 'Contrato de Construcción a Precio Alzado', 'Obra por un precio fijo global.', [...BLOQUE.obraBase, 'e-precio-servicios', 'e-penalidad-retraso', 'c-vicios-ocultos']],
 ['construccion', 'Contrato de Construcción por Administración', 'Obra facturada por costos más honorarios.', [...BLOQUE.obraBase, 'e-reembolso-gastos', 'e-comision-porcentaje']],
 ['construccion', 'Contrato de Remodelación', 'Reforma de un inmueble existente.', [...BLOQUE.obraBase, 'e-precio-servicios', 'o-alcance-obra']],
@@ -229,7 +229,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['construccion', 'Orden de Cambio de Obra', 'Modificación del alcance o del precio de la obra.', ['g-modificaciones', 'e-precio-servicios', 'o-plazo-obra']],
 ['construccion', 'Contrato de Garantía de Obra', 'Cobertura de vicios posteriores a la entrega.', ['c-vicios-ocultos', 'e-retencion-garantia', 'o-recepcion-obra']],
 
-/* ══════════ TECNOLOGÍA / SOFTWARE (20) ══════════ */
+/* ═══════════ TECNOLOGÍA / SOFTWARE (20) ═══════════ */
 ['tecnologia', 'Contrato de Desarrollo de Software', 'Desarrollo a medida con entregables por hitos.', [...BLOQUE.economico, 't-propiedad-codigo', 't-entrega-codigo-fuente', 't-aceptacion-entregables', 'b-confidencialidad']],
 ['tecnologia', 'Contrato de Licencia de Software', 'Autorización de uso de un programa.', ['t-licencia-uso', 'e-precio-servicios', 't-soporte-tecnico', 'b-propiedad-intelectual']],
 ['tecnologia', 'Contrato SaaS', 'Software como servicio con suscripción mensual.', ['t-licencia-uso', ...BLOQUE.tecnologiaBase, 't-disponibilidad', 't-portabilidad-datos', 'g-renovacion-automatica']],
@@ -251,7 +251,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['tecnologia', 'Contrato de Escrow de Código Fuente', 'Depósito del código ante un tercero.', ['t-entrega-codigo-fuente', 't-propiedad-codigo', 'e-deposito-general']],
 ['tecnologia', 'Contrato de Consultoría Tecnológica', 'Asesoría en arquitectura y transformación digital.', [...BLOQUE.economico, 'b-confidencialidad', 't-aceptacion-entregables', 'b-relacion-independiente']],
 
-/* ══════════ MARKETING / CREATIVO (20) ══════════ */
+/* ═══════════ MARKETING / CREATIVO (20) ═══════════ */
 ['marketing', 'Contrato de Agencia de Marketing', 'Gestión integral de marketing de una marca.', [...BLOQUE.economico, 'm-entregables-creativos', 'b-propiedad-intelectual', 'g-renovacion-automatica']],
 ['marketing', 'Contrato de Campaña Publicitaria', 'Diseño y ejecución de una campaña puntual.', ['e-precio-servicios', 'e-pago-anticipado', 'm-entregables-creativos', 'b-propiedad-intelectual']],
 ['marketing', 'Contrato de Influencer', 'Colaboración con creador de contenido.', ['e-precio-servicios', 'm-derechos-imagen', 'm-entregables-creativos', 'b-exclusividad', 'b-confidencialidad']],
@@ -273,7 +273,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['marketing', 'Contrato de Stand y Ferias', 'Participación en feria comercial.', ['g-objeto-uso-bien', 'e-precio-servicios', 'e-pago-anticipado', 'g-penalidad']],
 ['marketing', 'Acuerdo de Colaboración Creativa', 'Coautoría en un proyecto creativo.', ['b-propiedad-intelectual', 'm-entregables-creativos', 'b-relacion-independiente']],
 
-/* ══════════ COMPRAVENTA / COMERCIO (15) ══════════ */
+/* ═══════════ COMPRAVENTA / COMERCIO (15) ═══════════ */
 ['comercio', 'Contrato de Compraventa de Bienes Muebles', 'Venta de bienes con entrega y garantía.', ['c-objeto-compraventa', 'c-entrega-bien', 'c-vicios-ocultos', 'e-forma-pago']],
 ['comercio', 'Contrato de Compraventa a Plazos', 'Venta con pago fraccionado.', ['c-objeto-compraventa', 'e-pago-cuotas', 'g-intereses-moratorios', 'p-garantia-prestamo']],
 ['comercio', 'Contrato de Compraventa con Reserva de Dominio', 'La propiedad se transfiere al pagar la última cuota.', ['c-objeto-compraventa', 'e-pago-cuotas', 'p-garantia-prestamo', 'c-entrega-bien']],
@@ -290,7 +290,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['comercio', 'Contrato de Almacenaje', 'Depósito de mercancía en almacén.', ['e-deposito-general', 'e-precio-servicios', 'g-seguro-bienes', 'c-entrega-bien']],
 ['comercio', 'Recibo de Pago', 'Comprobante de un pago recibido.', ['e-forma-pago', 'g-declaraciones-partes']],
 
-/* ══════════ VEHÍCULOS (10) ══════════ */
+/* ═══════════ VEHÍCULOS (10) ═══════════ */
 ['vehiculos', 'Contrato de Compraventa de Vehículo', 'Venta de vehículo con traspaso ante la DGII.', ['v-descripcion-vehiculo', 'c-objeto-compraventa', 'v-traspaso-vehiculo', 'c-vicios-ocultos', 'e-forma-pago']],
 ['vehiculos', 'Contrato de Compraventa de Vehículo a Plazos', 'Venta de vehículo con pago fraccionado.', ['v-descripcion-vehiculo', 'e-pago-cuotas', 'p-garantia-prestamo', 'v-traspaso-vehiculo']],
 ['vehiculos', 'Contrato de Alquiler de Vehículo', 'Arrendamiento de vehículo por días o meses.', ['v-descripcion-vehiculo', 'e-precio-alquiler', 'e-deposito-general', 'g-seguro-bienes', 'g-devolucion-bien']],
@@ -302,7 +302,7 @@ export const TEMPLATES: TemplateSeed[] = [
 ['vehiculos', 'Contrato de Transporte de Carga', 'Traslado de mercancía por carretera.', ['e-precio-servicios', 'c-entrega-bien', 'g-seguro-bienes', 'e-penalidad-retraso']],
 ['vehiculos', 'Declaración de Venta de Vehículo', 'Declaración jurada de la venta realizada.', ['v-descripcion-vehiculo', 'g-declaraciones-partes', 'v-traspaso-vehiculo']],
 
-/* ══════════ PRÉSTAMOS / FINANCIAMIENTO (15) ══════════ */
+/* ═══════════ PRÉSTAMOS / FINANCIAMIENTO (15) ═══════════ */
 ['financiamiento', 'Contrato de Préstamo Personal', 'Préstamo entre particulares con plan de pagos.', ['p-capital-prestamo', 'p-amortizacion', 'g-intereses-moratorios', 'p-garantia-prestamo']],
 ['financiamiento', 'Contrato de Préstamo con Garantía Hipotecaria', 'Préstamo respaldado por un inmueble.', ['p-capital-prestamo', 'p-amortizacion', 'p-garantia-prestamo', 'i-descripcion-inmueble', 'g-intereses-moratorios']],
 ['financiamiento', 'Contrato de Préstamo con Garantía Prendaria', 'Préstamo respaldado por bienes muebles.', ['p-capital-prestamo', 'p-amortizacion', 'p-garantia-prestamo', 'g-intereses-moratorios']],
