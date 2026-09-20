@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
-import { Loader2, UserPlus, Trash2, Users, User, Building2, Lock } from 'lucide-react'
+import { Loader2, UserPlus, Trash2, Users, User, Building2, Lock, Stamp, Pencil, Plus } from 'lucide-react'
 import {
   updateProfile,
   updateOrganization,
@@ -9,6 +9,9 @@ import {
   changeMemberRole,
   updateMemberPermissions,
   removeMember,
+  createNotarySnippet,
+  updateNotarySnippet,
+  deleteNotarySnippet,
   type SettingsResult,
 } from './actions'
 import { MEMBER_ROLE_LABEL, PROF_ROLE_OPTIONS } from '@/lib/labels'
@@ -31,6 +34,12 @@ export type MemberRow = {
   permissions: MemberPermissions
 }
 
+export type NotarySnippetRow = {
+  id: string
+  title: string
+  body: string
+}
+
 type Props = {
   profile: any
   org: any
@@ -38,6 +47,7 @@ type Props = {
   isOwner: boolean
   hasServiceKey: boolean
   canLeadTeam: boolean
+  notarySnippets: NotarySnippetRow[]
 }
 
 export default function SettingsClient({
@@ -47,6 +57,7 @@ export default function SettingsClient({
   isOwner,
   hasServiceKey,
   canLeadTeam,
+  notarySnippets,
 }: Props) {
   const [isFirm, setIsFirm] = useState<boolean>(Boolean(org?.is_firm))
   const hasTeamPlan = planAllowsTeam(org?.sub_status)
@@ -99,6 +110,23 @@ export default function SettingsClient({
           ) : (
             <TeamLocked org={org} />
           )}
+        </Section>
+      )}
+
+      {/* Compartidas por todo el despacho: cualquiera las ve y las elige
+          al generar un documento, pero solo el titular las administra
+          -mismo criterio que "Mi despacho" más arriba-. */}
+      {org && (
+        <Section
+          icon={<Stamp size={18} />}
+          title="Coletillas notariales"
+          description={
+            isOwner
+              ? 'El cierre y las firmas que ofrece un notario específico, listo para elegir al generar un documento.'
+              : 'Las administra el titular del despacho. Aparecen como opción al generar un documento.'
+          }
+        >
+          <NotarySnippetsPanel snippets={notarySnippets} isOwner={isOwner} />
         </Section>
       )}
     </div>
@@ -581,5 +609,190 @@ function PermissionEditor({
         ))}
       </div>
     </div>
+  )
+}
+
+/* ---------------- Coletillas notariales (Fase 13.5) ---------------- */
+
+const textareaClass =
+  'w-full resize-y rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 font-serif text-sm leading-relaxed text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
+
+function NotarySnippetsPanel({
+  snippets,
+  isOwner,
+}: {
+  snippets: NotarySnippetRow[]
+  isOwner: boolean
+}) {
+  const [creating, setCreating] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [result, setResult] = useState<SettingsResult | null>(null)
+  const [pending, startTransition] = useTransition()
+
+  function run(fn: () => Promise<SettingsResult>, after?: () => void) {
+    setResult(null)
+    startTransition(async () => {
+      const r = await fn()
+      setResult(r)
+      if (r.ok) after?.()
+    })
+  }
+
+  if (snippets.length === 0 && !creating) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-slate-500">
+          {isOwner
+            ? 'Todavía no guardaste ninguna. La primera vez que un notario específico redacte el cierre de un documento, guárdalo aquí para no volver a escribirlo.'
+            : 'El titular todavía no guardó ninguna.'}
+        </p>
+        {isOwner && (
+          <button
+            onClick={() => setCreating(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            <Plus size={16} /> Guardar una coletilla
+          </button>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <ul className="space-y-3">
+        {snippets.map((s) =>
+          editingId === s.id ? (
+            <SnippetForm
+              key={s.id}
+              snippet={s}
+              pending={pending}
+              onCancel={() => setEditingId(null)}
+              onSubmit={(fd) =>
+                run(() => updateNotarySnippet(s.id, fd), () => setEditingId(null))
+              }
+            />
+          ) : (
+            <li
+              key={s.id}
+              className="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-slate-900 dark:text-white">{s.title}</p>
+                  <p className="mt-1 line-clamp-2 font-serif text-xs leading-relaxed text-slate-500">
+                    {s.body}
+                  </p>
+                </div>
+                {isOwner && (
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      onClick={() => setEditingId(s.id)}
+                      title="Editar"
+                      aria-label={`Editar ${s.title}`}
+                      className="rounded-md p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`¿Eliminar la coletilla "${s.title}"? No se puede deshacer.`)) {
+                          run(() => deleteNotarySnippet(s.id))
+                        }
+                      }}
+                      disabled={pending}
+                      title="Eliminar"
+                      aria-label={`Eliminar ${s.title}`}
+                      className="rounded-md p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-900/20"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </li>
+          )
+        )}
+      </ul>
+
+      {isOwner && creating && (
+        <SnippetForm
+          pending={pending}
+          onCancel={() => setCreating(false)}
+          onSubmit={(fd) => run(() => createNotarySnippet(fd), () => setCreating(false))}
+        />
+      )}
+
+      {isOwner && !creating && (
+        <button
+          onClick={() => setCreating(true)}
+          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <Plus size={16} /> Guardar otra coletilla
+        </button>
+      )}
+
+      <Feedback result={result} />
+    </div>
+  )
+}
+
+function SnippetForm({
+  snippet,
+  pending,
+  onCancel,
+  onSubmit,
+}: {
+  snippet?: NotarySnippetRow
+  pending: boolean
+  onCancel: () => void
+  onSubmit: (fd: FormData) => void
+}) {
+  return (
+    <form
+      action={onSubmit}
+      className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50"
+    >
+      <Field label="Nombre para reconocerla">
+        <input
+          name="title"
+          required
+          placeholder="Ej. Lic. Juan Pérez — Punta Cana"
+          defaultValue={snippet?.title ?? ''}
+          className={inputClass}
+        />
+      </Field>
+
+      <Field label="Texto del cierre">
+        <textarea
+          name="body"
+          required
+          rows={8}
+          placeholder={
+            'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto, por ante mí, [nombre del notario], Notario Público de los del número del municipio de [X], matrícula No. [XXXX], quien CERTIFICA Y DA FE de lo anterior.'
+          }
+          defaultValue={snippet?.body ?? ''}
+          className={textareaClass}
+        />
+      </Field>
+      <p className="text-xs text-slate-500">
+        Puedes usar <code>{'{{ciudad_firma}}'}</code>, <code>{'{{fecha_firma_notarial}}'}</code> y{' '}
+        <code>{'{{cantidad_ejemplares}}'}</code>: se completan solos con los datos de cada
+        documento. Lo demás —el nombre y la matrícula del notario— escríbelo tal cual, una sola
+        vez.
+      </p>
+
+      <div className="flex items-center gap-2">
+        <SaveButton pending={pending}>{snippet ? 'Guardar cambios' : 'Guardar coletilla'}</SaveButton>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={pending}
+          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
   )
 }

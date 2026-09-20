@@ -70,6 +70,19 @@ export default async function NewDocumentPage({
     )
   }
 
+  // Coletillas notariales guardadas por el despacho (Fase 13.5). Vacío si
+  // no hay org o si todavía no guardaron ninguna: el selector del
+  // formulario simplemente no aparece en ese caso.
+  const { data: coletillasData } = org
+    ? await supabase
+        .from('notary_snippets')
+        .select('id, title')
+        .eq('org_id', org.id)
+        .order('title')
+    : { data: null }
+
+  const coletillas = coletillasData ?? []
+
   return (
     <div className="mx-auto max-w-6xl">
       <Link
@@ -98,6 +111,7 @@ export default async function NewDocumentPage({
         templateTitle={bundle.template.title}
         groups={groups}
         defaults={defaults}
+        coletillas={coletillas}
       />
     </div>
   )

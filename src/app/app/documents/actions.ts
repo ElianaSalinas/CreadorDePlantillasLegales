@@ -23,18 +23,44 @@ export type PreviewResult = {
 }
 
 /**
+ * Trae el texto de una coletilla notarial guardada (Fase 13.5), si el
+ * abogado eligió una. `org_id` en el WHERE es cinturón y tirantes además
+ * de la RLS: nunca deja que el texto de un despacho ajeno se cuele en un
+ * documento aunque alguien manipule el id a mano.
+ */
+async function cargarColetilla(
+  supabase: Awaited<ReturnType<typeof requireSession>>['supabase'],
+  orgId: string,
+  coletillaId: string | null | undefined
+): Promise<string | undefined> {
+  if (!coletillaId) return undefined
+  const { data } = await supabase
+    .from('notary_snippets')
+    .select('body')
+    .eq('id', coletillaId)
+    .eq('org_id', orgId)
+    .maybeSingle()
+  return data?.body ?? undefined
+}
+
+/**
  * Genera el documento en memoria mientras el usuario rellena el formulario.
  * No guarda nada: sirve para que vea en vivo qué cláusulas entran y salen.
  */
-export async function previewDocument(templateId: string, answers: Answers): Promise<PreviewResult> {
-  const { org } = await requireSession()
+export async function previewDocument(
+  templateId: string,
+  answers: Answers,
+  coletillaId?: string | null
+): Promise<PreviewResult> {
+  const { org, supabase } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
 
   const bundle = await loadTemplateBundle(templateId)
   if (!bundle) return { ok: false, error: 'No se encontró la plantilla.' }
 
   const outcome = evaluateRules(bundle.rules, answers)
-  const result = renderDocument(bundle, answers)
+  const firmasOverride = await cargarColetilla(supabase, org.id, coletillaId)
+  const result = renderDocument(bundle, answers, {}, { firmasOverride })
 
   const fieldErrors = validateAnswers(bundle.variables, answers, {
     required: outcome.requiredVariables,
@@ -65,7 +91,8 @@ export type GenerateResult = { ok: boolean; error?: string; documentId?: string;
 export async function generateDocument(
   templateId: string,
   answers: Answers,
-  title: string
+  title: string,
+  coletillaId?: string | null
 ): Promise<GenerateResult> {
   const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
@@ -87,7 +114,8 @@ export async function generateDocument(
     return { ok: false, error: 'Faltan datos por completar.', fieldErrors }
   }
 
-  const result = renderDocument(bundle, answers)
+  const firmasOverride = await cargarColetilla(supabase, org.id, coletillaId)
+  const result = renderDocument(bundle, answers, {}, { firmasOverride })
 
   // Se reutiliza la versión si ya existe una con el mismo número; si no,
   // se congela la plantilla tal como está en este momento.

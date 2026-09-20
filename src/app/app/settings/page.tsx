@@ -3,7 +3,7 @@ import { requireSession, displayName } from '@/lib/session'
 import { hasAdminCredentials } from '@/utils/supabase/admin'
 import { roleCanLeadTeam } from '@/lib/billing'
 import { resolvePermissions } from '@/lib/permissions'
-import SettingsClient, { type MemberRow } from './SettingsClient'
+import SettingsClient, { type MemberRow, type NotarySnippetRow } from './SettingsClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +11,7 @@ export default async function SettingsPage() {
   const { supabase, user, profile, org } = await requireSession()
 
   let members: MemberRow[] = []
+  let notarySnippets: NotarySnippetRow[] = []
 
   if (org) {
     const { data } = await supabase
@@ -32,6 +33,14 @@ export default async function SettingsPage() {
     members.sort((a, b) =>
       a.role === 'OWNER' ? -1 : b.role === 'OWNER' ? 1 : a.name.localeCompare(b.name)
     )
+
+    const { data: snippets } = await supabase
+      .from('notary_snippets')
+      .select('id, title, body')
+      .eq('org_id', org.id)
+      .order('title')
+
+    notarySnippets = snippets ?? []
   }
 
   return (
@@ -47,6 +56,7 @@ export default async function SettingsPage() {
         isOwner={org?.owner_id === user.id}
         hasServiceKey={hasAdminCredentials()}
         canLeadTeam={roleCanLeadTeam(profile?.prof_role)}
+        notarySnippets={notarySnippets}
       />
     </div>
   )

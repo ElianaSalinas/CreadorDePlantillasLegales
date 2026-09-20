@@ -401,3 +401,104 @@ export async function removeMember(memberId: string): Promise<SettingsResult> {
     notice: `Miembro retirado. Tu factura mensual baja a ${formatDOP(math.total)}.`,
   }
 }
+
+/* ═══════════════════ COLETILLAS NOTARIALES (Fase 13.5) ═══════════════════
+   Compartidas por todo el despacho; solo el titular las administra —
+   mismo criterio que updateOrganization más arriba—. Cualquier miembro
+   puede USARLAS al generar un documento (eso lo decide la política de
+   SELECT en la base, no algo que se comprueba aquí). */
+
+export type ColetillaResult = SettingsResult & { id?: string }
+
+export async function createNotarySnippet(formData: FormData): Promise<ColetillaResult> {
+  const { supabase, user, org } = await requireSession()
+  if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (org.owner_id !== user.id) {
+    return { ok: false, error: 'Solo el titular del despacho puede guardar coletillas notariales.' }
+  }
+
+  const title = String(formData.get('title') ?? '').trim()
+  const body = String(formData.get('body') ?? '').trim()
+
+  if (!title) return { ok: false, error: 'Ponle un nombre a la coletilla, para reconocerla en la lista.' }
+  if (!body) return { ok: false, error: 'El texto de la coletilla no puede quedar vacío.' }
+
+  const { data, error } = await supabase
+    .from('notary_snippets')
+    .insert({ org_id: org.id, title, body, created_by: user.id })
+    .select('id')
+    .maybeSingle()
+
+  if (error) return { ok: false, error: error.message }
+
+  await logAudit(supabase, {
+    orgId: org.id,
+    userId: user.id,
+    action: 'NOTARY_SNIPPET_CREATED',
+    description: `Coletilla notarial guardada: ${title}`,
+  })
+
+  revalidatePath('/app/settings')
+  return { ok: true, notice: 'Coletilla guardada.', id: data?.id }
+}
+
+export async function updateNotarySnippet(
+  snippetId: string,
+  formData: FormData
+): Promise<SettingsResult> {
+  const { supabase, user, org } = await requireSession()
+  if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (org.owner_id !== user.id) {
+    return { ok: false, error: 'Solo el titular del despacho puede editar coletillas notariales.' }
+  }
+
+  const title = String(formData.get('title') ?? '').trim()
+  const body = String(formData.get('body') ?? '').trim()
+
+  if (!title) return { ok: false, error: 'Ponle un nombre a la coletilla, para reconocerla en la lista.' }
+  if (!body) return { ok: false, error: 'El texto de la coletilla no puede quedar vacío.' }
+
+  const { error } = await supabase
+    .from('notary_snippets')
+    .update({ title, body, updated_at: new Date().toISOString() })
+    .eq('id', snippetId)
+    .eq('org_id', org.id)
+
+  if (error) return { ok: false, error: error.message }
+
+  await logAudit(supabase, {
+    orgId: org.id,
+    userId: user.id,
+    action: 'NOTARY_SNIPPET_EDITED',
+    description: `Coletilla notarial editada: ${title}`,
+  })
+
+  revalidatePath('/app/settings')
+  return { ok: true, notice: 'Cambios guardados.' }
+}
+
+export async function deleteNotarySnippet(snippetId: string): Promise<SettingsResult> {
+  const { supabase, user, org } = await requireSession()
+  if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
+  if (org.owner_id !== user.id) {
+    return { ok: false, error: 'Solo el titular del despacho puede borrar coletillas notariales.' }
+  }
+
+  const { error } = await supabase
+    .from('notary_snippets')
+    .delete()
+    .eq('id', snippetId)
+    .eq('org_id', org.id)
+
+  if (error) return { ok: false, error: error.message }
+
+  await logAudit(supabase, {
+    orgId: org.id,
+    userId: user.id,
+    action: 'NOTARY_SNIPPET_DELETED',
+    description: `Coletilla notarial ${snippetId} eliminada`,
+  })
+
+  revalidatePath('/app/settings')
+  return { ok: true, notice: 'Coletilla eliminada.' }
+}

@@ -104,11 +104,18 @@ export function decideClauses(
  * Arma el documento completo: recorre las secciones en orden, sustituye
  * las variables de cada una y detrás coloca las cláusulas que le tocan.
  * Las cláusulas sin sección asignada van al final, antes de los anexos.
+ *
+ * `options.firmasOverride`: si viene, reemplaza el TEXTO de la sección
+ * "Firmas" (una coletilla notarial guardada, ver Fase 13.5). El título de
+ * la sección se sigue mostrando igual; solo cambia el cuerpo, que es
+ * donde vive el "Hecho y firmado en..." que cada notario redacta a su
+ * manera.
  */
 export function renderDocument(
   bundle: TemplateBundle,
   answers: Answers,
-  userSelection: Record<string, boolean> = {}
+  userSelection: Record<string, boolean> = {},
+  options: { firmasOverride?: string | null } = {}
 ): RenderResult {
   const outcome = evaluateRules(bundle.rules ?? [], answers)
 
@@ -157,7 +164,11 @@ export function renderDocument(
   for (const section of sections.filter((s) => !s.is_annex)) {
     if (!isSectionOn(section)) continue
     if (section.title?.trim()) pieces.push(section.title.trim().toUpperCase())
-    push(section.body)
+
+    const body =
+      section.title === 'Firmas' && options.firmasOverride ? options.firmasOverride : section.body
+    push(body)
+
     for (const clause of clausesFor(section.id)) push(clause.body)
   }
 

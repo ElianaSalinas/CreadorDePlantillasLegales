@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2, AlertTriangle, Check, X, FileText, Eye } from 'lucide-react'
+import { Loader2, AlertTriangle, Check, X, FileText, Eye, Stamp } from 'lucide-react'
 import { previewDocument, generateDocument, type PreviewResult } from '../../actions'
 import { enviarEvento } from '@/lib/analitica'
 import { questionFor } from '@/lib/engine/variables'
 import type { Answers, Variable } from '@/lib/engine/types'
 
 type Group = { id: string; title: string; variables: Variable[] }
+type Coletilla = { id: string; title: string }
 
 const REASON_LABEL: Record<string, string> = {
   obligatoria: 'siempre se incluye',
@@ -25,15 +26,19 @@ export default function GeneratorClient({
   templateTitle,
   groups,
   defaults,
+  coletillas,
 }: {
   templateId: string
   templateTitle: string
   groups: Group[]
   defaults: Answers
+  /** Coletillas notariales que el despacho tiene guardadas (Fase 13.5). */
+  coletillas: Coletilla[]
 }) {
   const router = useRouter()
   const [answers, setAnswers] = useState<Answers>(defaults)
   const [title, setTitle] = useState(templateTitle)
+  const [coletillaId, setColetillaId] = useState<string>('')
   const [preview, setPreview] = useState<PreviewResult | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -42,19 +47,20 @@ export default function GeneratorClient({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // La vista previa se recalcula sola, con una pausa para no pedirla
-  // en cada tecla.
+  // en cada tecla. También se recalcula al cambiar la coletilla, porque
+  // reemplaza el cierre de Firmas y eso cambia el texto final.
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current)
     timer.current = setTimeout(() => {
       startTransition(async () => {
-        const r = await previewDocument(templateId, answers)
+        const r = await previewDocument(templateId, answers, coletillaId || null)
         if (r.ok) setPreview(r)
       })
     }, 450)
     return () => {
       if (timer.current) clearTimeout(timer.current)
     }
-  }, [answers, templateId])
+  }, [answers, templateId, coletillaId])
 
   const hidden = useMemo(() => new Set(preview?.hiddenVariables ?? []), [preview])
   const required = useMemo(() => new Set(preview?.requiredVariables ?? []), [preview])
@@ -70,7 +76,7 @@ export default function GeneratorClient({
   function handleGenerate() {
     setError(null)
     startSaving(async () => {
-      const r = await generateDocument(templateId, answers, title)
+      const r = await generateDocument(templateId, answers, title, coletillaId || null)
       if (r.ok && r.documentId) {
         // Se cuenta ANTES de navegar, y solo si el servidor devolvio un
         // documento. Contarlo al pulsar el boton mediria intentos, no
@@ -109,6 +115,36 @@ export default function GeneratorClient({
             Solo para encontrarlo después en tu bóveda.
           </p>
         </div>
+
+        {/* Solo aparece si el despacho tiene alguna coletilla guardada
+            (se administran desde Configuración → Mi Despacho). */}
+        {coletillas.length > 0 && (
+          <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <label
+              htmlFor="coletilla-notarial"
+              className="mb-1 flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
+              <Stamp size={15} className="text-slate-400" />
+              Coletilla notarial
+            </label>
+            <select
+              id="coletilla-notarial"
+              value={coletillaId}
+              onChange={(e) => setColetillaId(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            >
+              <option value="">Cierre estándar (sin notario)</option>
+              {coletillas.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-slate-500">
+              Reemplaza el cierre y las firmas del final del documento por el de ese notario.
+            </p>
+          </div>
+        )}
 
         {groups.map((group) => {
           const visible = group.variables.filter((v) => !hidden.has(v.tag))
