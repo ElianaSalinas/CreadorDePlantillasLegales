@@ -77,27 +77,45 @@ export async function listUsableTemplates() {
   return data ?? []
 }
 
-/** La sección a la que pertenece cada variable, para agrupar el formulario. */
+/**
+ * La sección a la que pertenece cada variable, para agrupar el formulario.
+ *
+ * No agrupa por `template_sections` (todas las variables estándar de una
+ * plantilla enlazan a la misma sección "Comparecientes" en la base, así
+ * que agrupar por ahí las mete todas en un solo cuadro gigante). En vez
+ * de eso, agrupa por el PREFIJO del nombre técnico: "primera parte",
+ * "segunda parte" y todo lo demás. Es una decisión puramente de cómo se
+ * ve el formulario -no toca la base ni el documento generado-, así que
+ * cambiarla no exige tocar ninguna plantilla ni volver a correr SQL.
+ */
 export function groupVariablesBySection(bundle: TemplateBundle) {
-  const sectionById = new Map(bundle.sections.map((s) => [s.id, s]))
-  const varById = new Map(bundle.variables.map((v) => [v.id, v]))
+  const GRUPOS: { key: string; title: string; prefijo?: string }[] = [
+    { key: 'primera', title: 'Primera parte', prefijo: 'parte_primera_' },
+    { key: 'segunda', title: 'Segunda parte', prefijo: 'parte_segunda_' },
+    { key: 'otros', title: 'Otros datos' },
+  ]
 
-  const groups: { id: string; title: string; variables: Variable[] }[] = []
-  const index = new Map<string, number>()
+  const varById = new Map(bundle.variables.map((v) => [v.id, v]))
+  const yaAgregada = new Set<string>()
+
+  const groups: { id: string; title: string; variables: Variable[] }[] = GRUPOS.map((g) => ({
+    id: g.key,
+    title: g.title,
+    variables: [],
+  }))
+  const groupByKey = new Map(groups.map((g) => [g.id, g]))
 
   for (const tv of bundle.templateVariables) {
     const variable = varById.get(tv.variable_id)
-    if (!variable) continue
+    if (!variable || yaAgregada.has(variable.id)) continue
 
-    const key = tv.section_id ?? 'sin-seccion'
-    const title = tv.section_id ? (sectionById.get(tv.section_id)?.title ?? 'Datos') : 'Otros datos'
+    const grupo =
+      GRUPOS.find((g) => g.prefijo && variable.tag.startsWith(g.prefijo)) ?? GRUPOS[GRUPOS.length - 1]
 
-    if (!index.has(key)) {
-      index.set(key, groups.length)
-      groups.push({ id: key, title, variables: [] })
-    }
-    groups[index.get(key)!].variables.push(variable)
+    groupByKey.get(grupo.key)!.variables.push(variable)
+    yaAgregada.add(variable.id)
   }
 
-  return groups
+  // Un cuadro vacío (plantilla sin variables de esa parte) no se muestra.
+  return groups.filter((g) => g.variables.length > 0)
 }

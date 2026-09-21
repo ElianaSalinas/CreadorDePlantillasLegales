@@ -91,19 +91,53 @@ const OPCIONES_CANTIDAD_PERSONAS = [
 ]
 
 export const VARIABLE_META: Record<string, VarMeta> = {
-  /* Partes genéricas */
-  parte_primera_nombre: { label: 'Nombre de la primera parte', question: '¿Quién es la primera parte?', type: 'person' },
-  parte_primera_cedula: { label: 'Número de identificación de la primera parte', type: 'cedula' },
+  /*
+   * Partes genéricas. Los campos de nombre/cédula/tipo de documento/
+   * género/domicilio describen a LA PERSONA FÍSICA QUE FIRMA -que es la
+   * parte misma si es una persona, o su representante si es una empresa
+   * (Fase 13.6, segunda mitad)-. Por eso la etiqueta dice "quien firma",
+   * no "la primera parte": la misma pregunta sirve para los dos casos,
+   * sin duplicar variables.
+   */
+  parte_primera_tipo_parte: {
+    label: 'La primera parte es',
+    question: '¿La primera parte es una persona o una empresa?',
+    type: 'select',
+    default: 'persona',
+    options: [
+      { value: 'persona', label: 'Una persona' },
+      { value: 'empresa', label: 'Una empresa' },
+    ],
+  },
+  parte_primera_razon_social: {
+    label: 'Razón social de la primera parte',
+    question: '¿Cómo se llama la empresa?',
+    type: 'text',
+  },
+  parte_primera_rnc: { label: 'RNC de la primera parte', type: 'rnc' },
+  parte_primera_representante_cargo: {
+    label: 'Cargo de quien representa a la primera parte',
+    question: '¿Qué cargo ocupa? (ej. Presidente, Gerente General)',
+    type: 'text',
+    default: 'Presidente',
+  },
+  parte_primera_nombre: {
+    label: 'Nombre de quien firma por la primera parte',
+    question: '¿Quién firma por la primera parte?',
+    help: 'Si la primera parte es una empresa, es el nombre de su representante.',
+    type: 'person',
+  },
+  parte_primera_cedula: { label: 'Cédula de quien firma por la primera parte', type: 'cedula' },
   parte_primera_tipo_documento: {
-    label: 'Tipo de documento de la primera parte',
+    label: 'Tipo de documento de quien firma por la primera parte',
     question: '¿Con qué documento se identifica?',
     type: 'select',
     default: 'la cédula de identidad y electoral',
     options: OPCIONES_TIPO_DOCUMENTO,
   },
   parte_primera_genero: {
-    label: 'Género de la primera parte',
-    question: '¿La primera parte es hombre o mujer?',
+    label: 'Género de quien firma por la primera parte',
+    question: '¿Es hombre o mujer?',
     type: 'select',
     default: 'M',
     options: OPCIONES_GENERO,
@@ -114,14 +148,14 @@ export const VARIABLE_META: Record<string, VarMeta> = {
     },
   },
   parte_primera_nacionalidad: {
-    label: 'Nacionalidad de la primera parte',
+    label: 'Nacionalidad de quien firma por la primera parte',
     type: 'select',
     default: 'dominicana',
     options: OPCIONES_NACIONALIDAD,
   },
-  parte_primera_domicilio: { label: 'Domicilio de la primera parte', type: 'address' },
+  parte_primera_domicilio: { label: 'Domicilio de quien firma por la primera parte', type: 'address' },
   parte_primera_estado_civil: {
-    label: 'Estado civil de la primera parte',
+    label: 'Estado civil de quien firma por la primera parte',
     type: 'select',
     default: 'soltero',
     options: [
@@ -132,18 +166,45 @@ export const VARIABLE_META: Record<string, VarMeta> = {
       { value: 'viudo', label: 'Viudo(a)' },
     ],
   },
-  parte_segunda_nombre: { label: 'Nombre de la segunda parte', question: '¿Quién es la segunda parte?', type: 'person' },
-  parte_segunda_cedula: { label: 'Número de identificación de la segunda parte', type: 'cedula' },
+  parte_segunda_tipo_parte: {
+    label: 'La segunda parte es',
+    question: '¿La segunda parte es una persona o una empresa?',
+    type: 'select',
+    default: 'persona',
+    options: [
+      { value: 'persona', label: 'Una persona' },
+      { value: 'empresa', label: 'Una empresa' },
+    ],
+  },
+  parte_segunda_razon_social: {
+    label: 'Razón social de la segunda parte',
+    question: '¿Cómo se llama la empresa?',
+    type: 'text',
+  },
+  parte_segunda_rnc: { label: 'RNC de la segunda parte', type: 'rnc' },
+  parte_segunda_representante_cargo: {
+    label: 'Cargo de quien representa a la segunda parte',
+    question: '¿Qué cargo ocupa? (ej. Presidente, Gerente General)',
+    type: 'text',
+    default: 'Presidente',
+  },
+  parte_segunda_nombre: {
+    label: 'Nombre de quien firma por la segunda parte',
+    question: '¿Quién firma por la segunda parte?',
+    help: 'Si la segunda parte es una empresa, es el nombre de su representante.',
+    type: 'person',
+  },
+  parte_segunda_cedula: { label: 'Cédula de quien firma por la segunda parte', type: 'cedula' },
   parte_segunda_tipo_documento: {
-    label: 'Tipo de documento de la segunda parte',
+    label: 'Tipo de documento de quien firma por la segunda parte',
     question: '¿Con qué documento se identifica?',
     type: 'select',
     default: 'la cédula de identidad y electoral',
     options: OPCIONES_TIPO_DOCUMENTO,
   },
   parte_segunda_genero: {
-    label: 'Género de la segunda parte',
-    question: '¿La segunda parte es hombre o mujer?',
+    label: 'Género de quien firma por la segunda parte',
+    question: '¿Es hombre o mujer?',
     type: 'select',
     default: 'M',
     options: OPCIONES_GENERO,
@@ -154,14 +215,14 @@ export const VARIABLE_META: Record<string, VarMeta> = {
     },
   },
   parte_segunda_nacionalidad: {
-    label: 'Nacionalidad de la segunda parte',
+    label: 'Nacionalidad de quien firma por la segunda parte',
     type: 'select',
     default: 'dominicana',
     options: OPCIONES_NACIONALIDAD,
   },
-  parte_segunda_domicilio: { label: 'Domicilio de la segunda parte', type: 'address' },
+  parte_segunda_domicilio: { label: 'Domicilio de quien firma por la segunda parte', type: 'address' },
   parte_segunda_estado_civil: {
-    label: 'Estado civil de la segunda parte',
+    label: 'Estado civil de quien firma por la segunda parte',
     type: 'select',
     default: 'soltero',
     options: [

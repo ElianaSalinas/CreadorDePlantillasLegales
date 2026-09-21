@@ -161,7 +161,9 @@ for (const c of CLAUSES) tagsPorClausula.set(c.slug, tagsOf(c.body))
 
 // Etiquetas de las secciones estándar que lleva toda plantilla generada.
 const TAGS_SECCIONES = [
+  'parte_primera_tipo_parte','parte_primera_razon_social','parte_primera_rnc','parte_primera_representante_cargo',
   'parte_primera_nombre','parte_primera_nacionalidad','parte_primera_tipo_documento','parte_primera_cedula','parte_primera_genero','parte_primera_domicilio',
+  'parte_segunda_tipo_parte','parte_segunda_razon_social','parte_segunda_rnc','parte_segunda_representante_cargo',
   'parte_segunda_nombre','parte_segunda_nacionalidad','parte_segunda_tipo_documento','parte_segunda_cedula','parte_segunda_genero','parte_segunda_domicilio',
   // Va 'fecha_firma', NO 'fecha_firma_notarial'. El texto usa el alias,
   // pero lo que se engancha a la plantilla es la variable que lo produce.
@@ -251,20 +253,35 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   out('  DELETE FROM template_sections WHERE template_id = v_template;')
   out('  DELETE FROM template_rules    WHERE template_id = v_template;')
   out()
-  out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
+  out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
   out(`  VALUES (v_template, 'Comparecientes',`)
-  out(`    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;`)
-  out('')
-  out(`Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)`)
+  out(`    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;', 1,`)
+  out(`    '${JSON.stringify({ variable: 'parte_primera_tipo_parte', operator: 'not_equals', value: 'empresa' })}'::jsonb)`)
   out('  RETURNING id INTO s_partes;')
+  out()
+  out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
+  out(`  VALUES (v_template, 'Comparecientes',`)
+  out(`    'ENTRE: {{parte_primera_razon_social}}, sociedad organizada y existente de acuerdo con las leyes de la República Dominicana, con RNC número {{parte_primera_rnc}} y domicilio en {{parte_primera_domicilio}}, debidamente representada por su {{parte_primera_representante_cargo}}, {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;', 2,`)
+  out(`    '${JSON.stringify({ variable: 'parte_primera_tipo_parte', operator: 'equals', value: 'empresa' })}'::jsonb);`)
+  out()
+  out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
+  out(`  VALUES (v_template, '',`)
+  out(`    'Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 3,`)
+  out(`    '${JSON.stringify({ variable: 'parte_segunda_tipo_parte', operator: 'not_equals', value: 'empresa' })}'::jsonb);`)
+  out()
+  out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
+  out(`  VALUES (v_template, '',`)
+  out(`    'Y DE LA OTRA PARTE: {{parte_segunda_razon_social}}, sociedad organizada y existente de acuerdo con las leyes de la República Dominicana, con RNC número {{parte_segunda_rnc}} y domicilio en {{parte_segunda_domicilio}}, debidamente representada por su {{parte_segunda_representante_cargo}}, {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 4,`)
+  out(`    '${JSON.stringify({ variable: 'parte_segunda_tipo_parte', operator: 'equals', value: 'empresa' })}'::jsonb);`)
   out()
 
   // Miembros adicionales de cada parte (Fase 13.6, opción A: hasta 4
-  // personas, un máximo fijo). Título vacío a propósito: se leen como
-  // continuación de "Comparecientes", no como una sección nueva con su
-  // propio encabezado. Van ANTES de "SE HA CONVENIDO..." -sort_order
-  // 2 a 7-, porque no tendría sentido presentar más comparecientes
-  // después de declarar que ya se pactó el contrato.
+  // personas, un máximo fijo -solo aplica si la parte es "persona"; una
+  // "empresa" tiene un representante, no varios miembros-). Título vacío
+  // a propósito: se leen como continuación de "Comparecientes", no como
+  // una sección nueva con su propio encabezado. Van ANTES de "SE HA
+  // CONVENIDO..." -sort_order 5 a 10, corridos por las 4 secciones de
+  // persona/empresa que ahora van primero-.
   const MIEMBROS_ADICIONALES = [
     { parte: 'primera' as const, n: 2 },
     { parte: 'primera' as const, n: 3 },
@@ -285,15 +302,15 @@ for (const [category, title, description, clauses] of TEMPLATES) {
     const condicion = JSON.stringify({ variable: `parte_${parte}_cantidad`, operator: 'greater_or_equal', value: n })
 
     out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
-    out(`  VALUES (v_template, '', ${q(cuerpo)}, ${2 + i}, ${q(condicion)}::jsonb);`)
+    out(`  VALUES (v_template, '', ${q(cuerpo)}, ${5 + i}, ${q(condicion)}::jsonb);`)
     out()
   })
 
   out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
-  out(`  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);`)
+  out(`  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 11);`)
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
-  out(`  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;`)
+  out(`  VALUES (v_template, 'Cláusulas', NULL, 12) RETURNING id INTO s_cuerpo;`)
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
   out(`  VALUES (v_template, 'Firmas',`)
@@ -301,7 +318,7 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   out('')
   out('')
   out(`_______________________________          _______________________________`)
-  out(`      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)`)
+  out(`      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 13)`)
   out('  RETURNING id INTO s_cierre;')
   out()
   out('  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)')
@@ -331,6 +348,25 @@ for (const [category, title, description, clauses] of TEMPLATES) {
       }
     }
   }
+
+  // Reglas de persona/empresa (Fase 13.6, segunda mitad): los campos de
+  // empresa solo se muestran si se eligió "empresa"; el selector de
+  // cantidad de personas solo tiene sentido si se eligió "persona" -una
+  // empresa tiene un representante, no varios miembros-.
+  for (const parte of ['primera', 'segunda'] as const) {
+    for (const campo of ['razon_social', 'rnc', 'representante_cargo'] as const) {
+      const tag = `parte_${parte}_${campo}`
+      const condicion = JSON.stringify({ variable: `parte_${parte}_tipo_parte`, operator: 'not_equals', value: 'empresa' })
+      reglasMiembros.push(
+        `    (v_template, ${q(`Ocultar ${tag} si la parte no es una empresa`)}, ${q(condicion)}::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', ${q(tag)}), ${ordenRegla++})`
+      )
+    }
+    const condicionCantidad = JSON.stringify({ variable: `parte_${parte}_tipo_parte`, operator: 'equals', value: 'empresa' })
+    reglasMiembros.push(
+      `    (v_template, ${q(`Ocultar parte_${parte}_cantidad si la parte es una empresa`)}, ${q(condicionCantidad)}::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', ${q(`parte_${parte}_cantidad`)}), ${ordenRegla++})`
+    )
+  }
+
   out('  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES')
   out(reglasMiembros.join(',\n') + ';')
   out()
@@ -381,11 +417,13 @@ out('--   WHERE slug = \'contrato-de-alquiler-de-local-comercial\';')
 const INICIO_CUERPO = lineas.findIndex((l) => l.includes('══ CLÁUSULAS ══'))
 if (INICIO_CUERPO < 0) { console.error('No encontré el banner de cláusulas'); process.exit(1) }
 const CABECERA = lineas.slice(0, INICIO_CUERPO)
-// Bajó de 25 a 8 al agregar las secciones y reglas de Fase 13.6: cada
-// plantilla pasó a pesar ~3 veces más (6 secciones y 18 reglas extra por
-// plantilla), y con 25 por archivo el resultado superaba lo que el SQL
-// Editor de Supabase acepta sin cortar una instrucción a la mitad.
-const PLANTILLAS_POR_ARCHIVO = 8
+// Bajó de 25 a 8, y ahora a 6, según fue creciendo lo que lleva cada
+// plantilla en esta misma Fase 13.6 (miembros adicionales, después
+// persona/empresa): cada ronda hizo más pesada cada plantilla, y hay
+// que volver a ajustar este número cada vez que eso pase, para que
+// ningún archivo vuelva a superar lo que el SQL Editor acepta pegado
+// entero sin cortar una instrucción a la mitad.
+const PLANTILLAS_POR_ARCHIVO = 6
 
 const escritos: { archivo: string; lineas: number; kb: number }[] = []
 
