@@ -82,6 +82,14 @@ const OPCIONES_GENERO = [
   { value: 'F', label: 'Femenino' },
 ]
 
+/** 1 a 4 personas por parte (Fase 13.6, opción A: máximo fijo). */
+const OPCIONES_CANTIDAD_PERSONAS = [
+  { value: '1', label: '1 persona' },
+  { value: '2', label: '2 personas' },
+  { value: '3', label: '3 personas' },
+  { value: '4', label: '4 personas' },
+]
+
 export const VARIABLE_META: Record<string, VarMeta> = {
   /* Partes genéricas */
   parte_primera_nombre: { label: 'Nombre de la primera parte', question: '¿Quién es la primera parte?', type: 'person' },
@@ -164,6 +172,51 @@ export const VARIABLE_META: Record<string, VarMeta> = {
       { value: 'viudo', label: 'Viudo(a)' },
     ],
   },
+
+  /*
+   * Varias personas por una misma parte (Fase 13.6, opción A): un máximo
+   * fijo de 4, no una lista sin límite -eso habría exigido rehacer cómo
+   * se guardan las respuestas de todo el motor-. El formulario oculta el
+   * campo del miembro 2, 3 o 4 mientras la cantidad no lo justifique
+   * (ver generate-catalog.ts, las reglas HIDE_VARIABLE que genera).
+   *
+   * Solo personas físicas por ahora: una parte que sea una empresa (con
+   * RNC y representante) queda fuera de esta ronda, ver aviso en el plan.
+   */
+  parte_primera_cantidad: {
+    label: 'Cantidad de personas en la primera parte',
+    question: '¿Cuántas personas conforman la primera parte?',
+    type: 'select',
+    default: '1',
+    options: OPCIONES_CANTIDAD_PERSONAS,
+  },
+  parte_segunda_cantidad: {
+    label: 'Cantidad de personas en la segunda parte',
+    question: '¿Cuántas personas conforman la segunda parte?',
+    type: 'select',
+    default: '1',
+    options: OPCIONES_CANTIDAD_PERSONAS,
+  },
+
+  parte_primera_miembro2_nombre: { label: 'Nombre de la segunda persona de la primera parte', type: 'person' },
+  parte_primera_miembro2_cedula: { label: 'Cédula de la segunda persona de la primera parte', type: 'cedula' },
+  parte_primera_miembro2_domicilio: { label: 'Domicilio de la segunda persona de la primera parte', type: 'address' },
+  parte_primera_miembro3_nombre: { label: 'Nombre de la tercera persona de la primera parte', type: 'person' },
+  parte_primera_miembro3_cedula: { label: 'Cédula de la tercera persona de la primera parte', type: 'cedula' },
+  parte_primera_miembro3_domicilio: { label: 'Domicilio de la tercera persona de la primera parte', type: 'address' },
+  parte_primera_miembro4_nombre: { label: 'Nombre de la cuarta persona de la primera parte', type: 'person' },
+  parte_primera_miembro4_cedula: { label: 'Cédula de la cuarta persona de la primera parte', type: 'cedula' },
+  parte_primera_miembro4_domicilio: { label: 'Domicilio de la cuarta persona de la primera parte', type: 'address' },
+
+  parte_segunda_miembro2_nombre: { label: 'Nombre de la segunda persona de la segunda parte', type: 'person' },
+  parte_segunda_miembro2_cedula: { label: 'Cédula de la segunda persona de la segunda parte', type: 'cedula' },
+  parte_segunda_miembro2_domicilio: { label: 'Domicilio de la segunda persona de la segunda parte', type: 'address' },
+  parte_segunda_miembro3_nombre: { label: 'Nombre de la tercera persona de la segunda parte', type: 'person' },
+  parte_segunda_miembro3_cedula: { label: 'Cédula de la tercera persona de la segunda parte', type: 'cedula' },
+  parte_segunda_miembro3_domicilio: { label: 'Domicilio de la tercera persona de la segunda parte', type: 'address' },
+  parte_segunda_miembro4_nombre: { label: 'Nombre de la cuarta persona de la segunda parte', type: 'person' },
+  parte_segunda_miembro4_cedula: { label: 'Cédula de la cuarta persona de la segunda parte', type: 'cedula' },
+  parte_segunda_miembro4_domicilio: { label: 'Domicilio de la cuarta persona de la segunda parte', type: 'address' },
 
   /* Firma. El texto de todas las plantillas usa {{fecha_firma_notarial}},
      que es el alias derivado de fecha_firma, no una variable propia. */

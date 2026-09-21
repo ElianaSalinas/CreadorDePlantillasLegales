@@ -854,6 +854,11 @@ VALUES (NULL, 'parte_paga_traspaso', 'Quién paga el traspaso', NULL, NULL,
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_cantidad', 'Cantidad de personas en la primera parte', '¿Cuántas personas conforman la primera parte?', NULL,
+  'select'::variable_data_type, '[{"value":"1","label":"1 persona"},{"value":"2","label":"2 personas"},{"value":"3","label":"3 personas"},{"value":"4","label":"4 personas"}]'::jsonb, '1', true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_primera_cedula', 'Número de identificación de la primera parte', NULL, NULL,
   'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
 ON CONFLICT DO NOTHING;
@@ -866,6 +871,51 @@ ON CONFLICT DO NOTHING;
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_primera_genero', 'Género de la primera parte', '¿La primera parte es hombre o mujer?', NULL,
   'select'::variable_data_type, '[{"value":"M","label":"Masculino"},{"value":"F","label":"Femenino"}]'::jsonb, 'M', true, '{"transform":"genero_portador","as":"parte_primera_portador","extra":[{"transform":"genero_domiciliado","as":"parte_primera_domiciliado"}]}'::jsonb)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro2_cedula', 'Cédula de la segunda persona de la primera parte', NULL, NULL,
+  'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro2_domicilio', 'Domicilio de la segunda persona de la primera parte', NULL, NULL,
+  'address'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro2_nombre', 'Nombre de la segunda persona de la primera parte', NULL, NULL,
+  'person'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro3_cedula', 'Cédula de la tercera persona de la primera parte', NULL, NULL,
+  'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro3_domicilio', 'Domicilio de la tercera persona de la primera parte', NULL, NULL,
+  'address'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro3_nombre', 'Nombre de la tercera persona de la primera parte', NULL, NULL,
+  'person'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro4_cedula', 'Cédula de la cuarta persona de la primera parte', NULL, NULL,
+  'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro4_domicilio', 'Domicilio de la cuarta persona de la primera parte', NULL, NULL,
+  'address'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_primera_miembro4_nombre', 'Nombre de la cuarta persona de la primera parte', NULL, NULL,
+  'person'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
@@ -889,6 +939,11 @@ VALUES (NULL, 'parte_responsable_seguro', 'Parte que contrata el seguro', '¿Qui
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_cantidad', 'Cantidad de personas en la segunda parte', '¿Cuántas personas conforman la segunda parte?', NULL,
+  'select'::variable_data_type, '[{"value":"1","label":"1 persona"},{"value":"2","label":"2 personas"},{"value":"3","label":"3 personas"},{"value":"4","label":"4 personas"}]'::jsonb, '1', true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_segunda_cedula', 'Número de identificación de la segunda parte', NULL, NULL,
   'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
 ON CONFLICT DO NOTHING;
@@ -901,6 +956,51 @@ ON CONFLICT DO NOTHING;
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
 VALUES (NULL, 'parte_segunda_genero', 'Género de la segunda parte', '¿La segunda parte es hombre o mujer?', NULL,
   'select'::variable_data_type, '[{"value":"M","label":"Masculino"},{"value":"F","label":"Femenino"}]'::jsonb, 'M', true, '{"transform":"genero_portador","as":"parte_segunda_portador","extra":[{"transform":"genero_domiciliado","as":"parte_segunda_domiciliado"}]}'::jsonb)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro2_cedula', 'Cédula de la segunda persona de la segunda parte', NULL, NULL,
+  'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro2_domicilio', 'Domicilio de la segunda persona de la segunda parte', NULL, NULL,
+  'address'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro2_nombre', 'Nombre de la segunda persona de la segunda parte', NULL, NULL,
+  'person'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro3_cedula', 'Cédula de la tercera persona de la segunda parte', NULL, NULL,
+  'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro3_domicilio', 'Domicilio de la tercera persona de la segunda parte', NULL, NULL,
+  'address'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro3_nombre', 'Nombre de la tercera persona de la segunda parte', NULL, NULL,
+  'person'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro4_cedula', 'Cédula de la cuarta persona de la segunda parte', NULL, NULL,
+  'cedula'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro4_domicilio', 'Domicilio de la cuarta persona de la segunda parte', NULL, NULL,
+  'address'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)
+VALUES (NULL, 'parte_segunda_miembro4_nombre', 'Nombre de la cuarta persona de la segunda parte', NULL, NULL,
+  'person'::variable_data_type, '[]'::jsonb, NULL, true, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO variables (org_id, tag, label, question, help_text, data_type, options, default_value, is_required, derived_config)

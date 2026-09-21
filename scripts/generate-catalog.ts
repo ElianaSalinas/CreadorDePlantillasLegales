@@ -174,6 +174,17 @@ const TAGS_SECCIONES = [
   // de ella: la sección de Firmas ahora la usa en vez de un "dos (2)"
   // fijo, así que toda plantilla necesita el campo enganchado.
   'cantidad_ejemplares',
+  // Varias personas por parte (Fase 13.6): la cantidad siempre se
+  // pregunta; los campos de los miembros 2-4 se enganchan igual, y el
+  // formulario los oculta con las reglas HIDE_VARIABLE que se generan
+  // más abajo, mientras la cantidad no los justifique.
+  'parte_primera_cantidad','parte_segunda_cantidad',
+  'parte_primera_miembro2_nombre','parte_primera_miembro2_cedula','parte_primera_miembro2_domicilio',
+  'parte_primera_miembro3_nombre','parte_primera_miembro3_cedula','parte_primera_miembro3_domicilio',
+  'parte_primera_miembro4_nombre','parte_primera_miembro4_cedula','parte_primera_miembro4_domicilio',
+  'parte_segunda_miembro2_nombre','parte_segunda_miembro2_cedula','parte_segunda_miembro2_domicilio',
+  'parte_segunda_miembro3_nombre','parte_segunda_miembro3_cedula','parte_segunda_miembro3_domicilio',
+  'parte_segunda_miembro4_nombre','parte_segunda_miembro4_cedula','parte_segunda_miembro4_domicilio',
 ]
 
 const todasLasTags = new Set<string>(TAGS_SECCIONES)
@@ -238,18 +249,51 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   out()
   out('  DELETE FROM template_clauses  WHERE template_id = v_template;')
   out('  DELETE FROM template_sections WHERE template_id = v_template;')
+  out('  DELETE FROM template_rules    WHERE template_id = v_template;')
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
   out(`  VALUES (v_template, 'Comparecientes',`)
   out(`    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;`)
   out('')
-  out(`Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.`)
-  out('')
-  out(`SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 1)`)
+  out(`Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)`)
   out('  RETURNING id INTO s_partes;')
   out()
+
+  // Miembros adicionales de cada parte (Fase 13.6, opción A: hasta 4
+  // personas, un máximo fijo). Título vacío a propósito: se leen como
+  // continuación de "Comparecientes", no como una sección nueva con su
+  // propio encabezado. Van ANTES de "SE HA CONVENIDO..." -sort_order
+  // 2 a 7-, porque no tendría sentido presentar más comparecientes
+  // después de declarar que ya se pactó el contrato.
+  const MIEMBROS_ADICIONALES = [
+    { parte: 'primera' as const, n: 2 },
+    { parte: 'primera' as const, n: 3 },
+    { parte: 'primera' as const, n: 4 },
+    { parte: 'segunda' as const, n: 2 },
+    { parte: 'segunda' as const, n: 3 },
+    { parte: 'segunda' as const, n: 4 },
+  ]
+
+  MIEMBROS_ADICIONALES.forEach(({ parte, n }, i) => {
+    const etiqueta = parte === 'primera' ? 'LA PRIMERA PARTE' : 'LA SEGUNDA PARTE'
+    const nombreParte = parte === 'primera' ? 'la primera' : 'la segunda'
+    const prefijo = `parte_${parte}_miembro${n}`
+    const cuerpo =
+      `Y, en conjunto con ${nombreParte} parte, también comparece: {{${prefijo}_nombre}}, mayor de edad, ` +
+      `portador(a) de cédula de identidad y electoral número {{${prefijo}_cedula}}, domiciliado(a) en ` +
+      `{{${prefijo}_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación ${etiqueta}.`
+    const condicion = JSON.stringify({ variable: `parte_${parte}_cantidad`, operator: 'greater_or_equal', value: n })
+
+    out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
+    out(`  VALUES (v_template, '', ${q(cuerpo)}, ${2 + i}, ${q(condicion)}::jsonb);`)
+    out()
+  })
+
   out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
-  out(`  VALUES (v_template, 'Cláusulas', NULL, 2) RETURNING id INTO s_cuerpo;`)
+  out(`  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);`)
+  out()
+  out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
+  out(`  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;`)
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order)')
   out(`  VALUES (v_template, 'Firmas',`)
@@ -257,7 +301,7 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   out('')
   out('')
   out(`_______________________________          _______________________________`)
-  out(`      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 3)`)
+  out(`      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)`)
   out('  RETURNING id INTO s_cierre;')
   out()
   out('  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)')
@@ -266,6 +310,29 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   out(todas.map((s, i) => `    (${q(s)}, ${i + 1})`).join(',\n'))
   out('  ) AS t(slug, ord)')
   out('  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;')
+  out()
+
+  // Reglas de miembros adicionales (Fase 13.6): ocultan el campo del
+  // formulario mientras la cantidad declarada de esa parte no lo
+  // justifique. No hace falta además una regla que lo haga obligatorio:
+  // validateAnswers ya exime de validación a todo lo oculto, y estas
+  // variables son is_required por defecto -así que en cuanto se
+  // muestran, ya piden la respuesta solas-.
+  const reglasMiembros: string[] = []
+  let ordenRegla = 1
+  for (const parte of ['primera', 'segunda'] as const) {
+    for (const n of [2, 3, 4] as const) {
+      for (const campo of ['nombre', 'cedula', 'domicilio'] as const) {
+        const tag = `parte_${parte}_miembro${n}_${campo}`
+        const condicion = JSON.stringify({ variable: `parte_${parte}_cantidad`, operator: 'less_than', value: n })
+        reglasMiembros.push(
+          `    (v_template, ${q(`Ocultar ${tag} si la parte tiene menos de ${n} personas`)}, ${q(condicion)}::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', ${q(tag)}), ${ordenRegla++})`
+        )
+      }
+    }
+  }
+  out('  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES')
+  out(reglasMiembros.join(',\n') + ';')
   out()
 
   // Solo las variables que las cláusulas de ESTA plantilla realmente usan.
