@@ -11,7 +11,7 @@
 --     revise y las publique. Al final hay instrucciones.
 -- ==========================================================
 
--- PARTE 0 de 10: cláusulas y variables. Ejecutar PRIMERO.
+-- PARTE 0 de 32: cláusulas y variables. Ejecutar PRIMERO.
 
 -- ═══════════════════ CLÁUSULAS ═══════════════════
 

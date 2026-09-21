@@ -381,7 +381,11 @@ out('--   WHERE slug = \'contrato-de-alquiler-de-local-comercial\';')
 const INICIO_CUERPO = lineas.findIndex((l) => l.includes('══ CLÁUSULAS ══'))
 if (INICIO_CUERPO < 0) { console.error('No encontré el banner de cláusulas'); process.exit(1) }
 const CABECERA = lineas.slice(0, INICIO_CUERPO)
-const PLANTILLAS_POR_ARCHIVO = 25
+// Bajó de 25 a 8 al agregar las secciones y reglas de Fase 13.6: cada
+// plantilla pasó a pesar ~3 veces más (6 secciones y 18 reglas extra por
+// plantilla), y con 25 por archivo el resultado superaba lo que el SQL
+// Editor de Supabase acepta sin cortar una instrucción a la mitad.
+const PLANTILLAS_POR_ARCHIVO = 8
 
 const escritos: { archivo: string; lineas: number; kb: number }[] = []
 

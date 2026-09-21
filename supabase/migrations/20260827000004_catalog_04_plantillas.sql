@@ -11,9 +11,9 @@
 --     revise y las publique. Al final hay instrucciones.
 -- ==========================================================
 
--- PARTE 4 de 10: plantillas 76–100. Requiere la parte 0.
+-- PARTE 4 de 32: plantillas 25–32. Requiere la parte 0.
 
--- ── Contrato de Gerencia ── 
+-- ── Reglamento Interno de Condominio ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -22,11 +22,11 @@ DECLARE
   s_cuerpo   UUID;
   s_cierre   UUID;
 BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-gerencia';
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'inmobiliario';
+  SELECT id INTO v_template FROM templates WHERE slug = 'reglamento-interno-de-condominio';
   IF v_template IS NULL THEN
     INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-gerencia', 'Contrato de Gerencia', 'Designación y condiciones de un gerente.',
+    VALUES (NULL, 'reglamento-interno-de-condominio', 'Reglamento Interno de Condominio', 'Normas de convivencia y uso de áreas comunes.',
       (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
     RETURNING id INTO v_template;
   END IF;
@@ -78,11 +78,11 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('b-representacion', 1),
-    ('l-salario', 2),
-    ('b-confidencialidad', 3),
-    ('b-no-competencia', 4),
-    ('l-terminacion-laboral', 5),
+    ('i-descripcion-inmueble', 1),
+    ('i-reglamento-condominio', 2),
+    ('i-areas-comunes', 3),
+    ('estacionamiento', 4),
+    ('mascotas', 5),
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
@@ -115,305 +115,13 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('anios_confidencialidad', 1),
-    ('cantidad_ejemplares', 2),
+    ('cantidad_ejemplares', 1),
+    ('certificado_titulo', 2),
     ('ciudad_firma', 3),
-    ('distrito_judicial', 4),
-    ('fecha_firma', 5),
-    ('meses_no_competencia', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('salario_letras', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Consultoría Empresarial ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-consultoria-empresarial';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-consultoria-empresarial', 'Contrato de Consultoría Empresarial', 'Asesoría estratégica a una empresa.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('e-precio-servicios', 1),
-    ('e-forma-pago', 2),
-    ('b-confidencialidad', 3),
-    ('b-relacion-independiente', 4),
-    ('t-aceptacion-entregables', 5),
-    ('g-declaraciones-partes', 6),
-    ('g-modificaciones', 7),
-    ('g-divisibilidad', 8),
-    ('g-notificaciones', 9),
-    ('g-ley-aplicable', 10),
-    ('integridad-contractual', 11)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('anios_confidencialidad', 1),
-    ('cantidad_ejemplares', 2),
-    ('ciudad_firma', 3),
-    ('dias_aceptacion', 4),
-    ('dias_pago', 5),
+    ('descripcion_registral', 4),
+    ('direccion_inmueble', 5),
     ('distrito_judicial', 6),
     ('fecha_firma', 7),
-    ('monto_total_letras', 8),
-    ('parte_primera_cantidad', 9),
-    ('parte_primera_cedula', 10),
-    ('parte_primera_domicilio', 11),
-    ('parte_primera_genero', 12),
-    ('parte_primera_miembro2_cedula', 13),
-    ('parte_primera_miembro2_domicilio', 14),
-    ('parte_primera_miembro2_nombre', 15),
-    ('parte_primera_miembro3_cedula', 16),
-    ('parte_primera_miembro3_domicilio', 17),
-    ('parte_primera_miembro3_nombre', 18),
-    ('parte_primera_miembro4_cedula', 19),
-    ('parte_primera_miembro4_domicilio', 20),
-    ('parte_primera_miembro4_nombre', 21),
-    ('parte_primera_nacionalidad', 22),
-    ('parte_primera_nombre', 23),
-    ('parte_primera_tipo_documento', 24),
-    ('parte_segunda_cantidad', 25),
-    ('parte_segunda_cedula', 26),
-    ('parte_segunda_domicilio', 27),
-    ('parte_segunda_genero', 28),
-    ('parte_segunda_miembro2_cedula', 29),
-    ('parte_segunda_miembro2_domicilio', 30),
-    ('parte_segunda_miembro2_nombre', 31),
-    ('parte_segunda_miembro3_cedula', 32),
-    ('parte_segunda_miembro3_domicilio', 33),
-    ('parte_segunda_miembro3_nombre', 34),
-    ('parte_segunda_miembro4_cedula', 35),
-    ('parte_segunda_miembro4_domicilio', 36),
-    ('parte_segunda_miembro4_nombre', 37),
-    ('parte_segunda_nacionalidad', 38),
-    ('parte_segunda_nombre', 39),
-    ('parte_segunda_tipo_documento', 40)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Auditoría ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-auditoria';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-auditoria', 'Contrato de Auditoría', 'Revisión independiente de estados financieros.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('e-precio-servicios', 1),
-    ('b-confidencialidad', 2),
-    ('b-relacion-independiente', 3),
-    ('t-aceptacion-entregables', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('anios_confidencialidad', 1),
-    ('cantidad_ejemplares', 2),
-    ('ciudad_firma', 3),
-    ('dias_aceptacion', 4),
-    ('distrito_judicial', 5),
-    ('fecha_firma', 6),
-    ('monto_total_letras', 7),
     ('parte_primera_cantidad', 8),
     ('parte_primera_cedula', 9),
     ('parte_primera_domicilio', 10),
@@ -445,13 +153,14 @@ _______________________________          _______________________________
     ('parte_segunda_miembro4_nombre', 36),
     ('parte_segunda_nacionalidad', 37),
     ('parte_segunda_nombre', 38),
-    ('parte_segunda_tipo_documento', 39)
+    ('parte_segunda_tipo_documento', 39),
+    ('superficie_metros', 40)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Outsourcing ── 
+-- ── Contrato de Alquiler de Local en Plaza Comercial ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -460,11 +169,11 @@ DECLARE
   s_cuerpo   UUID;
   s_cierre   UUID;
 BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-outsourcing';
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'inmobiliario';
+  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-alquiler-de-local-en-plaza-comercial';
   IF v_template IS NULL THEN
     INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-outsourcing', 'Contrato de Outsourcing', 'Externalización de un proceso de negocio.',
+    VALUES (NULL, 'contrato-de-alquiler-de-local-en-plaza-comercial', 'Contrato de Alquiler de Local en Plaza Comercial', 'Arrendamiento en centro comercial con horario y reglamento común.',
       (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
     RETURNING id INTO v_template;
   END IF;
@@ -516,17 +225,27 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('e-precio-servicios', 1),
-    ('t-nivel-servicio', 2),
-    ('b-confidencialidad', 3),
-    ('t-proteccion-datos', 4),
-    ('b-relacion-independiente', 5),
-    ('g-declaraciones-partes', 6),
-    ('g-modificaciones', 7),
-    ('g-divisibilidad', 8),
-    ('g-notificaciones', 9),
-    ('g-ley-aplicable', 10),
-    ('integridad-contractual', 11)
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
+    ('deposito-garantia', 3),
+    ('mora-recargo', 4),
+    ('vigencia-arrendamiento', 5),
+    ('terminacion-anticipada', 6),
+    ('i-entrega-inmueble', 7),
+    ('g-devolucion-bien', 8),
+    ('reparaciones-menores', 9),
+    ('incumplimiento-desalojo', 10),
+    ('i-descripcion-inmueble', 11),
+    ('uso-comercial', 12),
+    ('i-reglamento-condominio', 13),
+    ('i-areas-comunes', 14),
+    ('e-ajuste-precio-anual', 15),
+    ('g-declaraciones-partes', 16),
+    ('g-modificaciones', 17),
+    ('g-divisibilidad', 18),
+    ('g-notificaciones', 19),
+    ('g-ley-aplicable', 20),
+    ('integridad-contractual', 21)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
 
@@ -553,50 +272,57 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('anios_confidencialidad', 1),
-    ('cantidad_ejemplares', 2),
+    ('cantidad_ejemplares', 1),
+    ('certificado_titulo', 2),
     ('ciudad_firma', 3),
-    ('distrito_judicial', 4),
-    ('fecha_firma', 5),
-    ('monto_total_letras', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38)
+    ('descripcion_registral', 4),
+    ('destino_uso', 5),
+    ('dia_pago', 6),
+    ('direccion_inmueble', 7),
+    ('distrito_judicial', 8),
+    ('fecha_entrega_larga', 9),
+    ('fecha_firma', 10),
+    ('parte_primera_cantidad', 11),
+    ('parte_primera_cedula', 12),
+    ('parte_primera_domicilio', 13),
+    ('parte_primera_genero', 14),
+    ('parte_primera_miembro2_cedula', 15),
+    ('parte_primera_miembro2_domicilio', 16),
+    ('parte_primera_miembro2_nombre', 17),
+    ('parte_primera_miembro3_cedula', 18),
+    ('parte_primera_miembro3_domicilio', 19),
+    ('parte_primera_miembro3_nombre', 20),
+    ('parte_primera_miembro4_cedula', 21),
+    ('parte_primera_miembro4_domicilio', 22),
+    ('parte_primera_miembro4_nombre', 23),
+    ('parte_primera_nacionalidad', 24),
+    ('parte_primera_nombre', 25),
+    ('parte_primera_tipo_documento', 26),
+    ('parte_segunda_cantidad', 27),
+    ('parte_segunda_cedula', 28),
+    ('parte_segunda_domicilio', 29),
+    ('parte_segunda_genero', 30),
+    ('parte_segunda_miembro2_cedula', 31),
+    ('parte_segunda_miembro2_domicilio', 32),
+    ('parte_segunda_miembro2_nombre', 33),
+    ('parte_segunda_miembro3_cedula', 34),
+    ('parte_segunda_miembro3_domicilio', 35),
+    ('parte_segunda_miembro3_nombre', 36),
+    ('parte_segunda_miembro4_cedula', 37),
+    ('parte_segunda_miembro4_domicilio', 38),
+    ('parte_segunda_miembro4_nombre', 39),
+    ('parte_segunda_nacionalidad', 40),
+    ('parte_segunda_nombre', 41),
+    ('parte_segunda_tipo_documento', 42),
+    ('periodo_alquiler', 43),
+    ('precio_alquiler_letras', 44),
+    ('superficie_metros', 45)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Maquila ── 
+-- ── Contrato de Alquiler de Consultorio ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -605,11 +331,11 @@ DECLARE
   s_cuerpo   UUID;
   s_cierre   UUID;
 BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-maquila';
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'inmobiliario';
+  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-alquiler-de-consultorio';
   IF v_template IS NULL THEN
     INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-maquila', 'Contrato de Maquila', 'Fabricación por encargo.',
+    VALUES (NULL, 'contrato-de-alquiler-de-consultorio', 'Contrato de Alquiler de Consultorio', 'Arrendamiento de espacio para consulta profesional.',
       (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
     RETURNING id INTO v_template;
   END IF;
@@ -661,11 +387,333 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('c-entrega-bien', 1),
-    ('e-precio-servicios', 2),
-    ('e-penalidad-retraso', 3),
-    ('b-propiedad-intelectual', 4),
-    ('b-confidencialidad', 5),
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
+    ('deposito-garantia', 3),
+    ('mora-recargo', 4),
+    ('vigencia-arrendamiento', 5),
+    ('terminacion-anticipada', 6),
+    ('i-entrega-inmueble', 7),
+    ('g-devolucion-bien', 8),
+    ('reparaciones-menores', 9),
+    ('incumplimiento-desalojo', 10),
+    ('i-descripcion-inmueble', 11),
+    ('uso-comercial', 12),
+    ('i-areas-comunes', 13),
+    ('servicios-incluidos', 14),
+    ('g-declaraciones-partes', 15),
+    ('g-modificaciones', 16),
+    ('g-divisibilidad', 17),
+    ('g-notificaciones', 18),
+    ('g-ley-aplicable', 19),
+    ('integridad-contractual', 20)
+  ) AS t(slug, ord)
+  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
+
+  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
+    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
+    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
+    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
+    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
+    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
+    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
+    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
+    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
+    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
+    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
+    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
+    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
+    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
+    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
+    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
+    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
+    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
+    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
+
+  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
+  SELECT v_template, v.id, s_partes, t.ord
+  FROM (VALUES
+    ('cantidad_ejemplares', 1),
+    ('certificado_titulo', 2),
+    ('ciudad_firma', 3),
+    ('descripcion_registral', 4),
+    ('destino_uso', 5),
+    ('dia_pago', 6),
+    ('direccion_inmueble', 7),
+    ('distrito_judicial', 8),
+    ('fecha_entrega_larga', 9),
+    ('fecha_firma', 10),
+    ('parte_primera_cantidad', 11),
+    ('parte_primera_cedula', 12),
+    ('parte_primera_domicilio', 13),
+    ('parte_primera_genero', 14),
+    ('parte_primera_miembro2_cedula', 15),
+    ('parte_primera_miembro2_domicilio', 16),
+    ('parte_primera_miembro2_nombre', 17),
+    ('parte_primera_miembro3_cedula', 18),
+    ('parte_primera_miembro3_domicilio', 19),
+    ('parte_primera_miembro3_nombre', 20),
+    ('parte_primera_miembro4_cedula', 21),
+    ('parte_primera_miembro4_domicilio', 22),
+    ('parte_primera_miembro4_nombre', 23),
+    ('parte_primera_nacionalidad', 24),
+    ('parte_primera_nombre', 25),
+    ('parte_primera_tipo_documento', 26),
+    ('parte_segunda_cantidad', 27),
+    ('parte_segunda_cedula', 28),
+    ('parte_segunda_domicilio', 29),
+    ('parte_segunda_genero', 30),
+    ('parte_segunda_miembro2_cedula', 31),
+    ('parte_segunda_miembro2_domicilio', 32),
+    ('parte_segunda_miembro2_nombre', 33),
+    ('parte_segunda_miembro3_cedula', 34),
+    ('parte_segunda_miembro3_domicilio', 35),
+    ('parte_segunda_miembro3_nombre', 36),
+    ('parte_segunda_miembro4_cedula', 37),
+    ('parte_segunda_miembro4_domicilio', 38),
+    ('parte_segunda_miembro4_nombre', 39),
+    ('parte_segunda_nacionalidad', 40),
+    ('parte_segunda_nombre', 41),
+    ('parte_segunda_tipo_documento', 42),
+    ('periodo_alquiler', 43),
+    ('precio_alquiler_letras', 44),
+    ('superficie_metros', 45)
+  ) AS t(tag, ord)
+  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
+  ON CONFLICT DO NOTHING;
+END $$;
+
+-- ── Contrato de Alquiler de Bodega ── 
+DO $$
+DECLARE
+  v_template UUID;
+  v_cat      UUID;
+  s_partes   UUID;
+  s_cuerpo   UUID;
+  s_cierre   UUID;
+BEGIN
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'inmobiliario';
+  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-alquiler-de-bodega';
+  IF v_template IS NULL THEN
+    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
+    VALUES (NULL, 'contrato-de-alquiler-de-bodega', 'Contrato de Alquiler de Bodega', 'Arrendamiento de espacio de almacenamiento.',
+      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
+    RETURNING id INTO v_template;
+  END IF;
+
+  DELETE FROM template_clauses  WHERE template_id = v_template;
+  DELETE FROM template_sections WHERE template_id = v_template;
+  DELETE FROM template_rules    WHERE template_id = v_template;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Comparecientes',
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
+  RETURNING id INTO s_partes;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Firmas',
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
+
+
+_______________________________          _______________________________
+      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
+  RETURNING id INTO s_cierre;
+
+  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
+  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
+  FROM (VALUES
+    ('g-objeto-uso-bien', 1),
+    ('e-precio-alquiler', 2),
+    ('deposito-garantia', 3),
+    ('mora-recargo', 4),
+    ('vigencia-arrendamiento', 5),
+    ('terminacion-anticipada', 6),
+    ('i-entrega-inmueble', 7),
+    ('g-devolucion-bien', 8),
+    ('reparaciones-menores', 9),
+    ('incumplimiento-desalojo', 10),
+    ('i-descripcion-inmueble', 11),
+    ('uso-comercial', 12),
+    ('i-seguro-inmueble', 13),
+    ('i-servicios-excluidos', 14),
+    ('g-declaraciones-partes', 15),
+    ('g-modificaciones', 16),
+    ('g-divisibilidad', 17),
+    ('g-notificaciones', 18),
+    ('g-ley-aplicable', 19),
+    ('integridad-contractual', 20)
+  ) AS t(slug, ord)
+  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
+
+  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
+    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
+    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
+    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
+    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
+    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
+    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
+    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
+    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
+    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
+    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
+    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
+    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
+    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
+    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
+    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
+    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
+    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
+    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
+
+  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
+  SELECT v_template, v.id, s_partes, t.ord
+  FROM (VALUES
+    ('cantidad_ejemplares', 1),
+    ('certificado_titulo', 2),
+    ('ciudad_firma', 3),
+    ('descripcion_registral', 4),
+    ('destino_uso', 5),
+    ('dia_pago', 6),
+    ('direccion_inmueble', 7),
+    ('distrito_judicial', 8),
+    ('fecha_entrega_larga', 9),
+    ('fecha_firma', 10),
+    ('parte_primera_cantidad', 11),
+    ('parte_primera_cedula', 12),
+    ('parte_primera_domicilio', 13),
+    ('parte_primera_genero', 14),
+    ('parte_primera_miembro2_cedula', 15),
+    ('parte_primera_miembro2_domicilio', 16),
+    ('parte_primera_miembro2_nombre', 17),
+    ('parte_primera_miembro3_cedula', 18),
+    ('parte_primera_miembro3_domicilio', 19),
+    ('parte_primera_miembro3_nombre', 20),
+    ('parte_primera_miembro4_cedula', 21),
+    ('parte_primera_miembro4_domicilio', 22),
+    ('parte_primera_miembro4_nombre', 23),
+    ('parte_primera_nacionalidad', 24),
+    ('parte_primera_nombre', 25),
+    ('parte_primera_tipo_documento', 26),
+    ('parte_segunda_cantidad', 27),
+    ('parte_segunda_cedula', 28),
+    ('parte_segunda_domicilio', 29),
+    ('parte_segunda_genero', 30),
+    ('parte_segunda_miembro2_cedula', 31),
+    ('parte_segunda_miembro2_domicilio', 32),
+    ('parte_segunda_miembro2_nombre', 33),
+    ('parte_segunda_miembro3_cedula', 34),
+    ('parte_segunda_miembro3_domicilio', 35),
+    ('parte_segunda_miembro3_nombre', 36),
+    ('parte_segunda_miembro4_cedula', 37),
+    ('parte_segunda_miembro4_domicilio', 38),
+    ('parte_segunda_miembro4_nombre', 39),
+    ('parte_segunda_nacionalidad', 40),
+    ('parte_segunda_nombre', 41),
+    ('parte_segunda_tipo_documento', 42),
+    ('periodo_alquiler', 43),
+    ('precio_alquiler_letras', 44),
+    ('superficie_metros', 45)
+  ) AS t(tag, ord)
+  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
+  ON CONFLICT DO NOTHING;
+END $$;
+
+-- ── Contrato de Alquiler de Equipo de Construcción ── 
+DO $$
+DECLARE
+  v_template UUID;
+  v_cat      UUID;
+  s_partes   UUID;
+  s_cuerpo   UUID;
+  s_cierre   UUID;
+BEGIN
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'inmobiliario';
+  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-alquiler-de-equipo-de-construccion';
+  IF v_template IS NULL THEN
+    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
+    VALUES (NULL, 'contrato-de-alquiler-de-equipo-de-construccion', 'Contrato de Alquiler de Equipo de Construcción', 'Arrendamiento de maquinaria para obra.',
+      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
+    RETURNING id INTO v_template;
+  END IF;
+
+  DELETE FROM template_clauses  WHERE template_id = v_template;
+  DELETE FROM template_sections WHERE template_id = v_template;
+  DELETE FROM template_rules    WHERE template_id = v_template;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Comparecientes',
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
+  RETURNING id INTO s_partes;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Firmas',
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
+
+
+_______________________________          _______________________________
+      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
+  RETURNING id INTO s_cierre;
+
+  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
+  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
+  FROM (VALUES
+    ('objeto-arrendamiento', 1),
+    ('precio-renta', 2),
+    ('i-entrega-inmueble', 3),
+    ('e-deposito-general', 4),
+    ('g-penalidad', 5),
     ('g-declaraciones-partes', 6),
     ('g-modificaciones', 7),
     ('g-divisibilidad', 8),
@@ -698,451 +746,13 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('anios_confidencialidad', 1),
-    ('cantidad_ejemplares', 2),
-    ('ciudad_firma', 3),
+    ('cantidad_ejemplares', 1),
+    ('ciudad_firma', 2),
+    ('deposito_letras', 3),
     ('distrito_judicial', 4),
     ('fecha_entrega_larga', 5),
     ('fecha_firma', 6),
-    ('lugar_entrega', 7),
-    ('monto_total_letras', 8),
-    ('parte_primera_cantidad', 9),
-    ('parte_primera_cedula', 10),
-    ('parte_primera_domicilio', 11),
-    ('parte_primera_genero', 12),
-    ('parte_primera_miembro2_cedula', 13),
-    ('parte_primera_miembro2_domicilio', 14),
-    ('parte_primera_miembro2_nombre', 15),
-    ('parte_primera_miembro3_cedula', 16),
-    ('parte_primera_miembro3_domicilio', 17),
-    ('parte_primera_miembro3_nombre', 18),
-    ('parte_primera_miembro4_cedula', 19),
-    ('parte_primera_miembro4_domicilio', 20),
-    ('parte_primera_miembro4_nombre', 21),
-    ('parte_primera_nacionalidad', 22),
-    ('parte_primera_nombre', 23),
-    ('parte_primera_tipo_documento', 24),
-    ('parte_segunda_cantidad', 25),
-    ('parte_segunda_cedula', 26),
-    ('parte_segunda_domicilio', 27),
-    ('parte_segunda_genero', 28),
-    ('parte_segunda_miembro2_cedula', 29),
-    ('parte_segunda_miembro2_domicilio', 30),
-    ('parte_segunda_miembro2_nombre', 31),
-    ('parte_segunda_miembro3_cedula', 32),
-    ('parte_segunda_miembro3_domicilio', 33),
-    ('parte_segunda_miembro3_nombre', 34),
-    ('parte_segunda_miembro4_cedula', 35),
-    ('parte_segunda_miembro4_domicilio', 36),
-    ('parte_segunda_miembro4_nombre', 37),
-    ('parte_segunda_nacionalidad', 38),
-    ('parte_segunda_nombre', 39),
-    ('parte_segunda_tipo_documento', 40),
-    ('penalidad_diaria_porcentaje', 41),
-    ('titular_propiedad_intelectual', 42)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Logística y Transporte ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-logistica-y-transporte';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-logistica-y-transporte', 'Contrato de Logística y Transporte', 'Servicios de transporte y almacenaje de mercancía.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('e-precio-servicios', 1),
-    ('c-entrega-bien', 2),
-    ('e-penalidad-retraso', 3),
-    ('g-seguro-bienes', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_entrega_larga', 4),
-    ('fecha_firma', 5),
-    ('lugar_entrega', 6),
-    ('monto_total_letras', 7),
-    ('parte_primera_cantidad', 8),
-    ('parte_primera_cedula', 9),
-    ('parte_primera_domicilio', 10),
-    ('parte_primera_genero', 11),
-    ('parte_primera_miembro2_cedula', 12),
-    ('parte_primera_miembro2_domicilio', 13),
-    ('parte_primera_miembro2_nombre', 14),
-    ('parte_primera_miembro3_cedula', 15),
-    ('parte_primera_miembro3_domicilio', 16),
-    ('parte_primera_miembro3_nombre', 17),
-    ('parte_primera_miembro4_cedula', 18),
-    ('parte_primera_miembro4_domicilio', 19),
-    ('parte_primera_miembro4_nombre', 20),
-    ('parte_primera_nacionalidad', 21),
-    ('parte_primera_nombre', 22),
-    ('parte_primera_tipo_documento', 23),
-    ('parte_responsable_seguro', 24),
-    ('parte_segunda_cantidad', 25),
-    ('parte_segunda_cedula', 26),
-    ('parte_segunda_domicilio', 27),
-    ('parte_segunda_genero', 28),
-    ('parte_segunda_miembro2_cedula', 29),
-    ('parte_segunda_miembro2_domicilio', 30),
-    ('parte_segunda_miembro2_nombre', 31),
-    ('parte_segunda_miembro3_cedula', 32),
-    ('parte_segunda_miembro3_domicilio', 33),
-    ('parte_segunda_miembro3_nombre', 34),
-    ('parte_segunda_miembro4_cedula', 35),
-    ('parte_segunda_miembro4_domicilio', 36),
-    ('parte_segunda_miembro4_nombre', 37),
-    ('parte_segunda_nacionalidad', 38),
-    ('parte_segunda_nombre', 39),
-    ('parte_segunda_tipo_documento', 40),
-    ('penalidad_diaria_porcentaje', 41)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Corretaje Comercial ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-corretaje-comercial';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-corretaje-comercial', 'Contrato de Corretaje Comercial', 'Intermediación en operaciones comerciales.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('e-comision-porcentaje', 1),
-    ('b-relacion-independiente', 2),
-    ('b-territorio', 3),
-    ('g-declaraciones-partes', 4),
-    ('g-modificaciones', 5),
-    ('g-divisibilidad', 6),
-    ('g-notificaciones', 7),
-    ('g-ley-aplicable', 8),
-    ('integridad-contractual', 9)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('comision_porcentaje', 3),
-    ('distrito_judicial', 4),
-    ('fecha_firma', 5),
-    ('parte_primera_cantidad', 6),
-    ('parte_primera_cedula', 7),
-    ('parte_primera_domicilio', 8),
-    ('parte_primera_genero', 9),
-    ('parte_primera_miembro2_cedula', 10),
-    ('parte_primera_miembro2_domicilio', 11),
-    ('parte_primera_miembro2_nombre', 12),
-    ('parte_primera_miembro3_cedula', 13),
-    ('parte_primera_miembro3_domicilio', 14),
-    ('parte_primera_miembro3_nombre', 15),
-    ('parte_primera_miembro4_cedula', 16),
-    ('parte_primera_miembro4_domicilio', 17),
-    ('parte_primera_miembro4_nombre', 18),
-    ('parte_primera_nacionalidad', 19),
-    ('parte_primera_nombre', 20),
-    ('parte_primera_tipo_documento', 21),
-    ('parte_segunda_cantidad', 22),
-    ('parte_segunda_cedula', 23),
-    ('parte_segunda_domicilio', 24),
-    ('parte_segunda_genero', 25),
-    ('parte_segunda_miembro2_cedula', 26),
-    ('parte_segunda_miembro2_domicilio', 27),
-    ('parte_segunda_miembro2_nombre', 28),
-    ('parte_segunda_miembro3_cedula', 29),
-    ('parte_segunda_miembro3_domicilio', 30),
-    ('parte_segunda_miembro3_nombre', 31),
-    ('parte_segunda_miembro4_cedula', 32),
-    ('parte_segunda_miembro4_domicilio', 33),
-    ('parte_segunda_miembro4_nombre', 34),
-    ('parte_segunda_nacionalidad', 35),
-    ('parte_segunda_nombre', 36),
-    ('parte_segunda_tipo_documento', 37),
-    ('territorio_contrato', 38)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Acuerdo de Nivel de Servicio Comercial ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'acuerdo-de-nivel-de-servicio-comercial';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'acuerdo-de-nivel-de-servicio-comercial', 'Acuerdo de Nivel de Servicio Comercial', 'Compromisos de servicio entre empresas.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('t-nivel-servicio', 1),
-    ('t-disponibilidad', 2),
-    ('g-penalidad', 3),
-    ('e-precio-servicios', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('disponibilidad_porcentaje', 3),
-    ('distrito_judicial', 4),
-    ('fecha_firma', 5),
-    ('monto_penalidad_letras', 6),
-    ('monto_total_letras', 7),
+    ('monto_penalidad_letras', 7),
     ('parte_primera_cantidad', 8),
     ('parte_primera_cedula', 9),
     ('parte_primera_domicilio', 10),
@@ -1180,7 +790,7 @@ _______________________________          _______________________________
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Publicidad Corporativa ── 
+-- ── Contrato de Usufructo ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1189,11 +799,11 @@ DECLARE
   s_cuerpo   UUID;
   s_cierre   UUID;
 BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-publicidad-corporativa';
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'inmobiliario';
+  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-usufructo';
   IF v_template IS NULL THEN
     INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-publicidad-corporativa', 'Contrato de Publicidad Corporativa', 'Contratación de espacios y campañas publicitarias.',
+    VALUES (NULL, 'contrato-de-usufructo', 'Contrato de Usufructo', 'Derecho de uso y disfrute sobre un inmueble ajeno.',
       (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
     RETURNING id INTO v_template;
   END IF;
@@ -1245,10 +855,10 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('e-precio-servicios', 1),
-    ('m-entregables-creativos', 2),
-    ('m-derechos-imagen', 3),
-    ('b-propiedad-intelectual', 4),
+    ('i-descripcion-inmueble', 1),
+    ('vigencia-arrendamiento', 2),
+    ('reparaciones-menores', 3),
+    ('devolucion-inmueble', 4),
     ('g-declaraciones-partes', 5),
     ('g-modificaciones', 6),
     ('g-divisibilidad', 7),
@@ -1281,309 +891,13 @@ _______________________________          _______________________________
   INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
-    ('anios_uso_imagen', 1),
-    ('cantidad_ejemplares', 2),
-    ('cantidad_revisiones', 3),
-    ('ciudad_firma', 4),
-    ('descripcion_entregables', 5),
+    ('cantidad_ejemplares', 1),
+    ('certificado_titulo', 2),
+    ('ciudad_firma', 3),
+    ('descripcion_registral', 4),
+    ('direccion_inmueble', 5),
     ('distrito_judicial', 6),
     ('fecha_firma', 7),
-    ('monto_total_letras', 8),
-    ('parte_primera_cantidad', 9),
-    ('parte_primera_cedula', 10),
-    ('parte_primera_domicilio', 11),
-    ('parte_primera_genero', 12),
-    ('parte_primera_miembro2_cedula', 13),
-    ('parte_primera_miembro2_domicilio', 14),
-    ('parte_primera_miembro2_nombre', 15),
-    ('parte_primera_miembro3_cedula', 16),
-    ('parte_primera_miembro3_domicilio', 17),
-    ('parte_primera_miembro3_nombre', 18),
-    ('parte_primera_miembro4_cedula', 19),
-    ('parte_primera_miembro4_domicilio', 20),
-    ('parte_primera_miembro4_nombre', 21),
-    ('parte_primera_nacionalidad', 22),
-    ('parte_primera_nombre', 23),
-    ('parte_primera_tipo_documento', 24),
-    ('parte_segunda_cantidad', 25),
-    ('parte_segunda_cedula', 26),
-    ('parte_segunda_domicilio', 27),
-    ('parte_segunda_genero', 28),
-    ('parte_segunda_miembro2_cedula', 29),
-    ('parte_segunda_miembro2_domicilio', 30),
-    ('parte_segunda_miembro2_nombre', 31),
-    ('parte_segunda_miembro3_cedula', 32),
-    ('parte_segunda_miembro3_domicilio', 33),
-    ('parte_segunda_miembro3_nombre', 34),
-    ('parte_segunda_miembro4_cedula', 35),
-    ('parte_segunda_miembro4_domicilio', 36),
-    ('parte_segunda_miembro4_nombre', 37),
-    ('parte_segunda_nacionalidad', 38),
-    ('parte_segunda_nombre', 39),
-    ('parte_segunda_tipo_documento', 40),
-    ('titular_imagen', 41),
-    ('titular_propiedad_intelectual', 42)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Patrocinio ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-patrocinio';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-patrocinio', 'Contrato de Patrocinio', 'Aportación económica a cambio de exposición de marca.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('e-precio-servicios', 1),
-    ('m-derechos-imagen', 2),
-    ('b-propiedad-intelectual', 3),
-    ('b-exclusividad', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('anios_uso_imagen', 1),
-    ('cantidad_ejemplares', 2),
-    ('ciudad_firma', 3),
-    ('distrito_judicial', 4),
-    ('fecha_firma', 5),
-    ('monto_total_letras', 6),
-    ('objeto_exclusividad', 7),
-    ('parte_exclusiva', 8),
-    ('parte_primera_cantidad', 9),
-    ('parte_primera_cedula', 10),
-    ('parte_primera_domicilio', 11),
-    ('parte_primera_genero', 12),
-    ('parte_primera_miembro2_cedula', 13),
-    ('parte_primera_miembro2_domicilio', 14),
-    ('parte_primera_miembro2_nombre', 15),
-    ('parte_primera_miembro3_cedula', 16),
-    ('parte_primera_miembro3_domicilio', 17),
-    ('parte_primera_miembro3_nombre', 18),
-    ('parte_primera_miembro4_cedula', 19),
-    ('parte_primera_miembro4_domicilio', 20),
-    ('parte_primera_miembro4_nombre', 21),
-    ('parte_primera_nacionalidad', 22),
-    ('parte_primera_nombre', 23),
-    ('parte_primera_tipo_documento', 24),
-    ('parte_segunda_cantidad', 25),
-    ('parte_segunda_cedula', 26),
-    ('parte_segunda_domicilio', 27),
-    ('parte_segunda_genero', 28),
-    ('parte_segunda_miembro2_cedula', 29),
-    ('parte_segunda_miembro2_domicilio', 30),
-    ('parte_segunda_miembro2_nombre', 31),
-    ('parte_segunda_miembro3_cedula', 32),
-    ('parte_segunda_miembro3_domicilio', 33),
-    ('parte_segunda_miembro3_nombre', 34),
-    ('parte_segunda_miembro4_cedula', 35),
-    ('parte_segunda_miembro4_domicilio', 36),
-    ('parte_segunda_miembro4_nombre', 37),
-    ('parte_segunda_nacionalidad', 38),
-    ('parte_segunda_nombre', 39),
-    ('parte_segunda_tipo_documento', 40),
-    ('titular_imagen', 41),
-    ('titular_propiedad_intelectual', 42)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Alianza Estratégica ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-alianza-estrategica';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-alianza-estrategica', 'Contrato de Alianza Estratégica', 'Cooperación de largo plazo entre empresas.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('b-relacion-independiente', 1),
-    ('b-exclusividad', 2),
-    ('b-confidencialidad', 3),
-    ('g-arbitraje', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('anios_confidencialidad', 1),
-    ('cantidad_ejemplares', 2),
-    ('ciudad_firma', 3),
-    ('distrito_judicial', 4),
-    ('fecha_firma', 5),
-    ('objeto_exclusividad', 6),
-    ('parte_exclusiva', 7),
     ('parte_primera_cantidad', 8),
     ('parte_primera_cedula', 9),
     ('parte_primera_domicilio', 10),
@@ -1615,13 +929,14 @@ _______________________________          _______________________________
     ('parte_segunda_miembro4_nombre', 36),
     ('parte_segunda_nacionalidad', 37),
     ('parte_segunda_nombre', 38),
-    ('parte_segunda_tipo_documento', 39)
+    ('parte_segunda_tipo_documento', 39),
+    ('superficie_metros', 40)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
 END $$;
 
--- ── Contrato de Compra de Activos ── 
+-- ── Contrato de Comodato de Inmueble ── 
 DO $$
 DECLARE
   v_template UUID;
@@ -1630,11 +945,11 @@ DECLARE
   s_cuerpo   UUID;
   s_cierre   UUID;
 BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-compra-de-activos';
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'inmobiliario';
+  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-comodato-de-inmueble';
   IF v_template IS NULL THEN
     INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-compra-de-activos', 'Contrato de Compra de Activos', 'Adquisición de activos de una empresa.',
+    VALUES (NULL, 'contrato-de-comodato-de-inmueble', 'Contrato de Comodato de Inmueble', 'Préstamo gratuito de uso de un inmueble.',
       (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
     RETURNING id INTO v_template;
   END IF;
@@ -1686,15 +1001,160 @@ _______________________________          _______________________________
   INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
   SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
   FROM (VALUES
-    ('c-objeto-compraventa', 1),
+    ('objeto-arrendamiento', 1),
+    ('i-descripcion-inmueble', 2),
+    ('vigencia-arrendamiento', 3),
+    ('reparaciones-menores', 4),
+    ('devolucion-inmueble', 5),
+    ('g-declaraciones-partes', 6),
+    ('g-modificaciones', 7),
+    ('g-divisibilidad', 8),
+    ('g-notificaciones', 9),
+    ('g-ley-aplicable', 10),
+    ('integridad-contractual', 11)
+  ) AS t(slug, ord)
+  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
+
+  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
+    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
+    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
+    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
+    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
+    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
+    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
+    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
+    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
+    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
+    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
+    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
+    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
+    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
+    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
+    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
+    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
+    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
+    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
+
+  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
+  SELECT v_template, v.id, s_partes, t.ord
+  FROM (VALUES
+    ('cantidad_ejemplares', 1),
+    ('certificado_titulo', 2),
+    ('ciudad_firma', 3),
+    ('descripcion_registral', 4),
+    ('direccion_inmueble', 5),
+    ('distrito_judicial', 6),
+    ('fecha_firma', 7),
+    ('parte_primera_cantidad', 8),
+    ('parte_primera_cedula', 9),
+    ('parte_primera_domicilio', 10),
+    ('parte_primera_genero', 11),
+    ('parte_primera_miembro2_cedula', 12),
+    ('parte_primera_miembro2_domicilio', 13),
+    ('parte_primera_miembro2_nombre', 14),
+    ('parte_primera_miembro3_cedula', 15),
+    ('parte_primera_miembro3_domicilio', 16),
+    ('parte_primera_miembro3_nombre', 17),
+    ('parte_primera_miembro4_cedula', 18),
+    ('parte_primera_miembro4_domicilio', 19),
+    ('parte_primera_miembro4_nombre', 20),
+    ('parte_primera_nacionalidad', 21),
+    ('parte_primera_nombre', 22),
+    ('parte_primera_tipo_documento', 23),
+    ('parte_segunda_cantidad', 24),
+    ('parte_segunda_cedula', 25),
+    ('parte_segunda_domicilio', 26),
+    ('parte_segunda_genero', 27),
+    ('parte_segunda_miembro2_cedula', 28),
+    ('parte_segunda_miembro2_domicilio', 29),
+    ('parte_segunda_miembro2_nombre', 30),
+    ('parte_segunda_miembro3_cedula', 31),
+    ('parte_segunda_miembro3_domicilio', 32),
+    ('parte_segunda_miembro3_nombre', 33),
+    ('parte_segunda_miembro4_cedula', 34),
+    ('parte_segunda_miembro4_domicilio', 35),
+    ('parte_segunda_miembro4_nombre', 36),
+    ('parte_segunda_nacionalidad', 37),
+    ('parte_segunda_nombre', 38),
+    ('parte_segunda_tipo_documento', 39),
+    ('superficie_metros', 40)
+  ) AS t(tag, ord)
+  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
+  ON CONFLICT DO NOTHING;
+END $$;
+
+-- ── Declaración Jurada de Ocupación ── 
+DO $$
+DECLARE
+  v_template UUID;
+  v_cat      UUID;
+  s_partes   UUID;
+  s_cuerpo   UUID;
+  s_cierre   UUID;
+BEGIN
+  SELECT id INTO v_cat FROM template_categories WHERE slug = 'inmobiliario';
+  SELECT id INTO v_template FROM templates WHERE slug = 'declaracion-jurada-de-ocupacion';
+  IF v_template IS NULL THEN
+    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
+    VALUES (NULL, 'declaracion-jurada-de-ocupacion', 'Declaración Jurada de Ocupación', 'Declaración sobre quién ocupa el inmueble.',
+      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
+    RETURNING id INTO v_template;
+  END IF;
+
+  DELETE FROM template_clauses  WHERE template_id = v_template;
+  DELETE FROM template_sections WHERE template_id = v_template;
+  DELETE FROM template_rules    WHERE template_id = v_template;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Comparecientes',
+    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
+
+Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
+  RETURNING id INTO s_partes;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
+  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
+
+  INSERT INTO template_sections (template_id, title, body, sort_order)
+  VALUES (v_template, 'Firmas',
+    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
+
+
+_______________________________          _______________________________
+      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
+  RETURNING id INTO s_cierre;
+
+  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
+  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
+  FROM (VALUES
+    ('i-descripcion-inmueble', 1),
     ('g-declaraciones-partes', 2),
-    ('c-vicios-ocultos', 3),
-    ('e-forma-pago', 4),
-    ('g-modificaciones', 5),
-    ('g-divisibilidad', 6),
-    ('g-notificaciones', 7),
-    ('g-ley-aplicable', 8),
-    ('integridad-contractual', 9)
+    ('g-modificaciones', 3),
+    ('g-divisibilidad', 4),
+    ('g-notificaciones', 5),
+    ('g-ley-aplicable', 6),
+    ('integridad-contractual', 7)
   ) AS t(slug, ord)
   JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
 
@@ -1722,1189 +1182,12 @@ _______________________________          _______________________________
   SELECT v_template, v.id, s_partes, t.ord
   FROM (VALUES
     ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('descripcion_bien', 3),
-    ('dias_pago', 4),
-    ('distrito_judicial', 5),
-    ('fecha_firma', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('precio_venta_letras', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Cesión de Cartera de Clientes ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-cesion-de-cartera-de-clientes';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-cesion-de-cartera-de-clientes', 'Contrato de Cesión de Cartera de Clientes', 'Traspaso de una cartera comercial.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('g-cesion-permitida', 1),
-    ('b-confidencialidad', 2),
-    ('b-no-competencia', 3),
-    ('e-forma-pago', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('anios_confidencialidad', 1),
-    ('cantidad_ejemplares', 2),
+    ('certificado_titulo', 2),
     ('ciudad_firma', 3),
-    ('dias_pago', 4),
-    ('distrito_judicial', 5),
-    ('fecha_firma', 6),
-    ('meses_no_competencia', 7),
-    ('parte_primera_cantidad', 8),
-    ('parte_primera_cedula', 9),
-    ('parte_primera_domicilio', 10),
-    ('parte_primera_genero', 11),
-    ('parte_primera_miembro2_cedula', 12),
-    ('parte_primera_miembro2_domicilio', 13),
-    ('parte_primera_miembro2_nombre', 14),
-    ('parte_primera_miembro3_cedula', 15),
-    ('parte_primera_miembro3_domicilio', 16),
-    ('parte_primera_miembro3_nombre', 17),
-    ('parte_primera_miembro4_cedula', 18),
-    ('parte_primera_miembro4_domicilio', 19),
-    ('parte_primera_miembro4_nombre', 20),
-    ('parte_primera_nacionalidad', 21),
-    ('parte_primera_nombre', 22),
-    ('parte_primera_tipo_documento', 23),
-    ('parte_segunda_cantidad', 24),
-    ('parte_segunda_cedula', 25),
-    ('parte_segunda_domicilio', 26),
-    ('parte_segunda_genero', 27),
-    ('parte_segunda_miembro2_cedula', 28),
-    ('parte_segunda_miembro2_domicilio', 29),
-    ('parte_segunda_miembro2_nombre', 30),
-    ('parte_segunda_miembro3_cedula', 31),
-    ('parte_segunda_miembro3_domicilio', 32),
-    ('parte_segunda_miembro3_nombre', 33),
-    ('parte_segunda_miembro4_cedula', 34),
-    ('parte_segunda_miembro4_domicilio', 35),
-    ('parte_segunda_miembro4_nombre', 36),
-    ('parte_segunda_nacionalidad', 37),
-    ('parte_segunda_nombre', 38),
-    ('parte_segunda_tipo_documento', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Política de Cumplimiento Anticorrupción ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'empresarial';
-  SELECT id INTO v_template FROM templates WHERE slug = 'politica-de-cumplimiento-anticorrupcion';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'politica-de-cumplimiento-anticorrupcion', 'Política de Cumplimiento Anticorrupción', 'Normas internas de integridad y prevención.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('b-anticorrupcion', 1),
-    ('l-confidencialidad', 2),
-    ('g-obligaciones-partes', 3),
-    ('g-declaraciones-partes', 4),
-    ('g-modificaciones', 5),
-    ('g-divisibilidad', 6),
-    ('g-notificaciones', 7),
-    ('g-ley-aplicable', 8),
-    ('integridad-contractual', 9)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('parte_primera_cantidad', 5),
-    ('parte_primera_cedula', 6),
-    ('parte_primera_domicilio', 7),
-    ('parte_primera_genero', 8),
-    ('parte_primera_miembro2_cedula', 9),
-    ('parte_primera_miembro2_domicilio', 10),
-    ('parte_primera_miembro2_nombre', 11),
-    ('parte_primera_miembro3_cedula', 12),
-    ('parte_primera_miembro3_domicilio', 13),
-    ('parte_primera_miembro3_nombre', 14),
-    ('parte_primera_miembro4_cedula', 15),
-    ('parte_primera_miembro4_domicilio', 16),
-    ('parte_primera_miembro4_nombre', 17),
-    ('parte_primera_nacionalidad', 18),
-    ('parte_primera_nombre', 19),
-    ('parte_primera_tipo_documento', 20),
-    ('parte_segunda_cantidad', 21),
-    ('parte_segunda_cedula', 22),
-    ('parte_segunda_domicilio', 23),
-    ('parte_segunda_genero', 24),
-    ('parte_segunda_miembro2_cedula', 25),
-    ('parte_segunda_miembro2_domicilio', 26),
-    ('parte_segunda_miembro2_nombre', 27),
-    ('parte_segunda_miembro3_cedula', 28),
-    ('parte_segunda_miembro3_domicilio', 29),
-    ('parte_segunda_miembro3_nombre', 30),
-    ('parte_segunda_miembro4_cedula', 31),
-    ('parte_segunda_miembro4_domicilio', 32),
-    ('parte_segunda_miembro4_nombre', 33),
-    ('parte_segunda_nacionalidad', 34),
-    ('parte_segunda_nombre', 35),
-    ('parte_segunda_tipo_documento', 36)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo por Tiempo Indefinido ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-por-tiempo-indefinido';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-por-tiempo-indefinido', 'Contrato de Trabajo por Tiempo Indefinido', 'Relación laboral sin plazo determinado.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-confidencialidad', 4),
-    ('l-terminacion-laboral', 5),
-    ('l-periodo-prueba', 6),
-    ('l-equipos-trabajo', 7),
-    ('l-propiedad-intelectual', 8),
-    ('g-declaraciones-partes', 9),
-    ('g-modificaciones', 10),
-    ('g-divisibilidad', 11),
-    ('g-notificaciones', 12),
-    ('g-ley-aplicable', 13),
-    ('integridad-contractual', 14)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('salario_letras', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo por Tiempo Determinado ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-por-tiempo-determinado';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-por-tiempo-determinado', 'Contrato de Trabajo por Tiempo Determinado', 'Relación laboral con fecha de término.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-confidencialidad', 4),
-    ('l-terminacion-laboral', 5),
-    ('l-periodo-prueba', 6),
-    ('vigencia-arrendamiento', 7),
-    ('g-declaraciones-partes', 8),
-    ('g-modificaciones', 9),
-    ('g-divisibilidad', 10),
-    ('g-notificaciones', 11),
-    ('g-ley-aplicable', 12),
-    ('integridad-contractual', 13)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('salario_letras', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo para Obra o Servicio ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-para-obra-o-servicio';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-para-obra-o-servicio', 'Contrato de Trabajo para Obra o Servicio', 'Contratación ligada a una obra concreta.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-confidencialidad', 4),
-    ('l-terminacion-laboral', 5),
-    ('l-periodo-prueba', 6),
-    ('o-plazo-obra', 7),
-    ('g-declaraciones-partes', 8),
-    ('g-modificaciones', 9),
-    ('g-divisibilidad', 10),
-    ('g-notificaciones', 11),
-    ('g-ley-aplicable', 12),
-    ('integridad-contractual', 13)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('plazo_obra_dias', 39),
-    ('salario_letras', 40)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo a Tiempo Parcial ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-a-tiempo-parcial';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-a-tiempo-parcial', 'Contrato de Trabajo a Tiempo Parcial', 'Jornada reducida respecto de la ordinaria.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-confidencialidad', 4),
-    ('l-terminacion-laboral', 5),
-    ('l-periodo-prueba', 6),
-    ('g-declaraciones-partes', 7),
-    ('g-modificaciones', 8),
-    ('g-divisibilidad', 9),
-    ('g-notificaciones', 10),
-    ('g-ley-aplicable', 11),
-    ('integridad-contractual', 12)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('salario_letras', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo Remoto ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-remoto';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-remoto', 'Contrato de Trabajo Remoto', 'Prestación del servicio desde el domicilio.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-confidencialidad', 4),
-    ('l-terminacion-laboral', 5),
-    ('l-periodo-prueba', 6),
-    ('l-trabajo-remoto', 7),
-    ('l-equipos-trabajo', 8),
-    ('g-declaraciones-partes', 9),
-    ('g-modificaciones', 10),
-    ('g-divisibilidad', 11),
-    ('g-notificaciones', 12),
-    ('g-ley-aplicable', 13),
-    ('integridad-contractual', 14)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('salario_letras', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo Híbrido ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-hibrido';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-hibrido', 'Contrato de Trabajo Híbrido', 'Combinación de presencialidad y trabajo remoto.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-confidencialidad', 4),
-    ('l-terminacion-laboral', 5),
-    ('l-periodo-prueba', 6),
-    ('l-trabajo-hibrido', 7),
-    ('l-equipos-trabajo', 8),
-    ('g-declaraciones-partes', 9),
-    ('g-modificaciones', 10),
-    ('g-divisibilidad', 11),
-    ('g-notificaciones', 12),
-    ('g-ley-aplicable', 13),
-    ('integridad-contractual', 14)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('dias_presenciales', 3),
-    ('distrito_judicial', 4),
-    ('fecha_firma', 5),
-    ('horario_trabajo', 6),
-    ('horas_semanales', 7),
+    ('descripcion_registral', 4),
+    ('direccion_inmueble', 5),
+    ('distrito_judicial', 6),
+    ('fecha_firma', 7),
     ('parte_primera_cantidad', 8),
     ('parte_primera_cedula', 9),
     ('parte_primera_domicilio', 10),
@@ -2937,741 +1220,7 @@ _______________________________          _______________________________
     ('parte_segunda_nacionalidad', 37),
     ('parte_segunda_nombre', 38),
     ('parte_segunda_tipo_documento', 39),
-    ('salario_letras', 40)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo con Comisiones ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-con-comisiones';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-con-comisiones', 'Contrato de Trabajo con Comisiones', 'Salario fijo más retribución variable por ventas.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-confidencialidad', 4),
-    ('l-terminacion-laboral', 5),
-    ('l-periodo-prueba', 6),
-    ('l-comision-ventas', 7),
-    ('g-declaraciones-partes', 8),
-    ('g-modificaciones', 9),
-    ('g-divisibilidad', 10),
-    ('g-notificaciones', 11),
-    ('g-ley-aplicable', 12),
-    ('integridad-contractual', 13)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('comision_porcentaje', 3),
-    ('distrito_judicial', 4),
-    ('fecha_firma', 5),
-    ('horario_trabajo', 6),
-    ('horas_semanales', 7),
-    ('parte_primera_cantidad', 8),
-    ('parte_primera_cedula', 9),
-    ('parte_primera_domicilio', 10),
-    ('parte_primera_genero', 11),
-    ('parte_primera_miembro2_cedula', 12),
-    ('parte_primera_miembro2_domicilio', 13),
-    ('parte_primera_miembro2_nombre', 14),
-    ('parte_primera_miembro3_cedula', 15),
-    ('parte_primera_miembro3_domicilio', 16),
-    ('parte_primera_miembro3_nombre', 17),
-    ('parte_primera_miembro4_cedula', 18),
-    ('parte_primera_miembro4_domicilio', 19),
-    ('parte_primera_miembro4_nombre', 20),
-    ('parte_primera_nacionalidad', 21),
-    ('parte_primera_nombre', 22),
-    ('parte_primera_tipo_documento', 23),
-    ('parte_segunda_cantidad', 24),
-    ('parte_segunda_cedula', 25),
-    ('parte_segunda_domicilio', 26),
-    ('parte_segunda_genero', 27),
-    ('parte_segunda_miembro2_cedula', 28),
-    ('parte_segunda_miembro2_domicilio', 29),
-    ('parte_segunda_miembro2_nombre', 30),
-    ('parte_segunda_miembro3_cedula', 31),
-    ('parte_segunda_miembro3_domicilio', 32),
-    ('parte_segunda_miembro3_nombre', 33),
-    ('parte_segunda_miembro4_cedula', 34),
-    ('parte_segunda_miembro4_domicilio', 35),
-    ('parte_segunda_miembro4_nombre', 36),
-    ('parte_segunda_nacionalidad', 37),
-    ('parte_segunda_nombre', 38),
-    ('parte_segunda_tipo_documento', 39),
-    ('salario_letras', 40)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Pasantía ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-pasantia';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-pasantia', 'Contrato de Pasantía', 'Formación práctica de estudiante en la empresa.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-jornada', 1),
-    ('l-confidencialidad', 2),
-    ('l-equipos-trabajo', 3),
-    ('vigencia-arrendamiento', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Aprendizaje ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-aprendizaje';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-aprendizaje', 'Contrato de Aprendizaje', 'Formación laboral con componente educativo.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-jornada', 1),
-    ('l-salario', 2),
-    ('l-confidencialidad', 3),
-    ('vigencia-arrendamiento', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('salario_letras', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo Doméstico ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-domestico';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-domestico', 'Contrato de Trabajo Doméstico', 'Servicio doméstico en hogar particular.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-terminacion-laboral', 4),
-    ('g-declaraciones-partes', 5),
-    ('g-modificaciones', 6),
-    ('g-divisibilidad', 7),
-    ('g-notificaciones', 8),
-    ('g-ley-aplicable', 9),
-    ('integridad-contractual', 10)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('parte_primera_cantidad', 7),
-    ('parte_primera_cedula', 8),
-    ('parte_primera_domicilio', 9),
-    ('parte_primera_genero', 10),
-    ('parte_primera_miembro2_cedula', 11),
-    ('parte_primera_miembro2_domicilio', 12),
-    ('parte_primera_miembro2_nombre', 13),
-    ('parte_primera_miembro3_cedula', 14),
-    ('parte_primera_miembro3_domicilio', 15),
-    ('parte_primera_miembro3_nombre', 16),
-    ('parte_primera_miembro4_cedula', 17),
-    ('parte_primera_miembro4_domicilio', 18),
-    ('parte_primera_miembro4_nombre', 19),
-    ('parte_primera_nacionalidad', 20),
-    ('parte_primera_nombre', 21),
-    ('parte_primera_tipo_documento', 22),
-    ('parte_segunda_cantidad', 23),
-    ('parte_segunda_cedula', 24),
-    ('parte_segunda_domicilio', 25),
-    ('parte_segunda_genero', 26),
-    ('parte_segunda_miembro2_cedula', 27),
-    ('parte_segunda_miembro2_domicilio', 28),
-    ('parte_segunda_miembro2_nombre', 29),
-    ('parte_segunda_miembro3_cedula', 30),
-    ('parte_segunda_miembro3_domicilio', 31),
-    ('parte_segunda_miembro3_nombre', 32),
-    ('parte_segunda_miembro4_cedula', 33),
-    ('parte_segunda_miembro4_domicilio', 34),
-    ('parte_segunda_miembro4_nombre', 35),
-    ('parte_segunda_nacionalidad', 36),
-    ('parte_segunda_nombre', 37),
-    ('parte_segunda_tipo_documento', 38),
-    ('salario_letras', 39)
-  ) AS t(tag, ord)
-  JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
-  ON CONFLICT DO NOTHING;
-END $$;
-
--- ── Contrato de Trabajo de Alta Dirección ── 
-DO $$
-DECLARE
-  v_template UUID;
-  v_cat      UUID;
-  s_partes   UUID;
-  s_cuerpo   UUID;
-  s_cierre   UUID;
-BEGIN
-  SELECT id INTO v_cat FROM template_categories WHERE slug = 'laboral';
-  SELECT id INTO v_template FROM templates WHERE slug = 'contrato-de-trabajo-de-alta-direccion';
-  IF v_template IS NULL THEN
-    INSERT INTO templates (org_id, slug, title, description, category, category_id, jurisdiction_code, is_master, version, status, content)
-    VALUES (NULL, 'contrato-de-trabajo-de-alta-direccion', 'Contrato de Trabajo de Alta Dirección', 'Personal directivo con funciones de confianza.',
-      (SELECT name FROM template_categories WHERE id = v_cat), v_cat, 'DO', true, '1.0', 'DRAFT', '{"engine":"v2"}'::jsonb)
-    RETURNING id INTO v_template;
-  END IF;
-
-  DELETE FROM template_clauses  WHERE template_id = v_template;
-  DELETE FROM template_sections WHERE template_id = v_template;
-  DELETE FROM template_rules    WHERE template_id = v_template;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Comparecientes',
-    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;
-
-Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 1)
-  RETURNING id INTO s_partes;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro2_cedula}}, domiciliado(a) en {{parte_primera_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 2, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro3_cedula}}, domiciliado(a) en {{parte_primera_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 3, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la primera parte, también comparece: {{parte_primera_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_primera_miembro4_cedula}}, domiciliado(a) en {{parte_primera_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA PRIMERA PARTE.', 4, '{"variable":"parte_primera_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro2_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro2_cedula}}, domiciliado(a) en {{parte_segunda_miembro2_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 5, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":2}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro3_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro3_cedula}}, domiciliado(a) en {{parte_segunda_miembro3_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 6, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":3}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order, condition)
-  VALUES (v_template, '', 'Y, en conjunto con la segunda parte, también comparece: {{parte_segunda_miembro4_nombre}}, mayor de edad, portador(a) de cédula de identidad y electoral número {{parte_segunda_miembro4_cedula}}, domiciliado(a) en {{parte_segunda_miembro4_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación LA SEGUNDA PARTE.', 7, '{"variable":"parte_segunda_cantidad","operator":"greater_or_equal","value":4}'::jsonb);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, '', 'SE HA CONVENIDO Y PACTADO LO SIGUIENTE:', 8);
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Cláusulas', NULL, 9) RETURNING id INTO s_cuerpo;
-
-  INSERT INTO template_sections (template_id, title, body, sort_order)
-  VALUES (v_template, 'Firmas',
-    'Hecho y firmado en {{ciudad_firma}}, República Dominicana, {{fecha_firma_notarial}}, en {{cantidad_ejemplares}} originales de un mismo tenor y efecto.
-
-
-_______________________________          _______________________________
-      LA PRIMERA PARTE                          LA SEGUNDA PARTE', 10)
-  RETURNING id INTO s_cierre;
-
-  INSERT INTO template_clauses (template_id, clause_id, section_id, kind, sort_order)
-  SELECT v_template, c.id, s_cuerpo, 'MANDATORY', t.ord
-  FROM (VALUES
-    ('l-salario', 1),
-    ('l-jornada', 2),
-    ('l-vacaciones', 3),
-    ('l-confidencialidad', 4),
-    ('l-terminacion-laboral', 5),
-    ('l-periodo-prueba', 6),
-    ('b-no-competencia', 7),
-    ('l-propiedad-intelectual', 8),
-    ('b-representacion', 9),
-    ('g-declaraciones-partes', 10),
-    ('g-modificaciones', 11),
-    ('g-divisibilidad', 12),
-    ('g-notificaciones', 13),
-    ('g-ley-aplicable', 14),
-    ('integridad-contractual', 15)
-  ) AS t(slug, ord)
-  JOIN clauses c ON c.slug = t.slug AND c.org_id IS NULL;
-
-  INSERT INTO template_rules (template_id, name, conditions, action, action_payload, sort_order) VALUES
-    (v_template, 'Ocultar parte_primera_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_nombre'), 1),
-    (v_template, 'Ocultar parte_primera_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_cedula'), 2),
-    (v_template, 'Ocultar parte_primera_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro2_domicilio'), 3),
-    (v_template, 'Ocultar parte_primera_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_nombre'), 4),
-    (v_template, 'Ocultar parte_primera_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_cedula'), 5),
-    (v_template, 'Ocultar parte_primera_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro3_domicilio'), 6),
-    (v_template, 'Ocultar parte_primera_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_nombre'), 7),
-    (v_template, 'Ocultar parte_primera_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_cedula'), 8),
-    (v_template, 'Ocultar parte_primera_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_primera_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_primera_miembro4_domicilio'), 9),
-    (v_template, 'Ocultar parte_segunda_miembro2_nombre si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_nombre'), 10),
-    (v_template, 'Ocultar parte_segunda_miembro2_cedula si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_cedula'), 11),
-    (v_template, 'Ocultar parte_segunda_miembro2_domicilio si la parte tiene menos de 2 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":2}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro2_domicilio'), 12),
-    (v_template, 'Ocultar parte_segunda_miembro3_nombre si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_nombre'), 13),
-    (v_template, 'Ocultar parte_segunda_miembro3_cedula si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_cedula'), 14),
-    (v_template, 'Ocultar parte_segunda_miembro3_domicilio si la parte tiene menos de 3 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":3}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro3_domicilio'), 15),
-    (v_template, 'Ocultar parte_segunda_miembro4_nombre si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_nombre'), 16),
-    (v_template, 'Ocultar parte_segunda_miembro4_cedula si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_cedula'), 17),
-    (v_template, 'Ocultar parte_segunda_miembro4_domicilio si la parte tiene menos de 4 personas', '{"variable":"parte_segunda_cantidad","operator":"less_than","value":4}'::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', 'parte_segunda_miembro4_domicilio'), 18);
-
-  INSERT INTO template_variables (template_id, variable_id, section_id, sort_order)
-  SELECT v_template, v.id, s_partes, t.ord
-  FROM (VALUES
-    ('cantidad_ejemplares', 1),
-    ('ciudad_firma', 2),
-    ('distrito_judicial', 3),
-    ('fecha_firma', 4),
-    ('horario_trabajo', 5),
-    ('horas_semanales', 6),
-    ('meses_no_competencia', 7),
-    ('parte_primera_cantidad', 8),
-    ('parte_primera_cedula', 9),
-    ('parte_primera_domicilio', 10),
-    ('parte_primera_genero', 11),
-    ('parte_primera_miembro2_cedula', 12),
-    ('parte_primera_miembro2_domicilio', 13),
-    ('parte_primera_miembro2_nombre', 14),
-    ('parte_primera_miembro3_cedula', 15),
-    ('parte_primera_miembro3_domicilio', 16),
-    ('parte_primera_miembro3_nombre', 17),
-    ('parte_primera_miembro4_cedula', 18),
-    ('parte_primera_miembro4_domicilio', 19),
-    ('parte_primera_miembro4_nombre', 20),
-    ('parte_primera_nacionalidad', 21),
-    ('parte_primera_nombre', 22),
-    ('parte_primera_tipo_documento', 23),
-    ('parte_segunda_cantidad', 24),
-    ('parte_segunda_cedula', 25),
-    ('parte_segunda_domicilio', 26),
-    ('parte_segunda_genero', 27),
-    ('parte_segunda_miembro2_cedula', 28),
-    ('parte_segunda_miembro2_domicilio', 29),
-    ('parte_segunda_miembro2_nombre', 30),
-    ('parte_segunda_miembro3_cedula', 31),
-    ('parte_segunda_miembro3_domicilio', 32),
-    ('parte_segunda_miembro3_nombre', 33),
-    ('parte_segunda_miembro4_cedula', 34),
-    ('parte_segunda_miembro4_domicilio', 35),
-    ('parte_segunda_miembro4_nombre', 36),
-    ('parte_segunda_nacionalidad', 37),
-    ('parte_segunda_nombre', 38),
-    ('parte_segunda_tipo_documento', 39),
-    ('salario_letras', 40)
+    ('superficie_metros', 40)
   ) AS t(tag, ord)
   JOIN variables v ON v.tag = t.tag AND v.org_id IS NULL
   ON CONFLICT DO NOTHING;
