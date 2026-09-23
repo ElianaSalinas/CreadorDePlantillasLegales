@@ -31,7 +31,7 @@ export default async function AppLayout({
           </div>
           <span className="font-bold text-slate-900 dark:text-white">Save Documentos</span>
           {isAdmin && (
-            <span className="px-2 py-1 text-[10px] uppercase font-bold bg-amber-100 text-amber-800 rounded">
+            <span className="px-2 py-1 text-[10px] uppercase font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 rounded">
               Super Admin
             </span>
           )}
