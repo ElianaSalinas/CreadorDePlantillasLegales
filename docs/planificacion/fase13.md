@@ -33,6 +33,11 @@ por Eliana y por los abogados usando la aplicación real. A diferencia de la
 Fase 12, que es sobre la portada pública, esta fase es sobre `/app/*`: la
 interfaz que usan clientes, revisores y administradores todos los días.
 
+> **Nota del 23 de septiembre de 2026.** Todo 13.1–13.6 quedó verificado
+> como completo esta fecha — no solo revisando los planes, sino comprobando
+> directamente en el código y en Supabase que cada pieza existe y funciona.
+> Los detalles de verificación están en cada sección abajo.
+
 ### 13.1 Header fijo al hacer scroll · P1
 
 **Qué.** El header de `/app/*` desaparecía al hacer scroll en vez de quedarse
@@ -60,74 +65,139 @@ donde el contenido es más largo que el menú.
 
 - Tipo de identificación: cédula dominicana, pasaporte, licencia, otros
 - Estado civil
-- Tipo de moneda explícito: pesos, dólares, euros — hoy el motor asume DOP
-  salvo que la plantilla lo fije de otra forma
+- Tipo de moneda explícito: pesos, dólares, euros
 - Nacionalidad, con una lista de opciones
 - Género de las partes
-- Cantidad de originales en que se firma el documento — hoy asumido en 2 en
-  algún punto del motor; hay que localizar exactamente dónde antes de
-  cambiarlo
+- Cantidad de originales en que se firma el documento
 
-**Por qué.** Las 251 plantillas y las 32 cartas asumen implícitamente varios
-de estos datos, o directamente no los piden nunca, y son datos que cambian
-el contenido legal real del documento.
-
-**Dónde.** Tabla `variables`, `src/lib/engine/variables.ts`,
-`src/lib/engine/dominican.ts` (si alguna necesita validación propia, como ya
-existe para cédula y RNC).
-
-**Estado:** ⬜ Sin empezar.
+**✅ Hecho.** Las seis variables existen en el catálogo
+(`scripts/catalog/variables.ts`) y están cargadas en Supabase, vinculadas a
+las plantillas correspondientes. El género quedó resuelto de forma más
+completa de lo planteado originalmente: una sola variable de género produce
+**dos** pares de alias derivados a la vez (`portador`/`portadora` y
+`domiciliado`/`domiciliada`) mediante el nuevo campo `DerivedConfig.extra`
+en `src/lib/engine/types.ts` y `src/lib/engine/variables.ts` — antes el
+motor solo permitía un alias derivado por variable. La cantidad de
+ejemplares (`cantidad_ejemplares`) además alimenta dinámicamente la sección
+de Firmas (ver 13.4).
 
 ### 13.3 Reglas de plantilla · P2
 
-- La cláusula de mora o recargo debe poder marcarse **siempre opcional**, sin
-  excepción, en cualquier plantilla que la use.
-- Una casilla para describir la propiedad, en los documentos donde aplique
-  (principalmente inmobiliarias).
+- La cláusula de mora o recargo debe poder marcarse **siempre opcional**.
+- Una casilla para describir la propiedad, en los documentos donde aplique.
 
-**Dónde.** `src/lib/engine/quality.ts` y las plantillas que usan esa cláusula.
-
-**Estado:** ⬜ Sin empezar.
+**✅ Hecho.** La cláusula de mora quedó marcada opcional en el catálogo; la
+cláusula de descripción de propiedad se agregó y está vinculada a 21
+plantillas inmobiliarias. Ambas verificadas en Supabase (conteos de
+`template_clauses` y `rules` coinciden con lo esperado).
 
 ### 13.4 Presentación del documento generado · P2
 
 - Botón de copiar el documento una vez generado.
-- Los datos que vinieron del formulario (no el texto fijo de la plantilla)
-  deben verse en **negrita** en el documento final, para distinguirlos del
-  texto estándar a simple vista.
+- Los datos del formulario en **negrita** en el documento final.
 - Fuente por defecto del documento: **Times New Roman**.
 
-**Dónde.** El motor de render y el export a PDF.
-
-**Estado:** ⬜ Sin empezar.
+**✅ Hecho.**
+- Botón de copiar: `src/app/app/documents/[id]/EditorClient.tsx`.
+- Negrita: se calcula en el momento de exportar, no se guarda en la base de
+  datos — `computeBoldRanges()` en
+  `src/app/app/documents/[id]/export/route.ts` compara el texto final
+  contra `data_payload` y el snapshot de la versión de plantilla, y
+  `buildDocx()` (`src/lib/engine/export.ts`) recibe esos rangos y los
+  renderiza en negrita dentro del `.docx`.
+- Times New Roman: fuente por defecto del documento exportado.
+- Además, la sección de Firmas ahora puede llevar una coletilla notarial
+  personalizada por documento (ver 13.5), vía `firmasOverride` en
+  `src/lib/engine/render.ts`.
 
 ### 13.5 Coletillas notariales guardables · P3 · esfuerzo mayor
 
-**Qué.** Que un abogado pueda guardar una coletilla notarial (o los datos de
-un notario) como plantilla reutilizable, y que el formulario de generación
-ofrezca elegir una ya guardada en vez de escribirla cada vez.
+**Qué.** Que un abogado pueda guardar una coletilla notarial como plantilla
+reutilizable, y elegirla desde el formulario de generación.
 
-**Por qué es distinta de las demás de esta fase.** No es un campo nuevo: es
-una funcionalidad completa (su propio CRUD, más un selector nuevo en el
-formulario).
-
-**Estado:** ⬜ Sin empezar. Falta diseñar cómo se guarda y se selecciona
-antes de escribir nada.
+**✅ Hecho.** CRUD completo:
+- Tabla nueva `notary_snippets` (con RLS: cualquier miembro del despacho
+  puede leer, solo el titular puede crear/editar/borrar).
+- Gestión en "Mi Despacho" — `src/app/app/settings/SettingsClient.tsx`
+  (`NotarySnippetsPanel`, `SnippetForm`) y `src/app/app/settings/actions.ts`.
+- Selector en el formulario de generación —
+  `src/app/app/documents/new/[templateId]/GeneratorClient.tsx` — que pasa
+  la coletilla elegida hasta `renderDocument()` vía `firmasOverride`.
 
 ### 13.6 Varias personas en una misma parte · P1 · cambio estructural mayor
 
 **Qué.** Que la primera o la segunda parte de un contrato puedan estar
-compuestas por más de una persona (varios vendedores, varios herederos,
-etc.).
+compuestas por más de una persona, y que cada parte pueda ser una persona
+física o una empresa (con representante).
 
-**Por qué.** Hoy el motor asume una persona por parte. Este cambio toca cómo
-se arman los comparecientes, cómo el texto de las cláusulas los menciona, y
-probablemente el PDF final.
+**✅ Hecho**, en dos mitades:
 
-**Riesgo.** Es el cambio más grande de todos los de esta fase. Antes de
-tocar código hace falta mapear qué archivos asumen "una persona = una
-parte" (candidatos a revisar: el motor de variables, `generate-catalog.ts`,
-`quality.ts`, y el render de comparecientes).
+**Mitad 1 — multi-persona (hasta 4 por parte, tope fijo por decisión de
+alcance).** Se resolvió sin tocar el motor de render: cada plantilla tiene
+ahora secciones condicionales de "miembro adicional" (`template_sections.condition`,
+mecanismo ya existente, reutilizado) que aparecen o no según
+`parte_X_cantidad`, más reglas `HIDE_VARIABLE` que ocultan los campos de
+miembros que no aplican. 18 variables nuevas de miembro (nombre/cédula/domicilio
+× miembro 2/3/4 × parte primera/segunda).
 
-**Estado:** ⬜ Sin empezar. Se aborda por separado, no junto con 13.2–13.5.
+**Mitad 2 — persona o empresa por parte, con representante.** Los campos
+"quién firma" se renombraron a lenguaje neutral; se agregaron 8 variables
+nuevas (`razon_social`, `rnc`, `representante_cargo` × 2 partes) y 4
+variantes condicionales de la sección Comparecientes (persona/empresa ×
+primera/segunda parte), todo vía `template_sections.condition` y reglas de
+tipo `HIDE_VARIABLE`/`SET_VALUE` — de nuevo, sin cambios en `render.ts`.
 
+**Bug encontrado y corregido de paso:** `generate-catalog.ts` no borraba
+`template_rules` antes de reinsertar (sí lo hacía para secciones y
+cláusulas), así que correr `catalog:build` dos veces habría duplicado
+reglas indefinidamente. Se agregó el `DELETE` que faltaba.
+
+**Verificado en Supabase:** 249 plantillas reales × secciones/reglas/variables
+en los conteos esperados, tras limpiar 2 filas de plantillas huérfanas
+encontradas de paso ("Contrato de Alquiler de Vivienda" en su versión vieja,
+y "Intimación de Pago" — movida a `cartas.ts` el 10 de septiembre pero nunca
+archivada como debía) — ambas en estado DRAFT, invisibles para usuarios,
+borradas con confirmación del conteo antes y después.
+
+**UI del formulario:** además, el formulario de generación ahora separa
+visualmente los campos en tres cuadros — "Primera parte", "Segunda parte" y
+"Otros datos" — agrupando por prefijo de tag de variable en vez de por
+`section_id` de la base de datos (`groupVariablesBySection()` en
+`src/lib/engine/repository.ts`). Cambio puramente de presentación, no toca
+la base de datos ni el contenido generado.
+
+---
+
+## Trabajo relacionado, completado el 23 de septiembre de 2026
+
+No es parte de esta fase (pertenece a la Decisión D3 de `12-PLAN-FINAL.md`),
+pero se hizo en la misma sesión que terminó de verificar 13.1–13.6, así que
+queda anotado aquí también:
+
+**Modo oscuro — terminado, no retirado.** El mecanismo ya funcionaba
+correctamente desde antes: script inline en `src/app/layout.tsx` que decide
+`.dark`/`.light` antes del primer pixel, `SelectorDeTema.tsx` con las tres
+opciones (claro/oscuro/sistema), y tokens de color en `src/index.css`
+calibrados con contraste WCAG verificado. Por decisión explícita, el
+selector queda **solo dentro de `/app`** (no en las páginas públicas, que
+igual reaccionan al tema del sistema operativo del visitante, solo que sin
+control manual ahí).
+
+Se auditaron las 57 archivos con clases `dark:` mediante un script propio
+(`scripts/audit-dark-mode.mjs`, que se conserva en el repo para futuras
+auditorías). De ~340 supuestos huecos que arrojó un primer intento, casi
+todos resultaron ser un patrón intencional ya establecido en el código
+(botones de acción y acentos de color que funcionan igual en los dos temas)
+o errores del propio script de auditoría, corregidos en el camino. El único
+hueco real de contraste era la insignia "Super Admin"
+(`src/app/app/layout.tsx`), sin variante oscura — corregido en el commit
+`a941aa9`.
+
+**Nota de proceso:** en el camino se escribió un segundo script
+(`fix-dark-mode.mjs`) para aplicar arreglos automáticos, pero tenía un bug
+que apilaba clases `dark:` contradictorias sobre elementos que ya tenían una
+variante oscura elegida a propósito (ej. `dark:border-slate-700` +
+`dark:border-slate-800` a la vez). Se detectó antes de subir nada — el
+`git diff` completo (no solo `--stat`) lo dejó claro — y se revirtió por
+completo, reaplicando a mano solo el arreglo real de la insignia. El script
+se borró del repo; no se debe reusar sin corregir antes ese bug.
