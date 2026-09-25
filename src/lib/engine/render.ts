@@ -8,7 +8,7 @@
  */
 
 import { evaluateCondition, evaluateRules, type RuleOutcome } from './rules'
-import { buildSubstitutions, substitute } from './variables'
+import { buildSubstitutions, substitute, monedaDeRespuestas } from './variables'
 import type {
   Answers,
   Clause,
@@ -121,6 +121,7 @@ export function renderDocument(
 
   // Las reglas pueden fijar valores; cuentan como respuestas.
   const effective: Answers = { ...answers, ...outcome.setValues }
+  const moneda = monedaDeRespuestas(effective)
 
   const decisions = decideClauses(bundle, effective, userSelection, outcome)
   const included = new Set(decisions.filter((d) => d.included).map((d) => d.clauseId))
@@ -139,7 +140,7 @@ export function renderDocument(
 
   const push = (text: string | null | undefined) => {
     if (!text || !text.trim()) return
-    const r = substitute(text, substitutions, { variables: bundle.variables })
+    const r = substitute(text, substitutions, { variables: bundle.variables, moneda })
     r.missing.forEach((m) => missing.add(m))
     pieces.push(r.text.trim())
   }

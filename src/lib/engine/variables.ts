@@ -49,18 +49,30 @@ export function extractTags(text: string): string[] {
 
 const CURRENCIES: Currency[] = ['DOP', 'USD', 'EUR']
 
-function currencyOf(variable?: Variable): Currency {
+/**
+ * Moneda elegida por el usuario en este documento (respuesta a la
+ * variable moneda_contrato), si la plantilla la tiene y el usuario la
+ * contesto. Si no, cada variable monetaria sigue usando su propio
+ * derived_config.currency de siempre (hoy, 'DOP' en todas).
+ */
+export function monedaDeRespuestas(answers: Answers): Currency | undefined {
+  const raw = answers ? answers['moneda_contrato'] : undefined
+  return typeof raw === 'string' && CURRENCIES.includes(raw as Currency) ? (raw as Currency) : undefined
+}
+
+function currencyOf(variable?: Variable, moneda?: Currency): Currency {
+  if (moneda && CURRENCIES.includes(moneda)) return moneda
   const c = variable?.derived_config?.currency
   return c && CURRENCIES.includes(c) ? c : 'DOP'
 }
 
 /** Convierte el valor crudo del formulario al texto que va al documento. */
-export function formatValue(value: unknown, type: VariableDataType, variable?: Variable): string {
+export function formatValue(value: unknown, type: VariableDataType, variable?: Variable, moneda?: Currency): string {
   if (value === null || value === undefined || value === '') return ''
 
   switch (type) {
     case 'currency':
-      return formatMoney(value as number, currencyOf(variable))
+      return formatMoney(value as number, currencyOf(variable, moneda))
 
     case 'percentage': {
       const n = typeof value === 'number' ? value : parseFloat(String(value))
@@ -109,10 +121,10 @@ function labelForOption(value: string, variable?: Variable): string {
 
 /* ═══════════════════ TRANSFORMACIONES ═══════════════════ */
 
-export const TRANSFORMS: Record<string, (raw: unknown, variable?: Variable) => string> = {
-  letras: (raw, v) => montoALetras(raw as number, currencyOf(v)),
-  monto_letras: (raw, v) => montoALetras(raw as number, currencyOf(v)),
-  letras_sin_cifra: (raw, v) => montoALetras(raw as number, currencyOf(v), false),
+export const TRANSFORMS: Record<string, (raw: unknown, variable?: Variable, moneda?: Currency) => string> = {
+  letras: (raw, v, moneda) => montoALetras(raw as number, currencyOf(v, moneda)),
+  monto_letras: (raw, v, moneda) => montoALetras(raw as number, currencyOf(v, moneda)),
+  letras_sin_cifra: (raw, v, moneda) => montoALetras(raw as number, currencyOf(v, moneda), false),
   fecha_notarial: (raw) => fechaNotarial(String(raw)),
   fecha_larga: (raw) => fechaLarga(String(raw)),
   mayusculas: (raw) => String(raw ?? '').toUpperCase(),
@@ -135,17 +147,18 @@ export const TRANSFORMS: Record<string, (raw: unknown, variable?: Variable) => s
  */
 export function buildSubstitutions(variables: Variable[], answers: Answers): Record<string, string> {
   const out: Record<string, string> = {}
+  const moneda = monedaDeRespuestas(answers)
 
   for (const v of variables) {
     const raw = answers[v.tag]
-    out[v.tag] = formatValue(raw, v.data_type, v)
+    out[v.tag] = formatValue(raw, v.data_type, v, moneda)
 
     const derived = v.derived_config
     if (derived?.transform) {
       const fn = TRANSFORMS[derived.transform]
       if (fn) {
         const alias = derived.as || `${v.tag}_${derived.transform}`
-        out[alias] = raw === undefined || raw === null || raw === '' ? '' : fn(raw, v)
+        out[alias] = raw === undefined || raw === null || raw === '' ? '' : fn(raw, v, moneda)
       }
     }
     // Derivados adicionales de la misma variable (ver DerivedConfig.extra
@@ -154,7 +167,7 @@ export function buildSubstitutions(variables: Variable[], answers: Answers): Rec
       for (const e of derived.extra) {
         const fn = TRANSFORMS[e.transform]
         if (fn) {
-          out[e.as] = raw === undefined || raw === null || raw === '' ? '' : fn(raw, v)
+          out[e.as] = raw === undefined || raw === null || raw === '' ? '' : fn(raw, v, moneda)
         }
       }
     }
@@ -181,7 +194,7 @@ export type SubstitutionResult = {
 export function substitute(
   text: string,
   substitutions: Record<string, string>,
-  options: { placeholder?: (tag: string) => string; variables?: Variable[] } = {}
+  options: { placeholder?: (tag: string) => string; variables?: Variable[]; moneda?: Currency } = {}
 ): SubstitutionResult {
   if (!text) return { text: '', missing: [] }
 
@@ -200,7 +213,7 @@ export function substitute(
           const variable = byTag.get(tag)
           // La transformación necesita el valor crudo, no el ya formateado.
           const raw = substitutions[`${tag}__raw`] ?? value
-          value = raw === '' || raw === undefined ? '' : fn(raw, variable)
+          value = raw === '' || raw === undefined ? '' : fn(raw, variable, options.moneda)
         }
       }
 
