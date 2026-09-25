@@ -1,0 +1,396 @@
+================================================================================
+SAVE DOCUMENTOS — CONTEXTO PARA UN CHAT NUEVO
+Actualizado: 10 de septiembre de 2026
+================================================================================
+
+Pega este archivo al empezar la conversación. Está escrito para que alguien
+que no vio nada de lo anterior pueda seguir sin preguntar.
+
+
+--------------------------------------------------------------------------------
+0. REGLAS QUE NO SE NEGOCIAN
+--------------------------------------------------------------------------------
+
+Las puso la dueña y siguen vigentes:
+
+- Nunca exponer credenciales, contraseñas, API keys, service-role keys ni
+  secretos en el código, los logs, los commits o la documentación.
+- No inventar resultados. Lo que no se comprobó se marca NO VERIFICADO,
+  REQUIERE ACCESO EXTERNO o REQUIERE ACCIÓN MANUAL.
+- No marcar una tarea como completada solo porque existe código relacionado.
+- NO reconstruir SAVE desde cero. NO crear una segunda implementación
+  paralela. PRINCIPIO DE MÍNIMO CAMBIO.
+- No usar el correo personal de la dueña en configuración pública. Para
+  cara al público va info@savedocumentos.com.
+- Nunca reescribir una migración que ya pudo ejecutarse en producción. Se
+  añade una nueva que corrija.
+- Los .sql van al SQL Editor de Supabase. Los .ps1 van a PowerShell. No se
+  mezclan (ya pasó una vez: pegó un .ps1 en el SQL Editor y salió
+  "ERROR: 42601 syntax error at or near #").
+- Antes de correr npm o git, hacer cd a la carpeta del proyecto. Si sale
+  ENOENT es que está en C:\Users\Eliana.
+
+
+--------------------------------------------------------------------------------
+1. QUÉ ES EL PROYECTO
+--------------------------------------------------------------------------------
+
+SAVE Documentos — SaaS de documentos legales dominicanos.
+Empresa:   SA&VE Comercial, S.R.L.
+RNC:       132-28618-9
+Domicilio: Verón, Higüey, La Altagracia (comercialmente "Punta Cana")
+Web:       savedocumentos.com
+Contacto:  info@savedocumentos.com
+Dueña:     Eliana
+
+Stack:     Next.js 16 (App Router) + Supabase + Railway
+Repo:      C:\Apps\Proceso\SAVE-—-Plataforma-Documental-Legal
+GitHub:    ElianaSalinas/CreadorDePlantillasLegales
+Supabase:  ref fzuojuoopngcqrdozvpw
+Analítica: GA4 G-7XRJJL5D6E, con banner de consentimiento
+Correo:    Hostinger SMTP, info@savedocumentos.com. SPF/DKIM/DMARC pasan.
+           DKIM con selector hostingermail-a. DMARC hoy en p=none.
+
+Revisores del catálogo legal (permiso ya concedido en base de datos):
+  legalcifuentes@gmail.com
+  jmarquez@saveconsult.net
+Ninguno de los dos puede ver documentos de clientes. Solo el catálogo maestro.
+
+
+--------------------------------------------------------------------------------
+2. LO PRIMERO QUE HAY QUE HACER (nada de esto está hecho)
+--------------------------------------------------------------------------------
+
+2.1 SUBIR TRES COMMITS
+
+Están hechos en local y sin subir:
+  dc36d1b  feat: catalogo de cartas, 32 listas para revision legal
+  3cb70ca  test: el verificador de RNC
+  3f14357  docs: catalogo de cartas, animaciones y tareas manuales
+
+Git deja archivos de bloqueo que el acceso remoto no puede borrar. El comando:
+
+  cd C:\Apps\Proceso\SAVE-—-Plataforma-Documental-Legal
+  Remove-Item .git\index.lock -ErrorAction SilentlyContinue
+  Remove-Item .git\basura -Recurse -Force -ErrorAction SilentlyContinue
+  git push origin main
+
+
+2.2 LAS SEIS TAREAS MANUALES (fase 10.4 del plan)
+
+TAREA 1 — npm install
+  Sin esto el proyecto NO compila: nodemailer está en package.json pero no
+  en el disco.
+    cd C:\Apps\Proceso\SAVE-—-Plataforma-Documental-Legal
+    npm install
+
+TAREA 2 — Tres migraciones en el SQL Editor de Supabase, EN ESTE ORDEN:
+    supabase/migrations/20260909000000_persona_o_empresa.sql
+    supabase/migrations/20260910000000_alta_con_google.sql
+    supabase/migrations/20260911000000_revisor_marquez.sql
+  La tercera falla a propósito si handle_new_user quedó mal. Si sale error,
+  hay que leerlo, no ignorarlo.
+
+TAREA 3 — Variables en Railway (Settings -> Variables del servicio):
+    SMTP_HOST     smtp.hostinger.com
+    SMTP_PORT     465
+    SMTP_USER     info@savedocumentos.com
+    SMTP_PASS     (la contraseña del buzón)
+    TAREAS_CLAVE  (cadena larga aleatoria)
+  NINGUNA lleva el prefijo NEXT_PUBLIC_. Ese prefijo mete el valor dentro
+  del JavaScript que descarga el navegador: la contraseña quedaría pública.
+  Para generar TAREAS_CLAVE y no pegarla en ningún chat:
+    [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Max 256 }))
+
+TAREA 4 — Secreto de GitHub
+  Repo -> Settings -> Secrets and variables -> Actions -> New repository secret
+  Nombre exacto: TAREAS_CLAVE
+  Valor: idéntico carácter por carácter al de Railway. Si no coincide, la
+  tarea de cumpleaños devuelve 401 todos los días.
+
+TAREA 5 — Compilar y desplegar
+    npm run build
+    git push origin main
+
+TAREA 6 — Pantalla de consentimiento de Google  ← EN CURSO, ver sección 3
+
+
+2.3 LAS MIGRACIONES DE LAS CARTAS
+
+Después de las tres de la tarea 2, y el archivo 00 antes que los otros dos:
+    supabase/migrations/20260912000000_cartas_00_categorias.sql
+    supabase/migrations/20260912000001_cartas_01.sql
+    supabase/migrations/20260912000002_cartas_02.sql
+
+
+--------------------------------------------------------------------------------
+3. TAREA 6 — GOOGLE: DÓNDE SE QUEDÓ EXACTAMENTE
+--------------------------------------------------------------------------------
+
+Proyecto de Google Cloud: "savedocumentos"
+Consola: console.cloud.google.com/auth/branding?project=savedocumentos
+
+YA HECHO (guardado el 10 de septiembre, Google confirmó "Se guardaron los
+cambios de marca"):
+  Nombre de la aplicación:        Save Documentos
+  Correo de asistencia:           elianastephaniamonterosalinas@gmail.com
+  Página principal:               https://savedocumentos.com
+  Política de Privacidad:         https://savedocumentos.com/privacidad
+  Condiciones del Servicio:       https://savedocumentos.com/terminos
+  Dominio autorizado 1:           savedocumentos.com
+  Dominio autorizado 2:           fzuojuoopngcqrdozvpw.supabase.co
+  Contacto del desarrollador:     info@savedocumentos.com
+  Logotipo:                       VACÍO, a propósito (ver abajo)
+
+FALTA, Y ES LO IMPORTANTE:
+
+  En la pestaña "Público" (console.cloud.google.com/auth/audience):
+    Estado de publicación: PRUEBA
+    Usuarios de prueba:    LISTA VACÍA
+
+  Estando en Prueba, SOLO pueden entrar con Google las cuentas listadas como
+  usuarios de prueba, y la lista está vacía. A la dueña le funcionó porque
+  Google siempre deja pasar al dueño del proyecto. CUALQUIER OTRA PERSONA
+  QUE INTENTE REGISTRARSE CON GOOGLE RECIBE ACCESO BLOQUEADO AHORA MISMO.
+
+  Se arregla con el botón "Publicar app" de esa misma pestaña.
+
+  Comprobado en "Acceso a los datos": no hay ningún permiso sensible ni
+  restringido. Solo email y profile, que van por defecto. PUBLICAR NO
+  DISPARA NINGUNA REVISIÓN DE GOOGLE. Es reversible.
+
+  La dueña quedó en decidir si publicar. Preguntárselo, no hacerlo sin más.
+
+EL LOGO VA DESPUÉS, NO ANTES.
+  Texto literal de Google en esa pantalla: "Después de subir un logotipo,
+  deberás enviar tu app para verificarla, a menos que esté configurada solo
+  para uso interno o tenga el estado de publicación Prueba."
+  O sea: logo + publicada = entra en revisión. El orden correcto es publicar
+  sin logo, comprobar que un usuario normal entra, y subir el logo después.
+
+SOBRE EL "Accede a fzuojuoopngcqrdozvpw.supabase.co" DE LA PANTALLA:
+  NO VERIFICADO que la marca lo quite. Esa línea sale del dominio del cliente
+  OAuth, y el cliente sigue siendo Supabase. Con la marca guardada Google
+  DEBERÍA mostrar "Save Documentos". Si después de publicar sigue apareciendo
+  el host de Supabase, lo único que lo quita del todo es el dominio propio de
+  Supabase, QUE ES DE PAGO Y LA DUEÑA DECIDIÓ NO PAGARLO.
+  La forma de saberlo es probar el login con Google en ventana de incógnito
+  y mirar la pantalla. No adivinarlo.
+
+NOTA: el correo de asistencia es el Gmail personal de la dueña, y ella
+preferiría que no lo fuera. Ese desplegable solo admite cuentas con acceso
+al proyecto o grupos de Google que ella posea. info@savedocumentos.com no es
+una cuenta de Google, así que hoy no se puede poner ahí. El contacto del
+desarrollador sí es info@savedocumentos.com.
+
+EL SECRETO DEL CLIENTE OAUTH NO SE PEGA NUNCA EN UN CHAT. Solo el ID es
+público. El ID es:
+  831677785685-t60h8mb853a0pav4smnm9265rehn1gc9.apps.googleusercontent.com
+
+
+--------------------------------------------------------------------------------
+4. EL CATÁLOGO DE CARTAS (lo último que se construyó)
+--------------------------------------------------------------------------------
+
+32 cartas generadas, todas en estado DRAFT. Ningún usuario las ve.
+
+Archivos:
+  scripts/catalog/cartas.ts        Las 32 cartas y sus 160 variables. AQUÍ SE
+                                   CORRIGE. Todas las variables tienen etiqueta
+                                   y pregunta propias (cero deducidas).
+  scripts/generate-cartas.ts       npm run cartas:build
+  docs/cartas-para-revision.md     LO QUE LEEN CIFUENTES Y MÁRQUEZ. Las 32
+                                   completas, con base legal y las preguntas
+                                   que se le hacen al usuario.
+  supabase/migrations/20260912*    Tres archivos para el SQL Editor.
+
+Reparto: 9 laborales, 6 de trámites personales, 3 de instituciones públicas,
+3 de migración, 3 de empresas, 2 de familia, 2 de compras y ventas,
+2 legales, 2 de impuestos.
+
+POR QUÉ TIENEN GENERADOR PROPIO: una carta no es un contrato. No tiene
+comparecientes, ni cláusulas numeradas, ni dos firmas. Tiene lugar y fecha,
+destinatario, asunto, cuerpo y UNA firma. Pasarlas por generate-catalog.ts
+las habría encabezado a todas con un "SE HA CONVENIDO Y PACTADO LO
+SIGUIENTE". Lo que SÍ comparten es el motor: son filas de templates con
+secciones y variables, así que el editor, la vista previa, el PDF y el paso
+DRAFT -> PUBLISHED son los mismos. NO HAY UN SEGUNDO MOTOR.
+
+Detalles que importan si se tocan:
+- Los alias derivados se resuelven por el nombre: _letras viene de un monto,
+  _larga de una fecha. Una carta nueva no necesita registrar el alias en
+  ninguna lista.
+- fecha_inicio NO se reutiliza en las cartas. Existe desde el seed del
+  arrendamiento con la pregunta "¿Cuándo empieza el alquiler?", que en una
+  solicitud de vacaciones no significa nada. Se usan fecha_desde/fecha_hasta.
+- El generador se niega a emitir nada si una carta usa una categoría que no
+  existe, si repite el título de un contrato, o si declara una variable
+  derivada cuyo alias no usa ninguna carta.
+- "Intimación de Pago" salió del catálogo de contratos y entró en el de
+  cartas. El SQL archiva la fila antigua SOLO SI SIGUE EN DRAFT.
+- Varias cartas llevan una advertencia en mayúsculas al final (renuncia vs
+  dimisión, poder simple vs poder notarial, puesta en mora por acto de
+  alguacil, qué cierra un descargo, viaje de menor). ESO ES PARTE DEL
+  PRODUCTO, no relleno.
+
+NO VERIFICADO: ninguna de las 32 la ha revisado un abogado dominicano. Las
+redactó el asistente. Las leyes citadas (16-92, 358-05, 172-13, 136-03,
+artículo 1139 del Código Civil) hay que comprobarlas una por una.
+
+Faltan 187 cartas más, y se hacen CUANDO ESTAS 32 ESTÉN APROBADAS. Meterle
+219 más a quien lleva 251 plantillas sin revisar desde el 2 de septiembre es
+la forma más segura de que no se apruebe ninguna.
+
+Ciclo de corrección: se corrige cartas.ts -> npm run cartas:build -> se corre
+el SQL. Reescribe el texto SIN tocar el estado, así que lo ya aprobado sigue
+aprobado.
+
+
+--------------------------------------------------------------------------------
+5. EL CUELLO DE BOTELLA REAL DEL PROYECTO
+--------------------------------------------------------------------------------
+
+FASE 2 — REVISIÓN LEGAL. Es la ruta crítica y no depende de código.
+
+Desde el 2 de septiembre hay 251 plantillas y 123 cláusulas esperando
+revisión, y CERO aprobadas. Nada de eso es visible para los usuarios.
+Estimado: 3 a 6 semanas de trabajo de abogado.
+
+Además, las páginas legales (/privacidad, /terminos, /quienes-somos,
+/contacto) siguen sin revisión de abogado.
+
+Todo lo demás que se construya mientras tanto no cambia el hecho de que hoy
+la plataforma no tiene ni un documento publicado.
+
+
+--------------------------------------------------------------------------------
+6. FASES DEL PLAN (docs/planificacion/12-PLAN-FINAL.md)
+--------------------------------------------------------------------------------
+
+F0  Cerrar lo abierto           CERRADA
+F1  Bloqueos de uso             CERRADA
+F2  Revisión legal              ABIERTA — ruta crítica, 3-6 semanas de abogado
+F3  Importar y convertir        pendiente, 2-3 semanas
+F4  Visibilidad nueva           CERRADA
+F5  Confianza y conversión      CERRADA
+F6  Arquitectura SEO            pendiente, 3-4 semanas. Bloqueada por F2
+F7  Analítica                   CERRADA (GA4 + consentimiento + Search Console)
+F8  Rendimiento y accesibilidad CERRADA
+F8.5 Medición                   CERRADA. PageSpeed 97 móvil / 100 escritorio,
+                                Accesibilidad 96, LCP 2,3 s, CLS 0.
+                                ESA ES LA LÍNEA QUE NO SE CRUZA.
+F9  Cobros con CardNET          pendiente. La dueña lo hará en 1-2 semanas.
+                                PayPal descartado. CardNET necesita un cron
+                                mensual idempotente (Card-on-File iniciado por
+                                el comercio), NO un webhook.
+F10 Google y trato personal     10.1-10.3 y 10.5 hechos en código.
+                                10.4 = las seis tareas manuales, SIN HACER.
+F11 Catálogo de cartas          32 generadas, 0 aprobadas
+F12 Animaciones y UX            pendiente
+
+
+--------------------------------------------------------------------------------
+7. DECISIONES YA TOMADAS (no reabrirlas sin motivo)
+--------------------------------------------------------------------------------
+
+D11  Dominio propio de Supabase: DESCARTADO. Es de pago y ella no lo paga.
+D12  Las 8 cartas repetidas: RESUELTA. Cada carta se carga UNA vez, en UNA
+     categoría. La navegación cruzada se resuelve con etiquetas en la F6.
+D13  Prueba social inventada en la portada: DESCARTADA. SAVE no tiene
+     clientes todavía y hasta esta semana tenía cero documentos generados en
+     producción. Nada de logos de clientes, ni contador de "15,000+
+     documentos", ni testimonios con foto. En un producto legal cuyo
+     argumento entero es "nosotros no inventamos, lo revisa una abogada",
+     fabricar prueba social es suicida. Se hará cuando haya clientes reales
+     con permiso para citarlos.
+     Lo mismo con el A/B testing: con el tráfico de hoy no da resultado, da
+     ruido.
+
+Sobre las animaciones (F12): el plan externo pedía GSAP + ScrollTrigger +
+Lenis + Lottie con un presupuesto de 50 kB de JavaScript. Solo GSAP con
+ScrollTrigger ya se acerca a ese tope. La portada saca 97 en móvil con 193 kB
+totales, y ese número se consiguió QUITANDO cosas. El orden correcto es hacer
+con CSS todo lo que se pueda (que es casi todo), y traer una librería solo
+cuando haya algo que CSS no pueda, midiendo antes y después. Si el móvil baja
+de 90, se revierte.
+
+
+--------------------------------------------------------------------------------
+8. PENDIENTES SUELTOS
+--------------------------------------------------------------------------------
+
+- www.savedocumentos.com devolvía 502 esperando el certificado de Railway.
+  El dominio raíz sí funciona. Comprobar si ya se emitió.
+- En 3 semanas (hacia el 1 de octubre): subir DMARC de p=none a
+  p=quarantine; pct=25. Antes, leer el primer informe DMARC.
+- D7: NCF e ITBIS para la facturación. Es para la contadora, no para el
+  código. La validación de RNC que hay comprueba el dígito verificador
+  (pesos 7 9 8 6 5 4 3 2, módulo 11, resto 0 -> 2, resto 1 -> 1, si no
+  11 - resto), pero un RNC bien formado NO prueba que exista: para eso hace
+  falta consultar la DGII.
+- D8: prorrateo de los planes al cambiar de plan a mitad de mes.
+- Cuando termine la F2: sustituir en /quienes-somos el párrafo que dice "el
+  catálogo está en revisión" por el nombre del revisor y la fecha reales.
+
+
+--------------------------------------------------------------------------------
+9. ERRORES QUE YA SE COMETIERON — PARA NO REPETIRLOS
+--------------------------------------------------------------------------------
+
+- /precios salió en blanco en producción porque revalidate = 300 lo
+  prerrenderizaba en el build de Docker, donde las NEXT_PUBLIC_* no existen,
+  y un "if (!url || !key) return []" horneaba la página de error. Se arregló
+  con force-dynamic. LECCIÓN: revalidate prerrenderiza en el build; si la
+  página necesita variables de entorno que el contenedor de build no tiene,
+  hornea el error.
+- Faltaba og:image en la portada porque en Next 16 el objeto openGraph se
+  REEMPLAZA entero cuando una página declara el suyo, no se fusiona. Por eso
+  existe src/lib/og.ts.
+- Un REVOKE que enumeraba privilegios dejó pasar TRIGGER a anon. Se arregla
+  con REVOKE ALL y volver a conceder SELECT.
+- Dos migraciones (20260909 y 20260910) reescribieron handle_new_user desde
+  una base vieja y se cargaron el enlace a revisores_contenido y el
+  EXCEPTION WHEN OTHERS. Sin lo primero, Cifuentes y Márquez nunca habrían
+  recibido el permiso al registrarse; sin lo segundo, cualquier error del
+  trigger impide crear cuentas. Reparado en 20260911, que además lo
+  comprueba introspeccionando prosrc. LECCIÓN: no reescribir una función
+  entera desde una copia vieja.
+- Un <form> anidado dentro de otro en BienvenidaClient.tsx. HTML inválido
+  que rompe el formulario exterior y que TypeScript no ve. Se arregla con
+  formAction.
+- Exportar las fuentes como "serif" y "sans" produce font-family: "serif",
+  una palabra reservada de CSS entre comillas. Por eso se llaman fuenteSerif
+  y fuenteSans.
+- overflow: hidden crea un contenedor de scroll y MATA position: sticky.
+  overflow-x: clip no. Por eso la cabecera se quedaba pegada.
+- El script que medía contraste daba tres falsos positivos porque no sabía
+  parsear lab() ni color(). Se reescribió usando un canvas para que el
+  navegador resuelva los colores. Los tres fallos reales eran del dorado
+  #8E6D29, que era ANTERIOR al cambio de paleta.
+- Varias veces se afirmó algo como comprobado sin comprobarlo: que la
+  producción estaba caída (solo www daba 502), que un CNAME bloqueaba un
+  registro TXT (falso), que no había DKIM (sí lo había, con selector
+  hostingermail-a). SI NO SE MIRÓ, SE DICE QUE NO SE MIRÓ.
+- device_bash no puede borrar archivos en el equipo de la dueña. Los .lock
+  de git hay que moverlos con mv, no borrarlos.
+
+
+--------------------------------------------------------------------------------
+10. COMANDOS ÚTILES
+--------------------------------------------------------------------------------
+
+  npm run dev                Servidor de desarrollo
+  npm run build              Compilar
+  npm run catalog:build      Regenera el SQL de contratos
+  npm run cartas:build       Regenera el SQL de cartas y la hoja de revisión
+  npm run verify:rnc         11 casos del dígito verificador del RNC
+  npm run verify:contraste   11 combinaciones de color, sale 1 si falla
+  npm run verify:cumpleanos  12 casos de fechas (UTC-4, 29 de febrero)
+  npm run verify:rutas       13 casos de anonimización de rutas para GA4
+  npm run verify:engine      Motor de documentos
+  npm run verify:import      Importación
+
+Documentación del proyecto: docs/planificacion/ (12 archivos).
+El que manda es 12-PLAN-FINAL.md.
+
+================================================================================
