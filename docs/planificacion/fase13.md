@@ -33,10 +33,14 @@ por Eliana y por los abogados usando la aplicación real. A diferencia de la
 Fase 12, que es sobre la portada pública, esta fase es sobre `/app/*`: la
 interfaz que usan clientes, revisores y administradores todos los días.
 
-> **Nota del 23 de septiembre de 2026.** Todo 13.1–13.6 quedó verificado
-> como completo esta fecha — no solo revisando los planes, sino comprobando
-> directamente en el código y en Supabase que cada pieza existe y funciona.
-> Los detalles de verificación están en cada sección abajo.
+> **Nota del 23 de septiembre de 2026.** 13.1, 13.3, 13.4, 13.5 y 13.6
+> quedaron verificados como completos esta fecha — comprobando
+> directamente en el código y en Supabase que cada pieza existe y
+> funciona. La verificación de 13.2 ese mismo día resultó incompleta:
+> confirmó que las seis variables existían en el catálogo, pero no
+> comprobó que estuvieran conectadas de verdad al formulario ni al
+> render — ver la nota del 24 de septiembre, en esa sección, con lo
+> que en realidad estaba roto y cómo se corrigió.
 
 ### 13.1 Header fijo al hacer scroll · P1
 
@@ -70,7 +74,9 @@ donde el contenido es más largo que el menú.
 - Género de las partes
 - Cantidad de originales en que se firma el documento
 
-**✅ Hecho.** Las seis variables existen en el catálogo
+**✅ Hecho** (corregido el 24 de septiembre de 2026 — el ✅ del 23 de
+septiembre daba por buenas dos piezas que en la práctica no funcionaban;
+ver la nota abajo). Las seis variables existen en el catálogo
 (`scripts/catalog/variables.ts`) y están cargadas en Supabase, vinculadas a
 las plantillas correspondientes. El género quedó resuelto de forma más
 completa de lo planteado originalmente: una sola variable de género produce
@@ -80,6 +86,50 @@ en `src/lib/engine/types.ts` y `src/lib/engine/variables.ts` — antes el
 motor solo permitía un alias derivado por variable. La cantidad de
 ejemplares (`cantidad_ejemplares`) además alimenta dinámicamente la sección
 de Firmas (ver 13.4).
+
+> **Nota del 24 de septiembre de 2026 — lo que realmente estaba roto.**
+> Una abogada reportó que el formulario no le mostraba la moneda del
+> contrato. Al investigar aparecieron dos problemas reales, más un
+> tercero que salió de paso al revisar el resto de 13.2:
+>
+> 1. **`moneda_contrato` casi nunca se vinculaba.** La variable existía,
+>    pero `generate-catalog.ts` nunca la agregaba a ninguna plantilla de
+>    forma automática — solo llegaba a una plantilla si alguna de sus
+>    cláusulas la mencionaba por casualidad (3 de 249). Corregido: ahora
+>    se vincula automáticamente a toda plantilla que ya tenga alguna
+>    variable de tipo `currency` (158 de 249).
+> 2. **Aunque apareciera, no hacía nada.** `currencyOf()`, en
+>    `src/lib/engine/variables.ts`, leía un valor fijo grabado en el
+>    catálogo (`derived_config.currency`, siempre `'DOP'`) en vez de la
+>    respuesta real del usuario. Elegir Dólares no cambiaba ni el monto
+>    en letras ni el formato del número — el selector, si aparecía, era
+>    decorativo. Corregido de forma aditiva: `currencyOf()` ahora prioriza
+>    la respuesta a `moneda_contrato` sobre el valor del catálogo, y solo
+>    cae al valor fijo cuando la plantilla no tiene esa pregunta — ninguna
+>    plantilla existente cambió de comportamiento por este cambio.
+> 3. **`estado_civil` nunca se había insertado en Supabase, ni una
+>    sola vez.** Las variables `parte_primera_estado_civil` y
+>    `parte_segunda_estado_civil` estaban definidas en el catálogo desde
+>    hace tiempo, pero el texto de la sección Comparecientes nunca las
+>    mencionaba — y como `generate-catalog.ts` solo inserta en Supabase
+>    las variables que de verdad aparecen escritas en algún texto, esas
+>    dos nunca llegaron a existir en la base de datos. No es un caso de
+>    poca cobertura: no estaba vinculada a ninguna plantilla. Corregido:
+>    el texto de Comparecientes ahora menciona el estado civil de cada
+>    parte, y las variables quedaron insertadas y vinculadas a las 249
+>    plantillas.
+>
+> Los tres arreglos, con una migración nueva que no reescribe ninguna
+> de las que ya corrieron en producción, están en el commit `aaa004e`.
+> Verificado en Supabase después de correrla: 249/249 plantillas con
+> estado civil en ambas partes, 158/249 con moneda.
+>
+> **Lección:** un ✅ en este documento debería significar que se probó
+> de punta a punta, incluido si el dato cambia algo en el documento
+> final — no solo que el código para eso existe. La verificación del
+> día anterior confirmó que las variables estaban en el catálogo, pero
+> no llegó a comprobar que un abogado pudiera usarlas de verdad ni que
+> tuvieran efecto real en el texto generado.
 
 ### 13.3 Reglas de plantilla · P2
 
