@@ -111,7 +111,7 @@ export default function TemplateEditorClient(props: {
             onClick={() => setTab(t.id)}
             className={
               tab === t.id
-                ? 'border-b-2 border-emerald-600 px-4 py-2.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400'
+                ? 'border-b-2 border-emerald-600 dark:border-emerald-400 px-4 py-2.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400'
                 : 'border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
             }
           >
