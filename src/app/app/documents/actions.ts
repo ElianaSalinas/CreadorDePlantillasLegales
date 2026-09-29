@@ -6,6 +6,7 @@ import { cargarEstadoDelPlan, motivoParaNoCrear } from '@/lib/planes'
 import { logAudit } from '@/lib/audit'
 import { loadTemplateBundle } from '@/lib/engine/repository'
 import { renderDocument, snapshotTemplate } from '@/lib/engine/render'
+import { esFormatoArticulo } from '@/lib/engine/articulos'
 import { validateAnswers } from '@/lib/engine/variables'
 import { evaluateRules } from '@/lib/engine/rules'
 import type { Answers } from '@/lib/engine/types'
@@ -50,7 +51,8 @@ async function cargarColetilla(
 export async function previewDocument(
   templateId: string,
   answers: Answers,
-  coletillaId?: string | null
+  coletillaId?: string | null,
+  formatoArticulos?: string | null
 ): Promise<PreviewResult> {
   const { org, supabase } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
@@ -60,7 +62,11 @@ export async function previewDocument(
 
   const outcome = evaluateRules(bundle.rules, answers)
   const firmasOverride = await cargarColetilla(supabase, org.id, coletillaId)
-  const result = renderDocument(bundle, answers, {}, { firmasOverride })
+  const result = renderDocument(bundle, answers, {}, {
+    firmasOverride,
+    // Lo que llegue del navegador se valida: un valor desconocido cae al formato por defecto.
+    formatoArticulos: esFormatoArticulo(formatoArticulos) ? formatoArticulos : undefined,
+  })
 
   const fieldErrors = validateAnswers(bundle.variables, answers, {
     required: outcome.requiredVariables,
@@ -92,7 +98,8 @@ export async function generateDocument(
   templateId: string,
   answers: Answers,
   title: string,
-  coletillaId?: string | null
+  coletillaId?: string | null,
+  formatoArticulos?: string | null
 ): Promise<GenerateResult> {
   const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
@@ -115,7 +122,11 @@ export async function generateDocument(
   }
 
   const firmasOverride = await cargarColetilla(supabase, org.id, coletillaId)
-  const result = renderDocument(bundle, answers, {}, { firmasOverride })
+  const result = renderDocument(bundle, answers, {}, {
+    firmasOverride,
+    // Lo que llegue del navegador se valida: un valor desconocido cae al formato por defecto.
+    formatoArticulos: esFormatoArticulo(formatoArticulos) ? formatoArticulos : undefined,
+  })
 
   // Se reutiliza la versión si ya existe una con el mismo número; si no,
   // se congela la plantilla tal como está en este momento.

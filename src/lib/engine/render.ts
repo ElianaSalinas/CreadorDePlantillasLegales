@@ -9,6 +9,7 @@
 
 import { evaluateCondition, evaluateRules, type RuleOutcome } from './rules'
 import { buildSubstitutions, substitute, monedaDeRespuestas } from './variables'
+import { numerarClausula, type FormatoArticulo } from './articulos'
 import type {
   Answers,
   Clause,
@@ -18,6 +19,9 @@ import type {
   TemplateVariable,
   Variable,
 } from './types'
+
+// Se re-exportan para quien ya los importaba desde aquí (verify-engine).
+export { numerarClausula, formatoArticulo } from './articulos'
 
 export type TemplateBundle = {
   template: { id: string; title: string; version: string; content?: unknown }
@@ -105,6 +109,9 @@ export function decideClauses(
  * las variables de cada una y detrás coloca las cláusulas que le tocan.
  * Las cláusulas sin sección asignada van al final, antes de los anexos.
  *
+ * `options.formatoArticulos`: cómo se numeran las cláusulas del cuerpo
+ * ("ARTÍCULO PRIMERO:", "Artículo 1:", "ARTÍCULO I:"…). Ver articulos.ts.
+ *
  * `options.firmasOverride`: si viene, reemplaza el TEXTO de la sección
  * "Firmas" (una coletilla notarial guardada, ver Fase 13.5). El título de
  * la sección se sigue mostrando igual; solo cambia el cuerpo, que es
@@ -115,7 +122,7 @@ export function renderDocument(
   bundle: TemplateBundle,
   answers: Answers,
   userSelection: Record<string, boolean> = {},
-  options: { firmasOverride?: string | null } = {}
+  options: { firmasOverride?: string | null; formatoArticulos?: FormatoArticulo } = {}
 ): RenderResult {
   const outcome = evaluateRules(bundle.rules ?? [], answers)
 
@@ -145,6 +152,16 @@ export function renderDocument(
     pieces.push(r.text.trim())
   }
 
+  // Las cláusulas del cuerpo se numeran en el orden en que salen: la
+  // numeración depende de cuáles entraron, así que no puede vivir en el
+  // texto guardado. Las de los anexos no se numeran.
+  let articulo = 0
+  const pushArticulo = (clause: Clause) => {
+    if (!clause.body || !clause.body.trim()) return
+    articulo += 1
+    push(numerarClausula(articulo, clause.title, clause.body.trim(), options.formatoArticulos))
+  }
+
   const clausesFor = (sectionId: string | null) =>
     [...bundle.templateClauses]
       .filter((tc) => (tc.section_id ?? null) === sectionId && included.has(tc.clause_id))
@@ -170,11 +187,11 @@ export function renderDocument(
       section.title === 'Firmas' && options.firmasOverride ? options.firmasOverride : section.body
     push(body)
 
-    for (const clause of clausesFor(section.id)) push(clause.body)
+    for (const clause of clausesFor(section.id)) pushArticulo(clause)
   }
 
   // Cláusulas que nadie asignó a una sección
-  for (const clause of clausesFor(null)) push(clause.body)
+  for (const clause of clausesFor(null)) pushArticulo(clause)
 
   // Anexos, siempre al final
   const annexes = sections.filter((s) => s.is_annex && isSectionOn(s))

@@ -19,7 +19,8 @@ import {
 } from '../src/lib/engine/dominican'
 import { evaluateCondition, evaluateRules, describeCondition } from '../src/lib/engine/rules'
 import { substitute, buildSubstitutions, validateAnswers, normalizeTag } from '../src/lib/engine/variables'
-import { renderDocument, type TemplateBundle } from '../src/lib/engine/render'
+import { renderDocument, numerarClausula, type TemplateBundle } from '../src/lib/engine/render'
+import { formatoArticulo, ordinalEnLetras, romano } from '../src/lib/engine/articulos'
 import type { Condition, TemplateRule, Variable } from '../src/lib/engine/types'
 
 let passed = 0
@@ -442,6 +443,80 @@ test('explica por qué entró o no entró cada cláusula', () => {
 test('el monto sale en letras dentro del documento', () => {
   const r = renderDocument(bundle, base)
   assert.equal(r.text.includes('TREINTA Y DOS MIL PESOS DOMINICANOS'), true)
+})
+
+/* ══════════════ NUMERACIÓN DE ARTÍCULOS ══════════════ */
+
+group('Numeración de artículos')
+
+test('las cláusulas del cuerpo salen numeradas en orden', () => {
+  const r = renderDocument(bundle, { ...base, mascotas: true })
+  assert.equal(r.text.includes('ARTÍCULO 1: MASCOTAS. El arrendatario podrá mantener'), true, 'sin rótulo usa el título')
+  assert.equal(r.text.includes('ARTÍCULO 2: JURISDICCIÓN. Las partes eligen'), true)
+  assert.equal(r.text.indexOf('ARTÍCULO 1:') < r.text.indexOf('ARTÍCULO 2:'), true)
+})
+
+test('la numeración se corre cuando una cláusula no entra', () => {
+  const r = renderDocument(bundle, { ...base, mascotas: false })
+  assert.equal(r.text.includes('ARTÍCULO 1: JURISDICCIÓN.'), true)
+  assert.equal(r.text.includes('ARTÍCULO 2:'), false)
+})
+
+test('las cláusulas de los anexos no se numeran', () => {
+  const conAnexo: TemplateBundle = {
+    ...bundle,
+    templateClauses: [...bundle.templateClauses, { id: 'tc4', clause_id: 'c-inventario', section_id: 's3', kind: 'MANDATORY', is_default_on: true, sort_order: 4, condition: null }],
+  }
+  const r = renderDocument(conAnexo, { ...base, amueblado: true })
+  const anexos = r.text.slice(r.text.indexOf('ANEXOS'))
+  assert.equal(anexos.includes('El mobiliario se entrega'), true)
+  assert.equal(anexos.includes('ARTÍCULO'), false)
+})
+
+test('usa el rótulo que ya trae la cláusula', () => {
+  assert.equal(numerarClausula(3, 'Precio', 'PRECIO DEL ALQUILER. El inquilino pagará.'), 'ARTÍCULO 3: PRECIO DEL ALQUILER. El inquilino pagará.')
+})
+
+test('quita la numeración escrita a mano en el texto', () => {
+  assert.equal(numerarClausula(4, 'Vigencia', 'SEGUNDO: DURACIÓN. El presente contrato…'), 'ARTÍCULO 4: DURACIÓN. El presente contrato…')
+  assert.equal(numerarClausula(1, 'x', 'ARTÍCULO 7.- OBJETO. Texto.'), 'ARTÍCULO 1: OBJETO. Texto.')
+  assert.equal(numerarClausula(2, 'x', 'CLÁUSULA QUINTA: PAGO. Texto.'), 'ARTÍCULO 2: PAGO. Texto.')
+  assert.equal(numerarClausula(5, 'x', 'DÉCIMO PRIMERO: CIERRE. Texto.'), 'ARTÍCULO 5: CIERRE. Texto.')
+})
+
+test('"CLÁUSULA PENAL" es un rótulo, no numeración', () => {
+  assert.equal(numerarClausula(6, 'Penalidad', 'CLÁUSULA PENAL. La parte que incumpla…'), 'ARTÍCULO 6: CLÁUSULA PENAL. La parte que incumpla…')
+})
+
+test('un monto al inicio no se confunde con un número de artículo', () => {
+  assert.equal(numerarClausula(1, 'Pago', '1.500 pesos se pagan al firmar.'), 'ARTÍCULO 1: PAGO. 1.500 pesos se pagan al firmar.')
+})
+
+test('los seis formatos de numeración', () => {
+  assert.equal(formatoArticulo(1, 'MAYUS_ORDINAL'), 'ARTÍCULO PRIMERO:')
+  assert.equal(formatoArticulo(1, 'TITULO_ORDINAL'), 'Artículo Primero:')
+  assert.equal(formatoArticulo(1, 'TITULO_NUMERO'), 'Artículo 1:')
+  assert.equal(formatoArticulo(1, 'MAYUS_NUMERO'), 'ARTÍCULO 1:')
+  assert.equal(formatoArticulo(1, 'MAYUS_ROMANO'), 'ARTÍCULO I:')
+  assert.equal(formatoArticulo(1, 'TITULO_ROMANO'), 'Artículo I:')
+  assert.equal(formatoArticulo(1), 'ARTÍCULO 1:', 'por defecto')
+})
+
+test('ordinales y romanos más allá del diez', () => {
+  assert.equal(ordinalEnLetras(10), 'Décimo')
+  assert.equal(ordinalEnLetras(11), 'Décimo Primero')
+  assert.equal(ordinalEnLetras(20), 'Vigésimo')
+  assert.equal(ordinalEnLetras(27), 'Vigésimo Séptimo')
+  assert.equal(formatoArticulo(13, 'MAYUS_ORDINAL'), 'ARTÍCULO DÉCIMO TERCERO:')
+  assert.equal(romano(4), 'IV')
+  assert.equal(romano(14), 'XIV')
+  assert.equal(romano(49), 'XLIX')
+})
+
+test('el formato elegido llega al documento', () => {
+  const r = renderDocument(bundle, { ...base, mascotas: true }, {}, { formatoArticulos: 'TITULO_ORDINAL' })
+  assert.equal(r.text.includes('Artículo Primero: MASCOTAS.'), true)
+  assert.equal(r.text.includes('Artículo Segundo: JURISDICCIÓN.'), true)
 })
 
 /* ══════════════ RESULTADO ══════════════ */

@@ -122,6 +122,19 @@ Catálogo (última cifra escrita, NO VERIFICADA hoy):
     que mezclan texto sano y roto. No fiarse de él.
     Auditoría completa en curso el 29 sep.
 
+3.2b NUMERACIÓN DE ARTÍCULOS (29 sep, sin commit todavía)
+    El motor numera las cláusulas al generar: "ARTÍCULO 1: PRECIO DEL
+    ALQUILER. ...". Vive en src/lib/engine/articulos.ts (numerarClausula,
+    formatoArticulo, FORMATOS_ARTICULO). En el formulario hay un selector
+    "Numeración de los artículos" con 6 formatos (ARTÍCULO PRIMERO:,
+    Artículo Primero:, Artículo 1:, ARTÍCULO 1: (por defecto), ARTÍCULO I:,
+    Artículo I:); se recuerda en el navegador y solo sale en documentos
+    con cláusulas (no en cartas). No toca la base ni los textos en revisión. Quita al
+    mostrar los números escritos a mano ("SEGUNDO: DURACIÓN" del seed del
+    arrendamiento salía fuera de orden en otras plantillas). Los anexos no
+    se numeran. Los documentos YA generados no cambian: guardan su texto.
+    10 pruebas nuevas en verify:engine (62/62).
+
 3.3 PONER AL DÍA 12-PLAN-FINAL.md  (P2)
     Dice que 10.4 está pendiente (hecho), que D3 está abierta (cerrada), que
     F3 está pendiente (el importador existe desde el 6-7 sep) y no menciona
@@ -180,6 +193,10 @@ POR QUÉ SALE "fzuojuoopngcqrdozvpw.supabase.co" Y CÓMO QUITARLO
      ella sale el botón de siempre. Mismo cliente OAuth de siempre, con
      https://savedocumentos.com en "Orígenes de JavaScript autorizados".
      NO VERIFICADO en producción ni qué texto enseña Google.
+     PENDIENTE (29 sep, decisión de la dueña): subido a GitHub en 7a64979,
+     pero SIN la variable GOOGLE_CLIENT_ID en Railway, SIN el origen
+     autorizado en Google y SIN publicar la app. Hasta entonces sale el
+     botón de siempre.
   c) Dominio propio de Supabase: de pago. DESCARTADO (D11).
   Recomendado: publicar ya y luego hacer b).
 

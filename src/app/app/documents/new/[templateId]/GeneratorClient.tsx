@@ -2,14 +2,23 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2, AlertTriangle, Check, X, FileText, Eye, Stamp } from 'lucide-react'
+import { Loader2, AlertTriangle, Check, X, FileText, Eye, Stamp, ListOrdered } from 'lucide-react'
 import { previewDocument, generateDocument, type PreviewResult } from '../../actions'
 import { enviarEvento } from '@/lib/analitica'
 import { questionFor } from '@/lib/engine/variables'
+import {
+  FORMATOS_ARTICULO,
+  FORMATO_ARTICULO_POR_DEFECTO,
+  esFormatoArticulo,
+  type FormatoArticulo,
+} from '@/lib/engine/articulos'
 import type { Answers, Variable } from '@/lib/engine/types'
 
 type Group = { id: string; title: string; variables: Variable[] }
 type Coletilla = { id: string; title: string }
+
+// Se recuerda en este navegador: quien redacta suele usar siempre el mismo.
+const CLAVE_FORMATO = 'save.formatoArticulos'
 
 const REASON_LABEL: Record<string, string> = {
   obligatoria: 'siempre se incluye',
@@ -39,12 +48,31 @@ export default function GeneratorClient({
   const [answers, setAnswers] = useState<Answers>(defaults)
   const [title, setTitle] = useState(templateTitle)
   const [coletillaId, setColetillaId] = useState<string>('')
+  const [formatoArticulos, setFormatoArticulos] = useState<FormatoArticulo>(FORMATO_ARTICULO_POR_DEFECTO)
   const [preview, setPreview] = useState<PreviewResult | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const [saving, startSaving] = useTransition()
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // El formato elegido la última vez. Se lee tras montar (no en el
+  // useState inicial) para que el HTML del servidor y el del navegador
+  // coincidan. Si el almacenamiento está bloqueado, se queda el de siempre.
+  useEffect(() => {
+    try {
+      const guardado = window.localStorage.getItem(CLAVE_FORMATO)
+      if (esFormatoArticulo(guardado)) setFormatoArticulos(guardado)
+    } catch {}
+  }, [])
+
+  function elegirFormato(valor: string) {
+    if (!esFormatoArticulo(valor)) return
+    setFormatoArticulos(valor)
+    try {
+      window.localStorage.setItem(CLAVE_FORMATO, valor)
+    } catch {}
+  }
 
   // La vista previa se recalcula sola, con una pausa para no pedirla
   // en cada tecla. También se recalcula al cambiar la coletilla, porque
@@ -53,14 +81,14 @@ export default function GeneratorClient({
     if (timer.current) clearTimeout(timer.current)
     timer.current = setTimeout(() => {
       startTransition(async () => {
-        const r = await previewDocument(templateId, answers, coletillaId || null)
+        const r = await previewDocument(templateId, answers, coletillaId || null, formatoArticulos)
         if (r.ok) setPreview(r)
       })
     }, 450)
     return () => {
       if (timer.current) clearTimeout(timer.current)
     }
-  }, [answers, templateId, coletillaId])
+  }, [answers, templateId, coletillaId, formatoArticulos])
 
   const hidden = useMemo(() => new Set(preview?.hiddenVariables ?? []), [preview])
   const required = useMemo(() => new Set(preview?.requiredVariables ?? []), [preview])
@@ -76,7 +104,7 @@ export default function GeneratorClient({
   function handleGenerate() {
     setError(null)
     startSaving(async () => {
-      const r = await generateDocument(templateId, answers, title, coletillaId || null)
+      const r = await generateDocument(templateId, answers, title, coletillaId || null, formatoArticulos)
       if (r.ok && r.documentId) {
         // Se cuenta ANTES de navegar, y solo si el servidor devolvio un
         // documento. Contarlo al pulsar el boton mediria intentos, no
@@ -142,6 +170,36 @@ export default function GeneratorClient({
             </select>
             <p className="mt-1 text-xs text-slate-500">
               Reemplaza el cierre y las firmas del final del documento por el de ese notario.
+            </p>
+          </div>
+        )}
+
+        {/* Solo en documentos con cláusulas (los contratos). Las cartas no
+            tienen artículos que numerar. */}
+        {(preview?.clauses?.length ?? 0) > 0 && (
+          <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <label
+              htmlFor="formato-articulos"
+              className="mb-1 flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
+              <ListOrdered size={15} className="text-slate-400" />
+              Numeración de los artículos
+            </label>
+            <select
+              id="formato-articulos"
+              aria-describedby="formato-articulos-ayuda"
+              value={formatoArticulos}
+              onChange={(e) => elegirFormato(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            >
+              {FORMATOS_ARTICULO.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.ejemplo}
+                </option>
+              ))}
+            </select>
+            <p id="formato-articulos-ayuda" className="mt-1 text-xs text-slate-500">
+              Cómo empieza cada cláusula del contrato. Se recuerda para los siguientes documentos.
             </p>
           </div>
         )}
