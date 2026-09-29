@@ -43,7 +43,7 @@ export default async function RegisterPage({
             Gratis para empezar. Sin tarjeta de crédito.
           </p>
           <div className="mt-8">
-            <BotonGoogle texto="Registrarme con Google" />
+            <BotonGoogle texto="Registrarme con Google" contexto="signup" />
           </div>
 
           <div className="my-6 flex items-center gap-3">

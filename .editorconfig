@@ -1,0 +1,13 @@
+root = true
+
+# Todo el texto del repo es UTF-8 SIN BOM. Evita que editores y
+# herramientas guarden en Windows-1252 o con BOM.
+[*]
+charset = utf-8
+insert_final_newline = true
+
+[*.{ps1,cmd,bat}]
+end_of_line = crlf
+
+[*.sh]
+end_of_line = lf

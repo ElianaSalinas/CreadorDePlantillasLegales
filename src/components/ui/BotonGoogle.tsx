@@ -1,18 +1,42 @@
+import { connection } from 'next/server'
 import { entrarConGoogle } from '@/app/auth/google-actions'
+import BotonGoogleOficial from './BotonGoogleOficial'
 
 /**
  * "Continuar con Google".
  *
- * Es un formulario con una acción de servidor, no un botón con onClick:
- * así funciona aunque el JavaScript no haya cargado todavía, y el
- * secreto sigue viviendo solo en el servidor.
+ * Dos caminos, y el servidor elige:
  *
- * El logotipo va como SVG en línea. Google exige su marca exacta en
- * este botón, y una imagen externa sería una petición más bloqueando el
- * primer pintado de la pantalla de acceso.
+ *  - Con GOOGLE_CLIENT_ID puesto en Railway: el botón OFICIAL de Google
+ *    (BotonGoogleOficial). Google habla con savedocumentos.com y su
+ *    pantalla ya no enseña el dominio de Supabase.
+ *
+ *  - Sin esa variable, o mientras el script de Google no ha cargado: el
+ *    botón de siempre. Es un formulario con una acción de servidor, así
+ *    que funciona aunque el JavaScript no haya cargado, y el secreto
+ *    sigue viviendo solo en Supabase.
+ *
+ * GOOGLE_CLIENT_ID NO lleva el prefijo NEXT_PUBLIC_: se lee en el
+ * servidor en cada petición. connection() fuerza eso: sin él, una página
+ * prerrenderizada leería la variable en el build de Docker, donde no
+ * existe, y hornearía el botón viejo para siempre (la lección de
+ * /precios). El ID de cliente no es secreto; el secreto nunca sale de
+ * Supabase.
+ *
+ * El logotipo del botón de siempre va como SVG en línea: Google exige su
+ * marca exacta, y una imagen externa sería una petición más.
  */
-export default function BotonGoogle({ texto = 'Continuar con Google' }: { texto?: string }) {
-  return (
+export default async function BotonGoogle({
+  texto = 'Continuar con Google',
+  contexto = 'signin',
+}: {
+  texto?: string
+  contexto?: 'signin' | 'signup'
+}) {
+  await connection()
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim()
+
+  const deSiempre = (
     <form action={entrarConGoogle}>
       <button
         type="submit"
@@ -28,4 +52,8 @@ export default function BotonGoogle({ texto = 'Continuar con Google' }: { texto?
       </button>
     </form>
   )
+
+  if (!clientId) return deSiempre
+
+  return <BotonGoogleOficial clientId={clientId} contexto={contexto} respaldo={deSiempre} />
 }

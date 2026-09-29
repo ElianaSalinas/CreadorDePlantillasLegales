@@ -2,8 +2,97 @@
 
 **SA&VE Comercial, S.R.L. · Punta Cana, República Dominicana**
 Dominio auditado: `https://savedocumentos.com` · Fecha: 4 de septiembre de 2026
+**Actualizada: 29 de septiembre de 2026** — ver la sección *Actualización del 29 de septiembre*, justo debajo. El cuerpo original del 4 de septiembre se conserva sin tocar como registro histórico.
 
 ---
+
+# Actualización del 29 de septiembre de 2026
+
+## Cómo se hizo esta actualización
+
+**Fuentes:** los 13 documentos de `docs/planificacion/` (01 a 11, `12-PLAN-FINAL.md` y `fase13.md`), el historial de git hasta `1c0b89e` (26 de septiembre), una revisión directa del código y la ejecución hoy de los scripts de verificación.
+
+**Lo que NO se pudo comprobar hoy, y por eso no se afirma:**
+
+- 🌐 **Producción.** Desde el equipo no hay red de salida y la consulta web no quedó autorizada. No se miró `savedocumentos.com`, ni `www`, ni `robots.txt`/`sitemap.xml`, ni el DNS (DMARC).
+- 🌐 **Supabase.** No se consultó la base. **Las cifras de revisión legal de abajo son las últimas escritas, no las de hoy.**
+- 🌐 **Railway.** No se comprobó que el último commit (`1c0b89e`) esté desplegado con éxito.
+
+**Ejecutado hoy en el equipo, todo en verde:**
+
+| Script | Resultado |
+|---|---|
+| `verify:rnc` | ✅ TODO CORRECTO |
+| `verify:cumpleanos` | ✅ TODO CORRECTO |
+| `verify:rutas` | ✅ TODO CORRECTO |
+| `verify:engine` | ✅ 52 pruebas superadas, 0 fallidas |
+| `verify:import` | ✅ TODO CORRECTO |
+
+## Resumen: qué cambió desde el 4 de septiembre
+
+Casi todo lo que la auditoría pedía **alrededor** del producto está hecho: páginas de confianza, analítica, menú móvil, planes aplicados, bóveda privada, modo oscuro terminado, Open Graph, `proxy.ts`, `next/font`. La Fase 13 (UI del área privada) está cerrada. Las seis tareas manuales de 10.4 se hicieron el 15 de septiembre.
+
+**Lo que NO cambió, y sigue siendo la ruta crítica:** la revisión legal (F2). La última cifra escrita es **0 plantillas aprobadas**. Mientras siga así, ningún usuario ve el catálogo, y la F6 (SEO) no puede empezar.
+
+**Y aparecen hallazgos nuevos** (N1–N9, abajo), dos de ellos visibles para usuarios: el acceso con Google sigue en modo Prueba y hay mensajes de error con acentos rotos en producción.
+
+## Estado de los hallazgos originales
+
+| # | Hallazgo (4 sep) | Estado al 29 sep | Fuente |
+|---|---|---|---|
+| C1 | 251 plantillas imposibles de aprobar | ✅ Corregido | Auditoría original |
+| C2 | Credenciales expuestas sin rotar | ✅ Rotadas el 5 sep | Plan 0.1. No re-verificado hoy |
+| I1 | Catálogo al 0 % | 🔴 **Sigue abierto.** Última cifra escrita: 0 aprobadas. Hoy hay 249 contratos (se borraron 2 huérfanos) + 32 cartas | `fase13.md` 13.6; commit `871446f` dice "sin confirmar". 🔍 NO VERIFICADO hoy |
+| I2 | Sitio público de una sola página | 🟡 Existen `/precios`, `/privacidad`, `/terminos`, `/contacto`, `/quienes-somos`. **Faltan** `/plantillas` y los clusters (F6, bloqueada por F2) | Código |
+| I3 | Sin GA4 | ✅ GA4 con consentimiento y Search Console | Contexto 10 sep, F7. Código `Analitica.tsx` |
+| I4 | Sin términos, privacidad, contacto, precios | 🟡 Existen. **Ninguna revisada por abogado** | Código; contexto 10 sep |
+| I5 | Los planes no suben límites | ✅ Tres planes aplicados | Plan 1.3 |
+| I6 | Menú móvil ausente | ✅ Verificado en producción el 5 sep | Plan 1.1 |
+| I7 | Sin imagen Open Graph | ✅ `public/og.png` y `src/lib/og.ts` | Código |
+| I8 | Privacidad no probada en producción | ✅ Probada el 5 sep; después F4 invirtió el modelo (cerrada) | Plan 0.3, F4 |
+| I9 | Bóveda de todo el despacho | ✅ Privada por defecto | Plan 1.4 |
+| I10 | Modo oscuro muerto | ✅ **Terminado** el 23 sep (D3 cerrada); selector solo en `/app` | `fase13.md` |
+| I11 | Campos sin etiqueta | 🟡 Hay `htmlFor` en `GeneratorClient.tsx`. No probado con lector de pantalla | Código |
+| I12 | 251 tarjetas de golpe | ✅ Buscador, filtro y tandas de 24 | Plan 1.2 |
+| I13 | Middleware en todas las rutas | ✅ Migrado a `src/proxy.ts` (F8 cerrada) | Código |
+| I14 | Google Fonts bloquea | ✅ `next/font` en `src/lib/fuentes.ts` | Código |
+| I15 | 10 categorías vs 11 | 🔍 Es la tarea 6.1, aún pendiente. No comprobado en la portada hoy | Plan F6 |
+| I16 | "Debe tener ya una cuenta" | ✅ Corregido | Plan 1.5 |
+| I17 | Sin estado RECHAZADA | 🔴 **Sigue sin existir** (no hay motivo de rechazo en código ni migraciones) | Código |
+| I18 | `www` no resuelve | 🟡 El 10 sep daba 502 esperando certificado de Railway. 🔍 NO VERIFICADO hoy | Contexto 10 sep |
+| I19 | El receptor no ve que se le compartió | 🔍 No revisado | — |
+| I20 | `dia_pago`/`dias_pago`; depósito de/en garantía | 🔴 Pendiente (2.5) | Plan |
+| I21 | CRLF mezclado | 🔴 Pendiente (2.5) | Plan |
+| I22 | Sin `llms.txt` | 🔴 Sigue sin existir (P3, correcto que espere a F6) | Código |
+| §7 | SPF/DKIM/DMARC | ✅ Pasan, DKIM con selector `hostingermail-a`. DMARC en `p=none`. **Toca subir a `p=quarantine; pct=25` hacia el 1 de octubre**, leyendo antes el primer informe | Contexto 10 sep |
+
+## Hallazgos nuevos
+
+| # | Hallazgo | Prio | Estado |
+|---|---|---|---|
+| N1 | **Google OAuth sigue en modo Prueba** con la lista de usuarios de prueba vacía. Cualquiera que no sea la dueña recibe "acceso bloqueado" al registrarse con Google | **P1** | 👤 Última confirmación: commit `871446f`, 24 sep. Se arregla con "Publicar app" (sin logo; no dispara revisión) |
+| N2 | **Acentos rotos en producción** (doble codificación UTF-8). `src/app/app/clauses/actions.ts` muestra al usuario "La clÃ¡usula necesita un tÃ­tulo" y graba "ClÃ¡usula creada" en el historial de actividad. Desde el commit `de11569` (14 sep) | **P1** | ✅ VERIFICADO en el código. Los registros de historial ya escritos no se pueden corregir (el historial es inmutable por regla de negocio 5) |
+| N3 | **`12-PLAN-FINAL.md`, el documento que manda, está ilegible** por la misma causa: "implementaciÃ³n", "â€”". Lo rompió el commit `f8af846` (16 sep). La versión anterior (`dc36d1b`) está limpia | P2 | ✅ VERIFICADO. Se probó que revertir con la tabla cp1252 lo repara (queda 1 línea a mano) |
+| N4 | **`scripts/fix-mojibake.mjs` da falso negativo**: dice "0 archivos" con dos afectados. No recorre `docs/`, decodifica como Latin-1 en vez de cp1252, y descarta en silencio los archivos que mezclan texto sano y roto. **No fiarse de él** hasta corregirlo | P2 | ✅ VERIFICADO ejecutándolo hoy |
+| N5 | **`CONTEXTO-SAVE.txt` está desfasado aunque el commit diga lo contrario.** `871446f` se titula "actualiza al 24 de septiembre", pero el archivo guardado sigue siendo el del 10 de septiembre: manda repetir las seis tareas de 10.4, que ya están hechas. Es el texto que se pega al abrir cada chat nuevo | **P1** (de proceso) | ✅ VERIFICADO con `git show 871446f` |
+| N6 | **`12-PLAN-FINAL.md` no refleja el estado real**: 10.4 figura como pendiente (hecho el 15 sep), D3 como abierta (cerrada el 23 sep), F3 como pendiente aunque el importador existe desde el 6–7 sep y `verify:import` pasa, y la Fase 13 no aparece (vive solo en `fase13.md`) | P2 | ✅ VERIFICADO |
+| N7 | **Railway estuvo 4 días desplegando en falso** (lock file de Windows sin `@emnapi/*`). Resuelto el 15 sep. Lección: tras tocar dependencias, confirmar el despliegue en Railway, no asumir que compilar en local basta | P2 | ✅ Resuelto. 🔍 NO VERIFICADO que el último commit esté desplegado |
+| N8 | **Los documentos 01 a 11 describen otro producto**: PayPal (descartado, D6), Gemini, 10 plantillas gratis, rutas `/pricing` y `/terms`. Nadie los ha marcado como históricos | P3 | Añadirles una línea "Histórico — sustituido por 12-PLAN-FINAL.md" |
+| N9 | **Los `git status` remotos dejan `.git/index.lock`** que no se puede borrar desde el acceso remoto. Hoy se movió a `_to_delete/`, donde ya hay 10 bloqueos viejos. Para lecturas remotas usar `git --no-optional-locks` | P3 | 👤 Borrar `_to_delete/` a mano |
+
+## Fases del plan al 29 de septiembre
+
+| Fase | Estado |
+|---|---|
+| F0, F1, F4, F5, F7, F8, F8.5 | ✅ Cerradas |
+| **F2 · Revisión legal** | 🔴 **Abierta. Ruta crítica.** 0 aprobadas según la última cifra escrita. 🔍 No verificado hoy |
+| F3 · Importar y convertir | 🟡 El código existe y `verify:import` pasa. Falta probarlo de punta a punta en producción y confirmar la restricción a Pro (3.5) |
+| F6 · Arquitectura SEO | ⏸ Bloqueada por F2 |
+| F9 · CardNET | ⏸ Afiliación a cargo de la dueña (prevista para "1–2 semanas" desde el 10 sep). Bloqueada también por D7 (NCF/ITBIS, contadora) y D8 (prorrateo) |
+| F10 · Google | 🟡 10.4 hecho el 15 sep **salvo la tarea 6**: publicar la app (N1) |
+| F11 · Cartas | 🟡 32 en borrador, 0 aprobadas. 🔍 No verificado que las migraciones `20260912*` estén aplicadas: `fase13.md` encontró la "Intimación de Pago" antigua sin archivar, que es justo lo que hacía el SQL de cartas |
+| F12 · Animaciones | 🟡 Parcial: demo interactiva, Antes/Con SAVE, FAQ en acordeón y scroll-reveal (16–19 sep). 🔍 No hay medición de PageSpeed escrita después de esos cambios; la línea es 90 en móvil |
+| F13 · UI del área privada | ✅ Cerrada; 13.2 corregida el 24 sep |
 
 ## Cómo leer este informe
 

@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 import { getSiteUrl } from '@/lib/siteUrl'
 
@@ -48,4 +49,47 @@ export async function entrarConGoogle() {
   }
 
   redirect(data.url)
+}
+
+/**
+ * Entrar con el botón OFICIAL de Google (BotonGoogleOficial).
+ *
+ * Google ya autenticó a la persona en el navegador y nos da un ID token
+ * firmado. Aquí se lo pasamos a Supabase, que comprueba la firma, que el
+ * token es para NUESTRO cliente de Google y que el nonce coincide. Si todo
+ * cuadra, crea la sesión y la deja en las cookies, igual que el flujo de
+ * siempre.
+ *
+ * Se hace en el servidor a propósito: el cliente de Supabase del
+ * navegador depende de las NEXT_PUBLIC_*, que en el build de Docker no
+ * existen.
+ *
+ * Mismo destino que el flujo de siempre: /app/bienvenida, que a quien ya
+ * contestó lo manda solo al panel.
+ */
+export async function entrarConTokenDeGoogle(
+  credential: string,
+  nonce: string,
+): Promise<{ error: string } | undefined> {
+  const mensaje = 'No pudimos entrar con Google. Inténtalo de nuevo o entra con tu correo.'
+
+  if (typeof credential !== 'string' || typeof nonce !== 'string' || !credential || !nonce) {
+    return { error: mensaje }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token: credential,
+    nonce,
+  })
+
+  if (error) {
+    // Sin el token en el log: es una credencial.
+    console.error('[google] signInWithIdToken falló:', error.message)
+    return { error: mensaje }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/app/bienvenida')
 }

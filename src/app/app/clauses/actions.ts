@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { revalidatePath } from 'next/cache'
 import { requireSession } from '@/lib/session'
@@ -8,7 +8,7 @@ import { CLAUSE_FAMILIES } from '@/lib/engine/clauseFamilies'
 
 export type ClauseResult = { ok: boolean; error?: string; notice?: string; clauseId?: string }
 
-const NO_PERMISSION = 'No tienes permiso para gestionar las clÃ¡usulas del despacho.'
+const NO_PERMISSION = 'No tienes permiso para gestionar las cláusulas del despacho.'
 
 function readForm(formData: FormData) {
   return {
@@ -26,8 +26,8 @@ export async function createClause(formData: FormData): Promise<ClauseResult> {
   if (!permissions.templates) return { ok: false, error: NO_PERMISSION }
 
   const data = readForm(formData)
-  if (!data.title) return { ok: false, error: 'La clÃ¡usula necesita un tÃ­tulo.' }
-  if (!data.body) return { ok: false, error: 'La clÃ¡usula necesita un texto.' }
+  if (!data.title) return { ok: false, error: 'La cláusula necesita un título.' }
+  if (!data.body) return { ok: false, error: 'La cláusula necesita un texto.' }
 
   const slug = normalizeTag(data.title).replace(/_/g, '-')
 
@@ -49,7 +49,7 @@ export async function createClause(formData: FormData): Promise<ClauseResult> {
 
   if (error) {
     if (error.code === '23505') {
-      return { ok: false, error: 'Ya tienes una clÃ¡usula con ese tÃ­tulo.' }
+      return { ok: false, error: 'Ya tienes una cláusula con ese título.' }
     }
     return { ok: false, error: error.message }
   }
@@ -58,11 +58,11 @@ export async function createClause(formData: FormData): Promise<ClauseResult> {
     orgId: org.id,
     userId: user.id,
     action: 'CLAUSE_CREATED',
-    description: `ClÃ¡usula creada: ${data.title}`,
+    description: `Cláusula creada: ${data.title}`,
   })
 
   revalidatePath('/app/clauses')
-  return { ok: true, notice: 'ClÃ¡usula creada.', clauseId: created?.id }
+  return { ok: true, notice: 'Cláusula creada.', clauseId: created?.id }
 }
 
 export async function updateClause(id: string, formData: FormData): Promise<ClauseResult> {
@@ -71,8 +71,8 @@ export async function updateClause(id: string, formData: FormData): Promise<Clau
   if (!permissions.templates) return { ok: false, error: NO_PERMISSION }
 
   const data = readForm(formData)
-  if (!data.title) return { ok: false, error: 'La clÃ¡usula necesita un tÃ­tulo.' }
-  if (!data.body) return { ok: false, error: 'La clÃ¡usula necesita un texto.' }
+  if (!data.title) return { ok: false, error: 'La cláusula necesita un título.' }
+  if (!data.body) return { ok: false, error: 'La cláusula necesita un texto.' }
 
   const { error } = await supabase
     .from('clauses')
@@ -92,11 +92,11 @@ export async function updateClause(id: string, formData: FormData): Promise<Clau
     orgId: org.id,
     userId: user.id,
     action: 'CLAUSE_EDITED',
-    description: `ClÃ¡usula editada: ${data.title}`,
+    description: `Cláusula editada: ${data.title}`,
   })
 
   revalidatePath('/app/clauses')
-  return { ok: true, notice: 'ClÃ¡usula actualizada en todas las plantillas que la usan.' }
+  return { ok: true, notice: 'Cláusula actualizada en todas las plantillas que la usan.' }
 }
 
 export async function deleteClause(id: string): Promise<ClauseResult> {
@@ -104,7 +104,7 @@ export async function deleteClause(id: string): Promise<ClauseResult> {
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
   if (!permissions.templates) return { ok: false, error: NO_PERMISSION }
 
-  // Avisar si estÃ¡ en uso: borrarla la quita de esas plantillas.
+  // Avisar si está en uso: borrarla la quita de esas plantillas.
   const { count } = await supabase
     .from('template_clauses')
     .select('id', { count: 'exact', head: true })
@@ -117,19 +117,19 @@ export async function deleteClause(id: string): Promise<ClauseResult> {
     orgId: org.id,
     userId: user.id,
     action: 'CLAUSE_DELETED',
-    description: `ClÃ¡usula ${id} eliminada`,
+    description: `Cláusula ${id} eliminada`,
   })
 
   revalidatePath('/app/clauses')
   return {
     ok: true,
     notice: (count ?? 0) > 0
-      ? `ClÃ¡usula eliminada. Se retirÃ³ de ${count} plantilla(s) que la usaban.`
-      : 'ClÃ¡usula eliminada.',
+      ? `Cláusula eliminada. Se retiró de ${count} plantilla(s) que la usaban.`
+      : 'Cláusula eliminada.',
   }
 }
 
-/** Copia una clÃ¡usula de SA&VE al despacho para poder adaptarla. */
+/** Copia una cláusula de SA&VE al despacho para poder adaptarla. */
 export async function forkClause(id: string): Promise<ClauseResult> {
   const { supabase, user, org, permissions } = await requireSession()
   if (!org) return { ok: false, error: 'No tienes un espacio de trabajo asignado.' }
@@ -141,7 +141,7 @@ export async function forkClause(id: string): Promise<ClauseResult> {
     .eq('id', id)
     .maybeSingle()
 
-  if (!source) return { ok: false, error: 'No se encontrÃ³ la clÃ¡usula.' }
+  if (!source) return { ok: false, error: 'No se encontró la cláusula.' }
 
   const title = `${source.title} (adaptada)`
 
@@ -163,7 +163,7 @@ export async function forkClause(id: string): Promise<ClauseResult> {
   return { ok: true, notice: 'Copiada a tu despacho. Ahora puedes editarla sin afectar la original.' }
 }
 
-/** Las variables que usa el texto de una clÃ¡usula, para avisar al autor. */
+/** Las variables que usa el texto de una cláusula, para avisar al autor. */
 export async function inspectClauseTags(body: string) {
   const tags = extractTags(body)
   if (tags.length === 0) return { tags: [], known: [], unknown: [] }

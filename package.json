@@ -12,6 +12,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
+    "verify:acentos": "node scripts/fix-mojibake.mjs",
     "verify:contraste": "node scripts/verify-contraste.mjs",
     "verify:cumpleanos": "node scripts/verify-cumpleanos.mjs",
     "verify:engine": "tsc scripts/verify-engine.ts --outDir .tmp-verify --module commonjs --target es2022 --moduleResolution node --esModuleInterop --skipLibCheck && node .tmp-verify/scripts/verify-engine.js",
