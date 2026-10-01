@@ -128,6 +128,16 @@ export function renderDocument(
 
   // Las reglas pueden fijar valores; cuentan como respuestas.
   const effective: Answers = { ...answers, ...outcome.setValues }
+
+  // Una empresa comparece con UN representante. Si alguien eligió
+  // "persona", puso 2 o más y después cambió a "empresa", la pregunta de
+  // cuántas se oculta pero su respuesta seguía ahí, y el contrato metía a
+  // esas personas como comparecientes junto a la empresa.
+  for (const parte of ['primera', 'segunda']) {
+    if (effective[`parte_${parte}_tipo_parte`] === 'empresa' && `parte_${parte}_cantidad` in effective) {
+      effective[`parte_${parte}_cantidad`] = '1'
+    }
+  }
   const moneda = monedaDeRespuestas(effective)
 
   const decisions = decideClauses(bundle, effective, userSelection, outcome)

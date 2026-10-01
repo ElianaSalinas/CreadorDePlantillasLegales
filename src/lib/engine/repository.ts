@@ -88,7 +88,55 @@ export async function listUsableTemplates() {
  * ve el formulario -no toca la base ni el documento generado-, así que
  * cambiarla no exige tocar ninguna plantilla ni volver a correr SQL.
  */
-export function groupVariablesBySection(bundle: TemplateBundle) {
+/**
+ * Un recuadro dentro de una parte: la empresa, el representante, o cada
+ * persona por separado. El título final lo pone el formulario, porque
+ * depende de las respuestas (empresa o persona, cuántas personas).
+ */
+export type SubgrupoFormulario = {
+  id: 'general' | 'empresa' | 'persona1' | 'persona2' | 'persona3' | 'persona4'
+  variables: Variable[]
+}
+
+export type GrupoFormulario = {
+  id: string
+  title: string
+  /** Todas las variables del grupo, en orden. */
+  variables: Variable[]
+  /** Solo en "Primera parte" y "Segunda parte": la misma lista, repartida por persona. */
+  subgrupos?: SubgrupoFormulario[]
+}
+
+/**
+ * Orden de los datos de cada persona. El tipo de documento va ANTES del
+ * número: si se elige pasaporte, el campo siguiente ya pide el pasaporte.
+ */
+const ORDEN_PERSONA = [
+  'representante_cargo',
+  'nombre',
+  'tipo_documento',
+  'cedula',
+  'genero',
+  'nacionalidad',
+  'estado_civil',
+  'domicilio',
+]
+
+function subgrupoDe(resto: string): SubgrupoFormulario['id'] {
+  if (resto === 'tipo_parte' || resto === 'cantidad') return 'general'
+  if (resto === 'razon_social' || resto === 'rnc') return 'empresa'
+  const miembro = /^miembro([2-4])_/.exec(resto)
+  if (miembro) return `persona${miembro[1]}` as SubgrupoFormulario['id']
+  // Quien firma por la parte: la persona 1, o el representante si es una
+  // empresa (su cargo incluido).
+  return 'persona1'
+}
+
+function campoDe(resto: string): string {
+  return resto.replace(/^miembro[2-4]_/, '')
+}
+
+export function groupVariablesBySection(bundle: TemplateBundle): GrupoFormulario[] {
   const GRUPOS: { key: string; title: string; prefijo?: string }[] = [
     { key: 'primera', title: 'Primera parte', prefijo: 'parte_primera_' },
     { key: 'segunda', title: 'Segunda parte', prefijo: 'parte_segunda_' },
@@ -98,11 +146,7 @@ export function groupVariablesBySection(bundle: TemplateBundle) {
   const varById = new Map(bundle.variables.map((v) => [v.id, v]))
   const yaAgregada = new Set<string>()
 
-  const groups: { id: string; title: string; variables: Variable[] }[] = GRUPOS.map((g) => ({
-    id: g.key,
-    title: g.title,
-    variables: [],
-  }))
+  const groups: GrupoFormulario[] = GRUPOS.map((g) => ({ id: g.key, title: g.title, variables: [] }))
   const groupByKey = new Map(groups.map((g) => [g.id, g]))
 
   for (const tv of bundle.templateVariables) {
@@ -114,6 +158,34 @@ export function groupVariablesBySection(bundle: TemplateBundle) {
 
     groupByKey.get(grupo.key)!.variables.push(variable)
     yaAgregada.add(variable.id)
+  }
+
+  // Cada parte se reparte en recuadros: datos generales, la empresa, y
+  // cada persona por separado. Antes iban todas mezcladas en un solo
+  // cuadro y no se sabía de quién era cada cédula.
+  for (const g of GRUPOS) {
+    if (!g.prefijo) continue
+    const grupo = groupByKey.get(g.key)!
+    const orden: SubgrupoFormulario['id'][] = ['general', 'empresa', 'persona1', 'persona2', 'persona3', 'persona4']
+    const porId = new Map(orden.map((id) => [id, [] as Variable[]]))
+
+    for (const v of grupo.variables) {
+      porId.get(subgrupoDe(v.tag.slice(g.prefijo.length)))!.push(v)
+    }
+
+    for (const lista of porId.values()) {
+      lista.sort((a, b) => {
+        const ia = ORDEN_PERSONA.indexOf(campoDe(a.tag.slice(g.prefijo!.length)))
+        const ib = ORDEN_PERSONA.indexOf(campoDe(b.tag.slice(g.prefijo!.length)))
+        // Lo que no está en la lista conserva su orden, al final.
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+      })
+    }
+
+    grupo.subgrupos = orden
+      .map((id) => ({ id, variables: porId.get(id)! }))
+      .filter((s) => s.variables.length > 0)
+    grupo.variables = grupo.subgrupos.flatMap((s) => s.variables)
   }
 
   // Un cuadro vacío (plantilla sin variables de esa parte) no se muestra.

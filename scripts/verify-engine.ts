@@ -21,6 +21,7 @@ import { evaluateCondition, evaluateRules, describeCondition } from '../src/lib/
 import { substitute, buildSubstitutions, validateAnswers, normalizeTag } from '../src/lib/engine/variables'
 import { renderDocument, numerarClausula, type TemplateBundle } from '../src/lib/engine/render'
 import { formatoArticulo, ordinalEnLetras, romano } from '../src/lib/engine/articulos'
+import { esNumeroDeCedula, nombreDelDocumento } from '../src/lib/engine/variables'
 import type { Condition, TemplateRule, Variable } from '../src/lib/engine/types'
 
 let passed = 0
@@ -517,6 +518,53 @@ test('el formato elegido llega al documento', () => {
   const r = renderDocument(bundle, { ...base, mascotas: true }, {}, { formatoArticulos: 'TITULO_ORDINAL' })
   assert.equal(r.text.includes('Artículo Primero: MASCOTAS.'), true)
   assert.equal(r.text.includes('Artículo Segundo: JURISDICCIÓN.'), true)
+})
+
+/* ══════════════ CÉDULA O PASAPORTE ══════════════ */
+
+group('Cédula o pasaporte')
+
+const varsDoc = [
+  { id: 'vd1', tag: 'parte_primera_cedula', label: 'Cédula de quien firma por la primera parte', question: null, data_type: 'cedula', is_required: true, options: null, default_value: null, help_text: null, validation_regex: null, validation_message: null, derived_config: null },
+  { id: 'vd2', tag: 'parte_primera_tipo_documento', label: 'Tipo de documento', question: null, data_type: 'select', is_required: true, options: null, default_value: null, help_text: null, validation_regex: null, validation_message: null, derived_config: null },
+] as unknown as Variable[]
+
+test('con pasaporte no se exige el dígito verificador de la cédula', () => {
+  const errs = validateAnswers(varsDoc, { parte_primera_cedula: 'AB1234567', parte_primera_tipo_documento: 'el pasaporte' })
+  assert.equal(errs.length, 0)
+})
+
+test('con cédula se sigue validando', () => {
+  const errs = validateAnswers(varsDoc, { parte_primera_cedula: 'AB1234567', parte_primera_tipo_documento: 'la cédula de identidad y electoral' })
+  assert.equal(errs.some((e) => e.tag === 'parte_primera_cedula'), true)
+})
+
+test('sin tipo de documento elegido se asume cédula', () => {
+  assert.equal(esNumeroDeCedula('parte_primera_cedula', {}), true)
+})
+
+test('el pasaporte sale en el documento con sus letras', () => {
+  const subs = buildSubstitutions(varsDoc, { parte_primera_cedula: 'AB1234567', parte_primera_tipo_documento: 'el pasaporte' })
+  assert.equal(subs.parte_primera_cedula, 'AB1234567')
+})
+
+test('la etiqueta dice el documento elegido', () => {
+  assert.equal(nombreDelDocumento('parte_primera_cedula', { parte_primera_tipo_documento: 'el pasaporte' }), 'pasaporte')
+  assert.equal(nombreDelDocumento('parte_primera_cedula', { parte_primera_tipo_documento: 'la cédula de identidad y electoral' }), null)
+})
+
+test('una empresa no arrastra personas adicionales que se eligieron antes', () => {
+  const conMiembro: TemplateBundle = {
+    ...bundle,
+    sections: [
+      ...bundle.sections,
+      { id: 's9', template_id: 't1', title: '', body: 'También comparece la segunda persona.', sort_order: 9, is_enabled: true, is_annex: false, condition: { variable: 'parte_primera_cantidad', operator: 'greater_or_equal', value: 2 } },
+    ],
+  }
+  const persona = renderDocument(conMiembro, { ...base, parte_primera_tipo_parte: 'persona', parte_primera_cantidad: '2' })
+  assert.equal(persona.text.includes('También comparece la segunda persona.'), true)
+  const empresa = renderDocument(conMiembro, { ...base, parte_primera_tipo_parte: 'empresa', parte_primera_cantidad: '2' })
+  assert.equal(empresa.text.includes('También comparece la segunda persona.'), false)
 })
 
 /* ══════════════ RESULTADO ══════════════ */

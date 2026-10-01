@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Loader2, AlertTriangle, Check, X, FileText, Eye, Stamp, ListOrdered } from 'lucide-react'
 import { previewDocument, generateDocument, type PreviewResult } from '../../actions'
 import { enviarEvento } from '@/lib/analitica'
-import { questionFor } from '@/lib/engine/variables'
+import { questionFor, nombreDelDocumento } from '@/lib/engine/variables'
+import type { GrupoFormulario, SubgrupoFormulario } from '@/lib/engine/repository'
 import {
   FORMATOS_ARTICULO,
   FORMATO_ARTICULO_POR_DEFECTO,
@@ -14,7 +15,27 @@ import {
 } from '@/lib/engine/articulos'
 import type { Answers, Variable } from '@/lib/engine/types'
 
-type Group = { id: string; title: string; variables: Variable[] }
+type Group = GrupoFormulario
+
+const ORDINAL_PERSONA = ['', 'Primera', 'Segunda', 'Tercera', 'Cuarta']
+
+/**
+ * Título de cada recuadro de una parte. Depende de las respuestas: una
+ * empresa tiene "Datos de la empresa" y "Representante"; una parte de
+ * varias personas tiene "Primera persona", "Segunda persona"…
+ */
+function tituloSubgrupo(id: SubgrupoFormulario['id'], parte: string, answers: Answers): string | null {
+  const esEmpresa = answers[`parte_${parte}_tipo_parte`] === 'empresa'
+  const cantidad = Number(answers[`parte_${parte}_cantidad`] ?? 1)
+  if (id === 'general') return null
+  if (id === 'empresa') return 'Datos de la empresa'
+  if (id === 'persona1') {
+    if (esEmpresa) return 'Representante de la empresa'
+    return cantidad > 1 ? 'Primera persona' : 'Datos de la persona'
+  }
+  const n = Number(id.replace('persona', ''))
+  return `${ORDINAL_PERSONA[n] ?? n} persona`
+}
 type Coletilla = { id: string; title: string }
 
 // Se recuerda en este navegador: quien redacta suele usar siempre el mismo.
@@ -208,24 +229,61 @@ export default function GeneratorClient({
           const visible = group.variables.filter((v) => !hidden.has(v.tag))
           if (visible.length === 0) return null
 
+          const campos = (lista: Variable[]) => (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {lista.map((v) => (
+                <Field
+                  key={v.id}
+                  variable={v}
+                  value={answers[v.tag]}
+                  onChange={(val) => set(v.tag, val)}
+                  error={errorByTag.get(v.tag)}
+                  forcedRequired={required.has(v.tag)}
+                  documento={v.data_type === 'cedula' ? nombreDelDocumento(v.tag, answers) : null}
+                />
+              ))}
+            </div>
+          )
+
           return (
             <section
               key={group.id}
               className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
             >
               <h2 className="mb-5 font-bold text-slate-900 dark:text-white">{group.title}</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {visible.map((v) => (
-                  <Field
-                    key={v.id}
-                    variable={v}
-                    value={answers[v.tag]}
-                    onChange={(val) => set(v.tag, val)}
-                    error={errorByTag.get(v.tag)}
-                    forcedRequired={required.has(v.tag)}
-                  />
-                ))}
-              </div>
+
+              {!group.subgrupos ? (
+                campos(visible)
+              ) : (
+                <div className="space-y-4">
+                  {group.subgrupos.map((sub) => {
+                    const subVisibles = sub.variables.filter((v) => !hidden.has(v.tag))
+                    if (subVisibles.length === 0) return null
+                    const titulo = tituloSubgrupo(sub.id, group.id, answers)
+
+                    // Lo general (empresa o persona, cuántas) va suelto
+                    // arriba; cada persona y la empresa, en su recuadro.
+                    if (!titulo) return <div key={sub.id}>{campos(subVisibles)}</div>
+
+                    const tituloId = `${group.id}-${sub.id}-titulo`
+                    return (
+                      <fieldset
+                        key={sub.id}
+                        aria-labelledby={tituloId}
+                        className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50"
+                      >
+                        <h3
+                          id={tituloId}
+                          className="mb-4 text-sm font-semibold text-slate-800 dark:text-slate-200"
+                        >
+                          {titulo}
+                        </h3>
+                        {campos(subVisibles)}
+                      </fieldset>
+                    )
+                  })}
+                </div>
+              )}
             </section>
           )
         })}
@@ -343,12 +401,15 @@ function Field({
   onChange,
   error,
   forcedRequired,
+  documento = null,
 }: {
   variable: Variable
   value: unknown
   onChange: (v: unknown) => void
   error?: string
   forcedRequired: boolean
+  /** Si el campo de cédula es en realidad otro documento: "pasaporte", "licencia de conducir"… */
+  documento?: string | null
 }) {
   const required = forcedRequired || variable.is_required
   const wide = variable.data_type === 'textarea' || variable.data_type === 'address' || variable.data_type === 'multiselect'
@@ -378,7 +439,9 @@ function Field({
         htmlFor={esGrupo ? undefined : campoId}
         className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300"
       >
-        {questionFor(variable)}
+        {documento
+          ? questionFor(variable).replace(/^c[ée]dula\b/i, `Número de ${documento}`)
+          : questionFor(variable)}
         {required && (
           <span className="ml-1 text-red-500" aria-hidden="true">
             *
@@ -398,6 +461,7 @@ function Field({
         describedBy={describedBy || undefined}
         required={required}
         invalido={Boolean(error)}
+        sinFormatoDeCedula={Boolean(documento)}
       />
 
       {variable.help_text && !error && (
@@ -423,6 +487,7 @@ function Control({
   describedBy,
   required,
   invalido,
+  sinFormatoDeCedula = false,
 }: {
   variable: Variable
   value: unknown
@@ -432,8 +497,10 @@ function Control({
   describedBy?: string
   required: boolean
   invalido: boolean
+  sinFormatoDeCedula?: boolean
 }) {
-  const t = variable.data_type
+  // Un pasaporte lleva letras: ni teclado numérico ni la pista 000-0000000-0.
+  const t = variable.data_type === 'cedula' && sinFormatoDeCedula ? 'text' : variable.data_type
 
   // Lo que todo control comparte. `aria-invalid` es lo que hace que el
   // lector anuncie el error al entrar en el campo, no solo al enviarlo.

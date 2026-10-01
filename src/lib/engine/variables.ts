@@ -151,7 +151,13 @@ export function buildSubstitutions(variables: Variable[], answers: Answers): Rec
 
   for (const v of variables) {
     const raw = answers[v.tag]
-    out[v.tag] = formatValue(raw, v.data_type, v, moneda)
+    // formatCedula deja solo dígitos y pone guiones: con un pasaporte
+    // ("AB1234567") borraba las letras y el contrato decía "123-4567".
+    // Si el documento no es cédula, el número va tal cual lo escribieron.
+    out[v.tag] =
+      v.data_type === 'cedula' && !esNumeroDeCedula(v.tag, answers) && raw !== undefined && raw !== null
+        ? String(raw).trim()
+        : formatValue(raw, v.data_type, v, moneda)
 
     const derived = v.derived_config
     if (derived?.transform) {
@@ -326,7 +332,9 @@ export function validateAnswers(
 
     const value = String(raw)
 
-    if (v.data_type === 'cedula') {
+    // Un pasaporte o un carnet no tienen dígito verificador de la JCE:
+    // validarlos como cédula los rechazaba siempre.
+    if (v.data_type === 'cedula' && esNumeroDeCedula(v.tag, answers)) {
       const check = validateCedula(value)
       if (!check.isValid) errors.push({ tag: v.tag, label: v.label, message: check.error ?? 'Cédula inválida.' })
     }
@@ -378,4 +386,43 @@ export function validateAnswers(
 /** La pregunta que se le muestra a la persona, no el nombre técnico. */
 export function questionFor(v: Variable): string {
   return v.question?.trim() || v.label
+}
+
+/* ═══════════════════ CÉDULA, PASAPORTE Y DEMÁS ═══════════════════ */
+
+/**
+ * El campo `…_cedula` guarda el NÚMERO del documento con que se identifica
+ * esa persona, y `…_tipo_documento` dice cuál es: cédula, pasaporte,
+ * licencia o carnet de residencia. Se emparejan por el nombre:
+ *
+ *   parte_primera_cedula          ↔ parte_primera_tipo_documento
+ *   parte_primera_miembro2_cedula ↔ parte_primera_miembro2_tipo_documento
+ *
+ * Si no hay tipo de documento (o no se ha elegido), se asume cédula, que
+ * es lo que el campo pedía siempre.
+ */
+export function tipoDocumentoTagDe(tag: string): string | null {
+  return tag.endsWith('_cedula') ? tag.replace(/_cedula$/, '_tipo_documento') : null
+}
+
+/** El valor elegido en el tipo de documento ("el pasaporte"), o null. */
+export function tipoDocumentoElegido(tag: string, answers: Answers): string | null {
+  const t = tipoDocumentoTagDe(tag)
+  const valor = t ? answers[t] : undefined
+  return valor === undefined || valor === null || valor === '' ? null : String(valor)
+}
+
+/** ¿Este número es de una cédula dominicana? Solo entonces se valida el dígito y se le ponen guiones. */
+export function esNumeroDeCedula(tag: string, answers: Answers): boolean {
+  const elegido = tipoDocumentoElegido(tag, answers)
+  return elegido === null || /c[ée]dula/i.test(elegido)
+}
+
+/**
+ * Nombre del documento para la etiqueta del formulario: "el pasaporte" →
+ * "pasaporte". Null cuando es cédula (la etiqueta del catálogo ya sirve).
+ */
+export function nombreDelDocumento(tag: string, answers: Answers): string | null {
+  if (esNumeroDeCedula(tag, answers)) return null
+  return (tipoDocumentoElegido(tag, answers) ?? '').replace(/^(el|la|los|las)\s+/i, '').trim() || 'documento'
 }

@@ -135,6 +135,22 @@ Catálogo (última cifra escrita, NO VERIFICADA hoy):
     se numeran. Los documentos YA generados no cambian: guardan su texto.
     10 pruebas nuevas en verify:engine (62/62).
 
+3.2c FORMULARIO: PASAPORTE Y RECUADROS POR PERSONA (1 oct, sin commit)
+    - Con pasaporte/licencia/carnet ya no se valida como cédula, y el
+      número sale tal cual (antes formatCedula BORRABA las letras:
+      "AB1234567" -> "123-4567"). El campo dice "Número de pasaporte…".
+      Emparejado por nombre: X_cedula <-> X_tipo_documento
+      (src/lib/engine/variables.ts, esNumeroDeCedula).
+    - Cada parte se reparte en recuadros: general, "Datos de la empresa",
+      "Representante de la empresa" / "Primera persona"… "Cuarta persona"
+      (groupVariablesBySection en repository.ts + GeneratorClient). El
+      tipo de documento va antes del número.
+    - Bug corregido: empresa + cantidad>1 elegida antes metía a esas
+      personas en el contrato (render.ts fuerza cantidad 1 si es empresa).
+    - FALTA (necesita migración): tipo de documento para las personas 2-4
+      (su texto dice fijo "cédula de identidad y electoral") y varios
+      representantes por empresa.
+
 3.3 PONER AL DÍA 12-PLAN-FINAL.md  (P2)
     Dice que 10.4 está pendiente (hecho), que D3 está abierta (cerrada), que
     F3 está pendiente (el importador existe desde el 6-7 sep) y no menciona
@@ -197,6 +213,9 @@ POR QUÉ SALE "fzuojuoopngcqrdozvpw.supabase.co" Y CÓMO QUITARLO
      pero SIN la variable GOOGLE_CLIENT_ID en Railway, SIN el origen
      autorizado en Google y SIN publicar la app. Hasta entonces sale el
      botón de siempre.
+     PASO A PASO COMPLETO: docs/BOTON-GOOGLE-PASO-A-PASO.md. Ojo: desde el
+     23 sep Google Cloud exige verificación en 2 pasos en la cuenta dueña;
+     sin ella la consola sale bloqueada (paso 0 de esa guía).
   c) Dominio propio de Supabase: de pago. DESCARTADO (D11).
   Recomendado: publicar ya y luego hacer b).
 
