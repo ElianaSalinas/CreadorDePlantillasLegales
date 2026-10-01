@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronRight,
   CircleAlert,
+  BookOpen,
   Loader2,
   Pencil,
   RotateCcw,
@@ -371,12 +372,21 @@ export default function RevisionClient({
                               Leer
                             </button>
                           ) : (
-                            <Link
-                              href={`/app/templates/${f.id}/edit`}
-                              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-slate-500 transition-colors hover:text-emerald-600"
-                            >
-                              <Pencil size={14} /> Abrir y editar
-                            </Link>
+                            <div className="flex shrink-0 items-center gap-2">
+                              <button
+                                onClick={() => alternarPlantilla(f.id)}
+                                aria-expanded={desplegada}
+                                className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-700 dark:border-slate-700 dark:text-slate-300"
+                              >
+                                <BookOpen size={14} /> {desplegada ? 'Cerrar' : 'Leer y aprobar'}
+                              </button>
+                              <Link
+                                href={`/app/templates/${f.id}/edit`}
+                                className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 transition-colors hover:border-emerald-500 hover:text-emerald-700 dark:border-slate-700 dark:text-slate-300"
+                              >
+                                <Pencil size={14} /> Modificar
+                              </Link>
+                            </div>
                           )}
                         </div>
 
@@ -384,6 +394,19 @@ export default function RevisionClient({
                         {desplegada && c && (
                           <div className="mt-3 ml-7 rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50">
                             <EditorDeClausula clausula={c} />
+                          </div>
+                        )}
+
+                        {/* La plantilla entera, para leerla y aprobarla sin salir de la lista */}
+                        {desplegada && p && (
+                          <div className="mt-3 ml-7 rounded-lg bg-slate-50 p-4 dark:bg-slate-800/50">
+                            <PanelDePlantilla
+                              id={p.id}
+                              publicada={p.status === 'PUBLISHED'}
+                              resumen={resumenes.get(p.id)}
+                              aprobando={enCurso}
+                              onAprobar={() => aprobarUna(p.id)}
+                            />
                           </div>
                         )}
                       </li>
@@ -395,6 +418,101 @@ export default function RevisionClient({
           })}
         </div>
       )}
+    </div>
+  )
+}
+
+
+/**
+ * Lo que ve la revisora al desplegar una plantilla: si hay algo que
+ * impide publicarla, el texto completo tal como saldría, y los dos
+ * botones de lo que puede hacer con ella.
+ */
+function PanelDePlantilla({
+  id,
+  publicada,
+  resumen,
+  aprobando,
+  onAprobar,
+}: {
+  id: string
+  publicada: boolean
+  resumen: ResumenPlantilla | 'cargando' | 'error' | undefined
+  aprobando: boolean
+  onAprobar: () => void
+}) {
+  if (!resumen || resumen === 'cargando') {
+    return (
+      <p className="flex items-center gap-2 text-sm text-slate-500">
+        <Loader2 size={14} className="animate-spin" /> Cargando la plantilla…
+      </p>
+    )
+  }
+  if (resumen === 'error') {
+    return <p className="text-sm text-red-600">No se pudo cargar. Ábrela con «Modificar».</p>
+  }
+
+  const bloqueos = resumen.issues.filter((i) => i.level === 'blocker')
+  const avisos = resumen.issues.filter((i) => i.level === 'warning')
+
+  return (
+    <div className="space-y-3">
+      {bloqueos.length > 0 && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+          <p className="font-semibold">Todavía no se puede publicar:</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5">
+            {bloqueos.map((b, i) => (
+              <li key={i}>
+                {b.title}
+                {b.detail && <span className="block text-xs opacity-90">{b.detail}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {avisos.length > 0 && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+          <p className="font-semibold">Conviene revisar:</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5">
+            {avisos.map((a, i) => (
+              <li key={i}>{a.title}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="text-xs text-slate-500">
+        Así sale el documento. Lo que va entre corchetes son los datos que rellena quien lo usa.
+      </p>
+      <pre className="max-h-[480px] overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-4 font-serif text-sm leading-relaxed text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+        {resumen.preview}
+      </pre>
+      {resumen.condicionales.length > 0 && (
+        <p className="text-xs text-slate-500">
+          Según lo que responda el usuario, también puede llevar: {resumen.condicionales.join(', ')}.
+          Para leerlas, usa «Modificar».
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        {!publicada && (
+          <button
+            onClick={onAprobar}
+            disabled={aprobando || bloqueos.length > 0}
+            title={bloqueos.length > 0 ? 'Resuelve primero lo que impide publicarla' : undefined}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-40"
+          >
+            {aprobando ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+            Aprobar y publicar esta plantilla
+          </button>
+        )}
+        <Link
+          href={`/app/templates/${id}/edit`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-white dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <Pencil size={15} /> Modificar el texto o las cláusulas
+        </Link>
+      </div>
     </div>
   )
 }

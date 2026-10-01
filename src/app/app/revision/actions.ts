@@ -2,6 +2,7 @@
 
 import { loadTemplateBundle } from '@/lib/engine/repository'
 import { checkTemplateQuality } from '@/lib/engine/quality'
+import { renderDocument } from '@/lib/engine/render'
 import { revalidatePath } from 'next/cache'
 import { requireSession } from '@/lib/session'
 import { logAudit } from '@/lib/audit'
@@ -165,6 +166,8 @@ export type ResumenPlantilla = {
   blockers: number
   warnings: number
   preview: string
+  /** Cláusulas que solo entran según lo que responda el usuario: no salen en `preview`. */
+  condicionales: string[]
 }
 
 /**
@@ -190,11 +193,21 @@ export async function cargarResumenPlantilla(
 
     const report = checkTemplateQuality(bundle, meta)
 
-    const preview = bundle.sections
-      .filter((s) => !s.is_annex)
-      .map((s) => s.body ?? '')
-      .join('\n\n')
-      .slice(0, 4000)
+    // El documento entero tal como saldría, cláusulas incluidas y
+    // numeradas. Antes solo se juntaban las secciones, y el texto legal
+    // de verdad —las cláusulas— no aparecía. Los datos del formulario
+    // salen como hueco marcado, para que se vea qué se le pregunta al
+    // usuario.
+    const render = renderDocument(bundle, {})
+    // "[falta: parte_primera_nombre]" no le dice nada a una abogada: se
+    // cambia por la etiqueta del dato ("[Nombre de quien firma por la
+    // primera parte]"). Los alias derivados (…_letras, …_notarial) no
+    // tienen etiqueta propia y se leen por su nombre.
+    const etiquetas = new Map(bundle.variables.map((v) => [v.tag, v.label]))
+    const preview = render.text
+      .replace(/\[falta: ([a-zA-Z0-9_]+)\]/g, (_, tag: string) => `[${etiquetas.get(tag) ?? tag.replace(/_/g, ' ')}]`)
+      .slice(0, 30000)
+    const condicionales = render.clauses.filter((c) => !c.included).map((c) => c.title)
 
     return {
       ok: true,
@@ -203,6 +216,7 @@ export async function cargarResumenPlantilla(
         blockers: report.blockers,
         warnings: report.warnings,
         preview,
+        condicionales,
       },
     }
   } catch (err) {

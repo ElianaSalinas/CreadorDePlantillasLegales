@@ -3,6 +3,7 @@ import { logout } from './actions'
 import AppNav from '@/components/ui/AppNav'
 import MenuMovil from '@/components/ui/MenuMovil'
 import SelectorDeTema from '@/components/ui/SelectorDeTema'
+import TutorialRevision from '@/components/ui/TutorialRevision'
 import { requireSession, displayName } from '@/lib/session'
 
 export default async function AppLayout({
@@ -72,6 +73,10 @@ export default async function AppLayout({
 
         <main className="flex-1 p-8">{children}</main>
       </div>
+
+      {/* Cómo aprobar y corregir el catálogo, para quien lo revisa. Sale al
+          abrir la app hasta que pulse "No ver otra vez". */}
+      {esRevisor && user.user_metadata?.tutorial_revision_oculto !== true && <TutorialRevision />}
     </div>
   )
 }

@@ -151,6 +151,21 @@ Catálogo (última cifra escrita, NO VERIFICADA hoy):
       (su texto dice fijo "cédula de identidad y electoral") y varios
       representantes por empresa.
 
+3.2d REVISIÓN: APROBAR Y MODIFICAR VISIBLE + TUTORIAL (1 oct, sin commit)
+    - 3969cc7 decía "leer y aprobar plantillas sin salir de la lista" pero
+      la UI nunca se conectó. Ahora cada plantilla tiene "Leer y aprobar"
+      (documento completo con cláusulas numeradas, bloqueos y botón
+      "Aprobar y publicar esta plantilla") y "Modificar" (editor).
+    - Bug: el guard del editor (y por tanto publishTemplate) exigía
+      despacho propio + permiso de plantillas también al revisor. Ahora un
+      revisor del catálogo maestro pasa por su permiso de revisor.
+    - Tutorial para revisores al abrir la app (TutorialRevision.tsx).
+      "Ver más tarde" = sessionStorage; "No ver otra vez" = user_metadata
+      tutorial_revision_oculto (sin migración).
+    - NO VERIFICADO que la cuenta de Cifuentes esté enlazada: si
+      revisores_contenido.user_id es NULL no ve ni "Revisión" ni el tutorial.
+      Comprobar con scripts/estado-revision.sql (bloque 2).
+
 3.3 PONER AL DÍA 12-PLAN-FINAL.md  (P2)
     Dice que 10.4 está pendiente (hecho), que D3 está abierta (cerrada), que
     F3 está pendiente (el importador existe desde el 6-7 sep) y no menciona

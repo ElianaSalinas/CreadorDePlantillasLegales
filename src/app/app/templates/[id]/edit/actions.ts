@@ -23,8 +23,6 @@ const NO_PERMISSION = 'No tienes permiso para editar plantillas.'
  */
 async function guard(templateId: string) {
   const session = await requireSession()
-  if (!session.org) throw new Error('No tienes un espacio de trabajo asignado.')
-  if (!session.permissions.templates) throw new Error(NO_PERMISSION)
 
   const { data: template } = await session.supabase
     .from('templates')
@@ -34,8 +32,17 @@ async function guard(templateId: string) {
 
   if (!template) throw new Error('No se encontró la plantilla.')
 
-  const owned = template.org_id === session.org.id
+  // Quien revisa el catálogo maestro (Cifuentes, Márquez) lo hace por su
+  // permiso de revisor, no por su despacho: puede no tener despacho propio,
+  // o ser paralegal en uno sin permiso de plantillas. Antes se le exigían
+  // las dos cosas y "Aprobar" fallaba con "No tienes un espacio de trabajo".
   const revisandoCatalogo = template.is_master === true && session.esRevisor
+  if (!revisandoCatalogo) {
+    if (!session.org) throw new Error('No tienes un espacio de trabajo asignado.')
+    if (!session.permissions.templates) throw new Error(NO_PERMISSION)
+  }
+
+  const owned = Boolean(session.org) && template.org_id === session.org?.id
 
   if (!owned && !session.isAdmin && !revisandoCatalogo) {
     throw new Error('Esta plantilla no es de tu despacho.')

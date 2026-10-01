@@ -13,8 +13,6 @@ export default async function EditTemplatePage({ params }: { params: Promise<{ i
   const { id } = await params
   const { supabase, org, isAdmin, esRevisor, permissions } = await requireSession()
 
-  if (!permissions.templates) redirect('/app/templates')
-
   const { data: meta } = await supabase
     .from('templates')
     .select('id, org_id, title, description, category_id, status, version, is_master, reviewed_by, reviewed_at')
@@ -27,6 +25,9 @@ export default async function EditTemplatePage({ params }: { params: Promise<{ i
   // catálogo; la del despacho, su despacho.
   const owned = meta.org_id === org?.id
   const revisandoCatalogo = meta.is_master === true && esRevisor
+  // El permiso de plantillas del despacho no aplica a quien revisa el
+  // catálogo maestro: lo revisa por su permiso de revisor.
+  if (!permissions.templates && !revisandoCatalogo) redirect('/app/templates')
   if (!owned && !isAdmin && !revisandoCatalogo) redirect('/app/templates')
 
   const bundle = await loadTemplateBundle(id)
