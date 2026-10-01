@@ -195,7 +195,7 @@ export function renderDocument(
 
     const body =
       section.title === 'Firmas' && options.firmasOverride ? options.firmasOverride : section.body
-    push(body)
+    push(section.title === 'Firmas' ? conFirmasDeLasPartes(body, bundle, effective) : body)
 
     for (const clause of clausesFor(section.id)) pushArticulo(clause)
   }
@@ -223,6 +223,86 @@ export function renderDocument(
     warnings: outcome.warnings,
     outcome,
   }
+}
+
+/* ─────────────── Bloque de firmas ─────────────── */
+
+const LINEA_FIRMA = '_______________________________'
+
+/**
+ * Una firma por cada persona que comparece, en lugar de las dos líneas
+ * fijas "LA PRIMERA PARTE / LA SEGUNDA PARTE":
+ *
+ *   persona(s)   _______________________________
+ *                LA PRIMERA PARTE
+ *                Juan Pérez                 ← una firma por persona (1 a 4)
+ *
+ *   empresa      _______________________________
+ *                LA PRIMERA PARTE
+ *                Inmobiliaria del Este, S.R.L.
+ *                María Gómez                ← su representante
+ *
+ * Los nombres van como {{variables}}, así que pasan por la sustitución
+ * normal: salen en negrita en Word y, si faltan, se marcan como dato
+ * pendiente.
+ */
+function firmasDeLaParte(parte: 'primera' | 'segunda', answers: Answers): string[] {
+  const p = `parte_${parte}`
+  const rotulo = `LA ${parte.toUpperCase()} PARTE`
+
+  if (answers[`${p}_tipo_parte`] === 'empresa') {
+    return [[LINEA_FIRMA, rotulo, `{{${p}_razon_social}}`, `{{${p}_nombre}}`].join('\n')]
+  }
+
+  const cantidad = Math.min(4, Math.max(1, Math.trunc(Number(answers[`${p}_cantidad`] ?? 1)) || 1))
+  const firmas: string[] = []
+  for (let n = 1; n <= cantidad; n++) {
+    const nombre = n === 1 ? `{{${p}_nombre}}` : `{{${p}_miembro${n}_nombre}}`
+    firmas.push([LINEA_FIRMA, rotulo, nombre].join('\n'))
+  }
+  return firmas
+}
+
+/**
+ * Sustituye las líneas de firma de la sección "Firmas" por una firma por
+ * persona. Solo en plantillas con partes (las del catálogo de contratos):
+ * las demás no saben quién firma y se dejan como están.
+ *
+ * - Texto estándar: lo que va desde la primera línea de "____" hasta el
+ *   final se reemplaza; el "Hecho y firmado en…" de arriba se conserva.
+ * - Coletilla notarial (texto propio del notario): si ya trae sus líneas
+ *   de firma, no se toca; si no las trae, las firmas van ANTES de ella,
+ *   que es donde van en un acto notarial (el notario certifica las firmas
+ *   que anteceden).
+ */
+export function conFirmasDeLasPartes(cuerpo: string | null | undefined, bundle: TemplateBundle, answers: Answers): string | null | undefined {
+  const tags = new Set(bundle.variables.map((v) => v.tag))
+  const partes = (['primera', 'segunda'] as const).filter((parte) => tags.has(`parte_${parte}_nombre`))
+  if (partes.length === 0 || !cuerpo) return cuerpo
+
+  const bloque = partes.flatMap((parte) => firmasDeLaParte(parte, answers)).join('\n\n\n')
+
+  const lineas = cuerpo.split(/\r?\n/)
+  const primeraFirma = lineas.findIndex((l) => /_{5,}/.test(l))
+
+  if (primeraFirma >= 0) {
+    // La zona de firmas: desde la primera línea de "____" hasta la última
+    // línea que sea de firma o diga "LA PRIMERA/SEGUNDA PARTE". Lo que
+    // venga detrás (la certificación de un notario) se conserva.
+    const esLineaDeFirma = (l: string) => /_{5,}|LA (PRIMERA|SEGUNDA) PARTE/.test(l)
+    let ultima = primeraFirma
+    for (let i = primeraFirma; i < lineas.length; i++) if (esLineaDeFirma(lineas[i])) ultima = i
+
+    const esEstandar = lineas.slice(primeraFirma, ultima + 1).some((l) => /LA (PRIMERA|SEGUNDA) PARTE/.test(l))
+    if (!esEstandar) return cuerpo // líneas de firma propias (coletilla): no se tocan
+
+    const antes = lineas.slice(0, primeraFirma).join('\n').trimEnd()
+    const despues = lineas.slice(ultima + 1).join('\n').trim()
+    return [antes, bloque, despues].filter(Boolean).join('\n\n\n')
+  }
+
+  // Sin líneas de firma (una coletilla que solo trae la certificación).
+  return `${bloque}\n\n\n${cuerpo}`
 }
 
 /**

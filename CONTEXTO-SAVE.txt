@@ -185,6 +185,15 @@ Catálogo (última cifra escrita, NO VERIFICADA hoy):
       esto: reescribe los archivos 20260827* ya ejecutados.
     - Pendiente aparte: varios representantes por empresa.
 
+3.2f FIRMAS POR PERSONA (1 oct, sin commit, sin migración)
+    - La sección "Firmas" pone una firma por persona: línea, "LA PRIMERA
+      PARTE" y el nombre debajo (1 a 4 personas). Si es empresa: línea,
+      "LA PRIMERA PARTE", razón social y debajo el representante.
+    - render.ts conFirmasDeLasPartes: sustituye solo la zona de firmas
+      estándar; conserva el "Hecho y firmado…" y lo que venga detrás.
+      Coletilla con firmas propias: no se toca. Coletilla sin firmas: las
+      firmas van antes. Solo en plantillas con parte_*_nombre.
+
 3.3 PONER AL DÍA 12-PLAN-FINAL.md  (P2)
     Dice que 10.4 está pendiente (hecho), que D3 está abierta (cerrada), que
     F3 está pendiente (el importador existe desde el 6-7 sep) y no menciona

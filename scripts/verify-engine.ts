@@ -630,6 +630,81 @@ test('el segundo número se valida solo si es una cédula', () => {
   assert.equal(validateAnswers(v, { parte_primera_documento_2: '123', parte_primera_tipo_documento_2: 'la cédula de identidad y electoral' }).length, 1)
 })
 
+/* ══════════════ FIRMAS ══════════════ */
+
+group('Firmas por persona')
+
+const vFirma = (tag: string, data_type = 'text') =>
+  ({ id: tag, tag, label: tag, question: null, data_type, is_required: false, options: null, default_value: null, help_text: null, validation_regex: null, validation_message: null, derived_config: null }) as unknown as Variable
+
+const firmasEstandar =
+  'Hecho y firmado en Punta Cana, República Dominicana, hoy.\n\n\n' +
+  '_______________________________          _______________________________\n' +
+  '      LA PRIMERA PARTE                          LA SEGUNDA PARTE'
+
+const bundleFirmas = (cuerpoFirmas = firmasEstandar): TemplateBundle => ({
+  template: { id: 'tf', title: 'x', version: '1' },
+  variables: [
+    'parte_primera_nombre', 'parte_primera_tipo_parte', 'parte_primera_cantidad', 'parte_primera_razon_social',
+    'parte_primera_miembro2_nombre', 'parte_segunda_nombre', 'parte_segunda_tipo_parte', 'parte_segunda_cantidad',
+    'parte_segunda_razon_social',
+  ].map((tag) => vFirma(tag)),
+  templateVariables: [],
+  sections: [{ id: 'sf', template_id: 'tf', title: 'Firmas', body: cuerpoFirmas, sort_order: 1, is_enabled: true, is_annex: false, condition: null }],
+  clauses: [],
+  templateClauses: [],
+  rules: [],
+})
+
+test('una firma por persona, con su nombre debajo', () => {
+  const r = renderDocument(bundleFirmas(), {
+    parte_primera_tipo_parte: 'persona', parte_primera_cantidad: '2',
+    parte_primera_nombre: 'Juan Pérez', parte_primera_miembro2_nombre: 'Ana Díaz',
+    parte_segunda_tipo_parte: 'persona', parte_segunda_cantidad: '1', parte_segunda_nombre: 'Luis Mora',
+  })
+  assert.equal(r.text.includes('Hecho y firmado en Punta Cana'), true, 'se conserva el cierre')
+  assert.equal(r.text.includes('_______________________________\nLA PRIMERA PARTE\nJuan Pérez'), true)
+  assert.equal(r.text.includes('_______________________________\nLA PRIMERA PARTE\nAna Díaz'), true)
+  assert.equal(r.text.includes('_______________________________\nLA SEGUNDA PARTE\nLuis Mora'), true)
+  assert.equal((r.text.match(/LA PRIMERA PARTE/g) ?? []).length, 2)
+  assert.equal(r.text.includes('LA PRIMERA PARTE                          LA SEGUNDA PARTE'), false, 'ya no salen las dos líneas fijas')
+})
+
+test('empresa: la parte, el nombre de la empresa y debajo el representante', () => {
+  const r = renderDocument(bundleFirmas(), {
+    parte_primera_tipo_parte: 'empresa', parte_primera_cantidad: '3',
+    parte_primera_razon_social: 'Inmobiliaria del Este, S.R.L.', parte_primera_nombre: 'María Gómez',
+    parte_segunda_tipo_parte: 'persona', parte_segunda_nombre: 'Luis Mora',
+  })
+  assert.equal(r.text.includes('_______________________________\nLA PRIMERA PARTE\nInmobiliaria del Este, S.R.L.\nMaría Gómez'), true)
+  assert.equal((r.text.match(/LA PRIMERA PARTE/g) ?? []).length, 1, 'una empresa firma una vez aunque antes se eligieran 3 personas')
+})
+
+test('una coletilla sin líneas de firma: las firmas van antes', () => {
+  const r = renderDocument(bundleFirmas(), { parte_primera_nombre: 'Juan Pérez', parte_segunda_nombre: 'Luis Mora' }, {}, {
+    firmasOverride: 'Yo, Lic. Notario, CERTIFICO que las firmas que anteceden fueron puestas en mi presencia.',
+  })
+  assert.equal(r.text.indexOf('Juan Pérez') < r.text.indexOf('CERTIFICO'), true)
+})
+
+test('una coletilla con sus propias líneas de firma no se toca', () => {
+  const propia = 'Firmado ante mí.\n\n________________\nEL VENDEDOR\n\n________________\nEL COMPRADOR'
+  const r = renderDocument(bundleFirmas(), { parte_primera_nombre: 'Juan Pérez' }, {}, { firmasOverride: propia })
+  assert.equal(r.text.includes(propia), true)
+})
+
+test('lo que va después de las firmas estándar se conserva', () => {
+  const r = renderDocument(bundleFirmas(firmasEstandar + '\n\nYo, Lic. Notario, CERTIFICO…'), { parte_primera_nombre: 'Juan Pérez', parte_segunda_nombre: 'Luis Mora' })
+  assert.equal(r.text.includes('CERTIFICO'), true)
+  assert.equal(r.text.indexOf('Luis Mora') < r.text.indexOf('CERTIFICO'), true)
+})
+
+test('sin datos de las partes, la plantilla se deja como está', () => {
+  const sinPartes = { ...bundleFirmas(), variables: [] }
+  const r = renderDocument(sinPartes, {})
+  assert.equal(r.text.includes('LA PRIMERA PARTE                          LA SEGUNDA PARTE'), true)
+})
+
 /* ══════════════ RESULTADO ══════════════ */
 
 console.log(`\n${'─'.repeat(50)}`)
