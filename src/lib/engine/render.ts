@@ -215,7 +215,9 @@ export function renderDocument(
   }
 
   return {
-    text: pieces.join('\n\n'),
+    // "portador de {{tipo_documento}}" con "el pasaporte" daba "portador de
+    // el pasaporte". Solo en minúscula: "de El Seibo" (provincia) no se toca.
+    text: pieces.join('\n\n').replace(/ de el /g, ' del '),
     missing: [...missing],
     clauses: decisions,
     warnings: outcome.warnings,

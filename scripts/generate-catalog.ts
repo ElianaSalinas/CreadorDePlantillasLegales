@@ -9,7 +9,7 @@
 import { writeFileSync } from 'node:fs'
 import { CLAUSES } from './catalog/clauses'
 import { TEMPLATES, CIERRE } from './catalog/templates'
-import { VARIABLE_META, inferType, inferLabel, type VarMeta } from './catalog/variables'
+import { VARIABLE_META, PERSONAS_CON_DOCUMENTO, inferType, inferLabel, type VarMeta } from './catalog/variables'
 
 /** Escapa comillas simples para SQL. */
 const q = (v: string | null | undefined) =>
@@ -153,6 +153,8 @@ const VARS_EXISTENTES = new Set([
 const DERIVADAS = new Set([
   'precio_renta_letras','deposito_garantia_letras','fecha_inicio_larga','fecha_finalizacion_larga','fecha_firma_notarial',
   'parte_primera_portador','parte_primera_domiciliado','parte_segunda_portador','parte_segunda_domiciliado',
+  // Segundo documento (1 oct 2026): ", y del pasaporte número…", alias de …_documento_2.
+  ...PERSONAS_CON_DOCUMENTO.map((p) => `${p.prefijo}_otro_documento`),
 ])
 
 // Qué etiquetas usa cada cláusula, para poder enlazar solo lo necesario.
@@ -187,6 +189,13 @@ const TAGS_SECCIONES = [
   'parte_segunda_miembro2_nombre','parte_segunda_miembro2_cedula','parte_segunda_miembro2_domicilio',
   'parte_segunda_miembro3_nombre','parte_segunda_miembro3_cedula','parte_segunda_miembro3_domicilio',
   'parte_segunda_miembro4_nombre','parte_segunda_miembro4_cedula','parte_segunda_miembro4_domicilio',
+  // Tipo de documento de las personas 2-4, y el segundo documento de
+  // todas (1 oct 2026). Ver PERSONAS_CON_DOCUMENTO en catalog/variables.ts.
+  ...PERSONAS_CON_DOCUMENTO.flatMap((p) => [
+    ...(p.miembro ? [`${p.prefijo}_tipo_documento`] : []),
+    `${p.prefijo}_tipo_documento_2`,
+    `${p.prefijo}_documento_2`,
+  ]),
 ]
 
 const todasLasTags = new Set<string>(TAGS_SECCIONES)
@@ -255,23 +264,23 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
   out(`  VALUES (v_template, 'Comparecientes',`)
-  out(`    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_estado_civil}}, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;', 1,`)
+  out(`    'ENTRE: {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_estado_civil}}, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}{{parte_primera_otro_documento}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;', 1,`)
   out(`    '${JSON.stringify({ variable: 'parte_primera_tipo_parte', operator: 'not_equals', value: 'empresa' })}'::jsonb)`)
   out('  RETURNING id INTO s_partes;')
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
   out(`  VALUES (v_template, 'Comparecientes',`)
-  out(`    'ENTRE: {{parte_primera_razon_social}}, sociedad organizada y existente de acuerdo con las leyes de la República Dominicana, con RNC número {{parte_primera_rnc}} y domicilio en {{parte_primera_domicilio}}, debidamente representada por su {{parte_primera_representante_cargo}}, {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_estado_civil}}, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;', 2,`)
+  out(`    'ENTRE: {{parte_primera_razon_social}}, sociedad organizada y existente de acuerdo con las leyes de la República Dominicana, con RNC número {{parte_primera_rnc}} y domicilio en {{parte_primera_domicilio}}, debidamente representada por su {{parte_primera_representante_cargo}}, {{parte_primera_nombre}}, de nacionalidad {{parte_primera_nacionalidad}}, mayor de edad, {{parte_primera_estado_civil}}, {{parte_primera_portador}} de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}{{parte_primera_otro_documento}}, {{parte_primera_domiciliado}} en {{parte_primera_domicilio}}, quien en lo adelante se denominará LA PRIMERA PARTE;', 2,`)
   out(`    '${JSON.stringify({ variable: 'parte_primera_tipo_parte', operator: 'equals', value: 'empresa' })}'::jsonb);`)
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
   out(`  VALUES (v_template, '',`)
-  out(`    'Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_estado_civil}}, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 3,`)
+  out(`    'Y DE LA OTRA PARTE: {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_estado_civil}}, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}{{parte_segunda_otro_documento}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 3,`)
   out(`    '${JSON.stringify({ variable: 'parte_segunda_tipo_parte', operator: 'not_equals', value: 'empresa' })}'::jsonb);`)
   out()
   out('  INSERT INTO template_sections (template_id, title, body, sort_order, condition)')
   out(`  VALUES (v_template, '',`)
-  out(`    'Y DE LA OTRA PARTE: {{parte_segunda_razon_social}}, sociedad organizada y existente de acuerdo con las leyes de la República Dominicana, con RNC número {{parte_segunda_rnc}} y domicilio en {{parte_segunda_domicilio}}, debidamente representada por su {{parte_segunda_representante_cargo}}, {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_estado_civil}}, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 4,`)
+  out(`    'Y DE LA OTRA PARTE: {{parte_segunda_razon_social}}, sociedad organizada y existente de acuerdo con las leyes de la República Dominicana, con RNC número {{parte_segunda_rnc}} y domicilio en {{parte_segunda_domicilio}}, debidamente representada por su {{parte_segunda_representante_cargo}}, {{parte_segunda_nombre}}, de nacionalidad {{parte_segunda_nacionalidad}}, mayor de edad, {{parte_segunda_estado_civil}}, {{parte_segunda_portador}} de {{parte_segunda_tipo_documento}} número {{parte_segunda_cedula}}{{parte_segunda_otro_documento}}, {{parte_segunda_domiciliado}} en {{parte_segunda_domicilio}}, quien en lo adelante se denominará LA SEGUNDA PARTE.', 4,`)
   out(`    '${JSON.stringify({ variable: 'parte_segunda_tipo_parte', operator: 'equals', value: 'empresa' })}'::jsonb);`)
   out()
 
@@ -297,7 +306,7 @@ for (const [category, title, description, clauses] of TEMPLATES) {
     const prefijo = `parte_${parte}_miembro${n}`
     const cuerpo =
       `Y, en conjunto con ${nombreParte} parte, también comparece: {{${prefijo}_nombre}}, mayor de edad, ` +
-      `portador(a) de cédula de identidad y electoral número {{${prefijo}_cedula}}, domiciliado(a) en ` +
+      `portador(a) de {{${prefijo}_tipo_documento}} número {{${prefijo}_cedula}}{{${prefijo}_otro_documento}}, domiciliado(a) en ` +
       `{{${prefijo}_domicilio}}, quien en lo adelante se entenderá incluido(a) en la denominación ${etiqueta}.`
     const condicion = JSON.stringify({ variable: `parte_${parte}_cantidad`, operator: 'greater_or_equal', value: n })
 
@@ -339,7 +348,7 @@ for (const [category, title, description, clauses] of TEMPLATES) {
   let ordenRegla = 1
   for (const parte of ['primera', 'segunda'] as const) {
     for (const n of [2, 3, 4] as const) {
-      for (const campo of ['nombre', 'cedula', 'domicilio'] as const) {
+      for (const campo of ['nombre', 'cedula', 'domicilio', 'tipo_documento', 'tipo_documento_2', 'documento_2'] as const) {
         const tag = `parte_${parte}_miembro${n}_${campo}`
         const condicion = JSON.stringify({ variable: `parte_${parte}_cantidad`, operator: 'less_than', value: n })
         reglasMiembros.push(
@@ -364,6 +373,15 @@ for (const [category, title, description, clauses] of TEMPLATES) {
     const condicionCantidad = JSON.stringify({ variable: `parte_${parte}_tipo_parte`, operator: 'equals', value: 'empresa' })
     reglasMiembros.push(
       `    (v_template, ${q(`Ocultar parte_${parte}_cantidad si la parte es una empresa`)}, ${q(condicionCantidad)}::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', ${q(`parte_${parte}_cantidad`)}), ${ordenRegla++})`
+    )
+  }
+
+  // El número del segundo documento solo se pide si dijo que lo tiene.
+  for (const { prefijo } of PERSONAS_CON_DOCUMENTO) {
+    const tag = `${prefijo}_documento_2`
+    const condicion = JSON.stringify({ variable: `${prefijo}_tipo_documento_2`, operator: 'equals', value: 'ninguno' })
+    reglasMiembros.push(
+      `    (v_template, ${q(`Ocultar ${tag} si no tiene otro documento`)}, ${q(condicion)}::jsonb, 'HIDE_VARIABLE', jsonb_build_object('variable_tag', ${q(tag)}), ${ordenRegla++})`
     )
   }
 

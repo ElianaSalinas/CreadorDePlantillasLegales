@@ -376,6 +376,68 @@ export const VARIABLE_META: Record<string, VarMeta> = {
   vehiculo_matricula: { label: 'Número de matrícula', type: 'text' },
 }
 
+/*
+ * Segundo documento de identidad (1 de octubre de 2026).
+ *
+ * Una persona puede identificarse con dos documentos -cédula y pasaporte
+ * es lo normal en un dominicano que vive fuera o en un extranjero
+ * residente- y el contrato debe mencionar los dos, cada uno con su
+ * número. Vale para quien firma por cada parte y para las personas 2 a 4.
+ *
+ * Por persona:
+ *   …_tipo_documento_2  "¿Tiene otro documento?" (por defecto: no)
+ *   …_documento_2       su número; produce el alias …_otro_documento
+ *                       (", y del pasaporte número AB1234567"), que el
+ *                       texto pone justo detrás del primer número.
+ *
+ * Las personas 2 a 4 no tenían ni el PRIMER tipo de documento: su texto
+ * decía fijo "cédula de identidad y electoral". Se les añade aquí.
+ */
+export const OPCIONES_SEGUNDO_DOCUMENTO = [{ value: 'ninguno', label: 'No, solo uno' }, ...OPCIONES_TIPO_DOCUMENTO]
+
+const ORDINAL_PERSONA = { 2: 'segunda', 3: 'tercera', 4: 'cuarta' } as const
+
+/** Cada persona que comparece, por el prefijo de sus variables. */
+export const PERSONAS_CON_DOCUMENTO: { prefijo: string; quien: string; miembro: boolean; parte: 'primera' | 'segunda'; n: 1 | 2 | 3 | 4 }[] = []
+for (const parte of ['primera', 'segunda'] as const) {
+  PERSONAS_CON_DOCUMENTO.push({ prefijo: `parte_${parte}`, quien: `quien firma por la ${parte} parte`, miembro: false, parte, n: 1 })
+  for (const n of [2, 3, 4] as const) {
+    PERSONAS_CON_DOCUMENTO.push({
+      prefijo: `parte_${parte}_miembro${n}`,
+      quien: `la ${ORDINAL_PERSONA[n]} persona de la ${parte} parte`,
+      miembro: true,
+      parte,
+      n,
+    })
+  }
+}
+
+for (const { prefijo, quien, miembro } of PERSONAS_CON_DOCUMENTO) {
+  if (miembro) {
+    VARIABLE_META[`${prefijo}_tipo_documento`] = {
+      label: `Tipo de documento de ${quien}`,
+      question: '¿Con qué documento se identifica?',
+      type: 'select',
+      default: 'la cédula de identidad y electoral',
+      options: OPCIONES_TIPO_DOCUMENTO,
+    }
+  }
+  VARIABLE_META[`${prefijo}_tipo_documento_2`] = {
+    label: `Otro documento de ${quien}`,
+    question: '¿Tiene además otro documento de identidad?',
+    help: 'Por ejemplo, cédula y pasaporte. Si lo indicas, el contrato menciona los dos.',
+    type: 'select',
+    default: 'ninguno',
+    options: OPCIONES_SEGUNDO_DOCUMENTO,
+  }
+  VARIABLE_META[`${prefijo}_documento_2`] = {
+    label: `Número del otro documento de ${quien}`,
+    question: 'Número del otro documento',
+    type: 'text',
+    derived: { transform: 'otro_documento', as: `${prefijo}_otro_documento` },
+  }
+}
+
 /** Cuando una etiqueta no está arriba, el tipo se deduce del nombre. */
 export function inferType(tag: string): string {
   if (tag.includes('cedula')) return 'cedula'

@@ -21,7 +21,7 @@ import { evaluateCondition, evaluateRules, describeCondition } from '../src/lib/
 import { substitute, buildSubstitutions, validateAnswers, normalizeTag } from '../src/lib/engine/variables'
 import { renderDocument, numerarClausula, type TemplateBundle } from '../src/lib/engine/render'
 import { formatoArticulo, ordinalEnLetras, romano } from '../src/lib/engine/articulos'
-import { esNumeroDeCedula, nombreDelDocumento } from '../src/lib/engine/variables'
+import { esNumeroDeCedula, nombreDelDocumento, textoOtroDocumento, substitute as sustituir } from '../src/lib/engine/variables'
 import type { Condition, TemplateRule, Variable } from '../src/lib/engine/types'
 
 let passed = 0
@@ -565,6 +565,69 @@ test('una empresa no arrastra personas adicionales que se eligieron antes', () =
   assert.equal(persona.text.includes('También comparece la segunda persona.'), true)
   const empresa = renderDocument(conMiembro, { ...base, parte_primera_tipo_parte: 'empresa', parte_primera_cantidad: '2' })
   assert.equal(empresa.text.includes('También comparece la segunda persona.'), false)
+})
+
+/* ══════════════ SEGUNDO DOCUMENTO ══════════════ */
+
+group('Segundo documento de identidad')
+
+test('sin segundo documento no se añade nada', () => {
+  assert.equal(textoOtroDocumento('parte_primera_documento_2', { parte_primera_tipo_documento_2: 'ninguno', parte_primera_documento_2: 'X' }), '')
+  assert.equal(textoOtroDocumento('parte_primera_documento_2', {}), '')
+})
+
+test('con pasaporte: ", y del pasaporte número …"', () => {
+  assert.equal(
+    textoOtroDocumento('parte_primera_documento_2', { parte_primera_tipo_documento_2: 'el pasaporte', parte_primera_documento_2: ' AB1234567 ' }),
+    ', y del pasaporte número AB1234567',
+  )
+})
+
+test('si el segundo es una cédula, sale con guiones', () => {
+  assert.equal(
+    textoOtroDocumento('parte_primera_miembro2_documento_2', { parte_primera_miembro2_tipo_documento_2: 'la cédula de identidad y electoral', parte_primera_miembro2_documento_2: '00100000001' }),
+    ', y de la cédula de identidad y electoral número 001-0000000-1',
+  )
+})
+
+test('el alias vacío no deja hueco ni cuenta como dato que falta', () => {
+  const r = sustituir('número 123{{parte_primera_otro_documento}}, domiciliado', { parte_primera_otro_documento: '' })
+  assert.equal(r.text, 'número 123, domiciliado')
+  assert.equal(r.missing.length, 0)
+})
+
+test('el texto completo de una persona con dos documentos', () => {
+  const vars = [
+    { id: 'a', tag: 'parte_primera_tipo_documento', label: 't', question: null, data_type: 'select', is_required: true, options: null, default_value: null, help_text: null, validation_regex: null, validation_message: null, derived_config: null },
+    { id: 'b', tag: 'parte_primera_cedula', label: 'Cédula', question: null, data_type: 'cedula', is_required: true, options: null, default_value: null, help_text: null, validation_regex: null, validation_message: null, derived_config: null },
+    { id: 'c', tag: 'parte_primera_tipo_documento_2', label: 't2', question: null, data_type: 'select', is_required: true, options: null, default_value: null, help_text: null, validation_regex: null, validation_message: null, derived_config: null },
+    { id: 'd', tag: 'parte_primera_documento_2', label: 'n2', question: null, data_type: 'text', is_required: true, options: null, default_value: null, help_text: null, validation_regex: null, validation_message: null, derived_config: { transform: 'otro_documento', as: 'parte_primera_otro_documento' } },
+  ] as unknown as Variable[]
+  const b: TemplateBundle = {
+    template: { id: 't9', title: 'x', version: '1' },
+    variables: vars,
+    templateVariables: [],
+    sections: [{ id: 'sx', template_id: 't9', title: '', body: 'portador de {{parte_primera_tipo_documento}} número {{parte_primera_cedula}}{{parte_primera_otro_documento}}, domiciliado.', sort_order: 1, is_enabled: true, is_annex: false, condition: null }],
+    clauses: [],
+    templateClauses: [],
+    rules: [],
+  }
+  const r = renderDocument(b, {
+    parte_primera_tipo_documento: 'la cédula de identidad y electoral',
+    parte_primera_cedula: '00100000001',
+    parte_primera_tipo_documento_2: 'el pasaporte',
+    parte_primera_documento_2: 'AB1234567',
+  })
+  assert.equal(r.text, 'portador de la cédula de identidad y electoral número 001-0000000-1, y del pasaporte número AB1234567, domiciliado.')
+
+  const soloPasaporte = renderDocument(b, { parte_primera_tipo_documento: 'el pasaporte', parte_primera_cedula: 'AB1234567', parte_primera_tipo_documento_2: 'ninguno' })
+  assert.equal(soloPasaporte.text, 'portador del pasaporte número AB1234567, domiciliado.', '"de el" pasa a "del"')
+})
+
+test('el segundo número se valida solo si es una cédula', () => {
+  const v = [{ id: 'd', tag: 'parte_primera_documento_2', label: 'n2', question: null, data_type: 'text', is_required: true, options: null, default_value: null, help_text: null, validation_regex: null, validation_message: null, derived_config: null }] as unknown as Variable[]
+  assert.equal(validateAnswers(v, { parte_primera_documento_2: 'AB1', parte_primera_tipo_documento_2: 'el pasaporte' }).length, 0)
+  assert.equal(validateAnswers(v, { parte_primera_documento_2: '123', parte_primera_tipo_documento_2: 'la cédula de identidad y electoral' }).length, 1)
 })
 
 /* ══════════════ RESULTADO ══════════════ */

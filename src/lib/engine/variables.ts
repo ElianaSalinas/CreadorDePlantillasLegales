@@ -160,7 +160,11 @@ export function buildSubstitutions(variables: Variable[], answers: Answers): Rec
         : formatValue(raw, v.data_type, v, moneda)
 
     const derived = v.derived_config
-    if (derived?.transform) {
+    // El segundo documento depende de DOS respuestas (su tipo y su
+    // número), y los TRANSFORMS solo ven una: se arma aquí.
+    if (derived?.transform === 'otro_documento') {
+      out[derived.as || `${v.tag}_otro_documento`] = textoOtroDocumento(v.tag, answers)
+    } else if (derived?.transform) {
       const fn = TRANSFORMS[derived.transform]
       if (fn) {
         const alias = derived.as || `${v.tag}_${derived.transform}`
@@ -222,6 +226,10 @@ export function substitute(
           value = raw === '' || raw === undefined ? '' : fn(raw, variable, options.moneda)
         }
       }
+
+      // "…_otro_documento" vacío significa "no tiene otro documento": el
+      // texto sigue de corrido, sin hueco ni aviso de dato pendiente.
+      if (value === '' && esAliasOpcional(tag)) return ''
 
       if (value === undefined || value === '') {
         missing.add(tag)
@@ -339,6 +347,12 @@ export function validateAnswers(
       if (!check.isValid) errors.push({ tag: v.tag, label: v.label, message: check.error ?? 'Cédula inválida.' })
     }
 
+    // El número del segundo documento, si ese documento es una cédula.
+    if (v.tag.endsWith('_documento_2') && /c[ée]dula/i.test(String(answers[`${v.tag.replace(/_documento_2$/, '')}_tipo_documento_2`] ?? ''))) {
+      const check = validateCedula(value)
+      if (!check.isValid) errors.push({ tag: v.tag, label: v.label, message: check.error ?? 'Cédula inválida.' })
+    }
+
     if (v.data_type === 'rnc') {
       const check = validateRNC(value)
       if (!check.isValid) errors.push({ tag: v.tag, label: v.label, message: check.error ?? 'RNC inválido.' })
@@ -403,6 +417,32 @@ export function questionFor(v: Variable): string {
  */
 export function tipoDocumentoTagDe(tag: string): string | null {
   return tag.endsWith('_cedula') ? tag.replace(/_cedula$/, '_tipo_documento') : null
+}
+
+/** "de" + "el pasaporte" → "del pasaporte"; "de" + "la cédula…" → "de la cédula…". */
+export function deMasArticulo(texto: string): string {
+  return /^el\s/i.test(texto) ? `del ${texto.replace(/^el\s+/i, '')}` : `de ${texto}`
+}
+
+/** Alias que pueden quedar vacíos a propósito sin que falte nada. */
+export function esAliasOpcional(tag: string): boolean {
+  return tag.endsWith('_otro_documento')
+}
+
+/**
+ * ", y del pasaporte número AB1234567" — lo que va detrás del primer
+ * número de documento cuando la persona tiene un segundo. Vacío si no lo
+ * tiene, o si dijo que sí pero aún no escribió el número.
+ *
+ * `tagNumero` es el de la variable …_documento_2.
+ */
+export function textoOtroDocumento(tagNumero: string, answers: Answers): string {
+  const base = tagNumero.replace(/_documento_2$/, '')
+  const tipo = String(answers[`${base}_tipo_documento_2`] ?? '').trim()
+  const numero = String(answers[tagNumero] ?? '').trim()
+  if (!tipo || tipo === 'ninguno' || !numero) return ''
+  const numeroFinal = /c[ée]dula/i.test(tipo) ? formatCedula(numero) : numero
+  return `, y ${deMasArticulo(tipo)} número ${numeroFinal}`
 }
 
 /** El valor elegido en el tipo de documento ("el pasaporte"), o null. */

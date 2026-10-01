@@ -116,6 +116,8 @@ const ORDEN_PERSONA = [
   'nombre',
   'tipo_documento',
   'cedula',
+  'tipo_documento_2',
+  'documento_2',
   'genero',
   'nacionalidad',
   'estado_civil',
