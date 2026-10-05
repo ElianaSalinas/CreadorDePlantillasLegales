@@ -1,6 +1,35 @@
 # Botón oficial de Google — paso a paso para activarlo
 
-**SAVE Documentos · guardado el 29 de septiembre de 2026 · ESTADO: PENDIENTE**
+**SAVE Documentos · guardado el 29 de septiembre de 2026 · actualizado el 5 de octubre de 2026 · ESTADO: VERIFICADO**
+
+## Registro de ejecución (5 de octubre de 2026)
+
+| Paso | Estado |
+|---|---|
+| 0 · Verificación en 2 pasos | Hecho |
+| 1 · Railway estable | Hecho |
+| 2 · Publicar la app de Google | Hecho (En producción) |
+| 3 · Origen `https://savedocumentos.com` en el cliente | Hecho (también está `http://localhost:3000` para desarrollo) |
+| 4 · Comprobar Supabase | Hecho |
+| 5 · Variable `GOOGLE_CLIENT_ID` en Railway | Hecho |
+| 6 · Prueba con otra cuenta | Hecho, con capturas (ver nota) |
+
+**Resultado de la prueba (5 de octubre de 2026), con capturas como prueba:**
+
+- La ventana de Google dice **"Ir a savedocumentos.com"** y al pie "Antes de usar
+  savedocumentos.com, revisa su Política de Privacidad y Condiciones del
+  Servicio". Ya no aparece el dominio de Supabase.
+- El botón oficial de Google se ve en `/login` y en `/register`.
+- Con una cuenta de Google distinta a la del dueño, el login se completó y
+  llegó a la pantalla de bienvenida ("Hola, ... Nos faltan dos datos que Google
+  no nos da").
+- Modo oscuro: el botón se mantiene blanco sobre el fondo oscuro. Es el
+  comportamiento esperado, porque Google lo dibuja con su propio diseño.
+
+**Sin comprobar:** el login con la cuenta del dueño en `/login` (debe ir directo
+al panel) y cómo se ve el botón en el móvil.
+
+---
 
 ## Qué se consigue
 
@@ -104,7 +133,7 @@ Servicio → **Variables** → **New Variable**:
 1. Abre una ventana de **incógnito** y entra en `savedocumentos.com/register`.
 2. El botón debe verse con el diseño oficial de Google, ligeramente distinto del de antes.
 3. Púlsalo y elige una cuenta de Google que **no** sea la tuya.
-4. **Haz una captura de la ventana de Google**: queremos ver si dice `savedocumentos.com` o "Save Documentos" en lugar del dominio de Supabase. Todavía **NO VERIFICADO** qué texto sale exactamente.
+4. **Haz una captura de la ventana de Google**: queremos ver si dice `savedocumentos.com` o "Save Documentos" en lugar del dominio de Supabase. **Resultado:** dice `savedocumentos.com` (ver el resultado de la prueba al inicio).
 5. Debes llegar a la **pantalla de bienvenida**.
 6. Repite en `savedocumentos.com/login` con tu cuenta: como ya completaste la bienvenida, debe llevarte **directo al panel**.
 
@@ -120,7 +149,7 @@ Google lo dibuja con su propio diseño, que no se adapta al modo oscuro.
 
 ---
 
-## Cuando todo funcione
+## Cierre
 
-- Actualizar `CONTEXTO-SAVE.txt` (sección 4) y la auditoría: de **PENDIENTE** a **VERIFICADO**, con la captura como prueba.
+- Actualizar `CONTEXTO-SAVE.txt` (sección 4) y la auditoría: de **PENDIENTE** a **VERIFICADO**, con las capturas como prueba.
 - Después, si se quiere, subir el logo en la pantalla de marca. Eso **sí** manda la app a verificación de Google, y tarda unos días hábiles.

@@ -1,0 +1,221 @@
+SAVE DOCUMENTOS - PENDIENTES
+SA&VE Comercial, S.R.L. - Punta Cana
+Actualizado: 5 de octubre de 2026
+
+Fuentes: docs/planificacion (01 a 11, 12-PLAN-FINAL, fase13), SAVE-AUDITORIA-INTEGRAL
+(actualizacion del 29 de septiembre), auditoria-acentos, AUDITORIA-RAILWAY-SAVE,
+cartas-para-revision.
+
+AVISO: las fuentes llegan hasta el 29 de septiembre. Nada de esto se comprobo hoy
+contra produccion, Supabase ni Railway. Lo marcado NO VERIFICADO hay que mirarlo.
+
+==============================================================================
+CERRADO HOY (5 de octubre)
+==============================================================================
+[x] Verificacion en 2 pasos de la cuenta de Google
+[x] App de Google publicada (N1 de la auditoria)
+[x] Origen https://savedocumentos.com autorizado
+[x] Variable GOOGLE_CLIENT_ID en Railway
+[x] Prueba con otra cuenta: la ventana de Google dice "Ir a savedocumentos.com"
+    y el login llego a la pantalla de bienvenida (Fase 10.1 y 10.4 paso 6)
+[x] Documento BOTON-GOOGLE-PASO-A-PASO.md actualizado a VERIFICADO
+    (falta reemplazar el original en el proyecto)
+
+==============================================================================
+P1 - LO MAS IMPORTANTE
+==============================================================================
+1. F2 - Revision legal (ruta critica)
+   - Aprobar las 123 clausulas y despues las 251 plantillas (249 contratos y
+     32 cartas). El orden no es negociable.
+   - Revisan legalcifuentes@gmail.com y jmarquez@saveconsult.net.
+   - Ultima cifra escrita: 0 aprobadas. NO VERIFICADO hoy en Supabase.
+   - Bloquea F6 (SEO) y toda la adquisicion organica.
+
+2. Acentos rotos en produccion (N2)           <- EMPEZAMOS AQUI
+3. CONTEXTO-SAVE.txt desfasado (N5)           <- Y AQUI
+4. DMARC en p=none, subir a quarantine (4)    <- Y AQUI
+
+==============================================================================
+PASOS DETALLADOS DE P1 (2 a 4)
+==============================================================================
+
+------------------------------------------------------------------------------
+P1-2. ACENTOS ROTOS (N2)
+------------------------------------------------------------------------------
+Problema: src/app/app/clauses/actions.ts muestra al usuario "clÃ¡usula" en
+vez de "clausula" y graba "ClÃ¡usula creada" en audit_logs. En produccion desde
+el commit de11569 (14 sep). Causa probable (hipotesis): edicion con Windows
+PowerShell 5.1 (Get-Content sin -Encoding + Set-Content -Encoding UTF8).
+
+Reglas:
+ - El audit_logs es inmutable. NO hacer UPDATE ni DELETE sobre sus filas.
+ - Las migraciones y el catalogo estan limpios: no hace falta migracion
+   correctiva para plantillas ni clausulas.
+
+Paso 1. Comprobar el estado actual del repo (solo lectura)
+   - Abrir el repo y correr:  node scripts/fix-mojibake.mjs
+   - Ojo: la version actual del script da falso negativo ("0 archivos"). No
+     fiarse del resultado hasta reemplazarlo en el paso 2.
+   - Mirar a mano si actions.ts todavia muestra "Ã¡" en los mensajes.
+
+Paso 2. Aplicar las copias corregidas
+   Estaban preparadas en acentos-arreglados/ (en la carpeta de salidas de la
+   sesion de auditoria). Copiar sobre el repo:
+     - src/app/app/clauses/actions.ts
+     - scripts/fix-mojibake.mjs        (version nueva, tambien sirve de verificador)
+     - .editorconfig                   (charset = utf-8)
+     - docs/planificacion/12-PLAN-FINAL.md  (el subido hoy ya se lee bien: solo
+       copiarlo si el verificador del paso 3 lo marca)
+   package.json: NO sobrescribirlo entero (la copia es del 29 sep y puede haber
+   cambiado). Anadir a mano esta linea en "scripts":
+     "verify:acentos": "node scripts/fix-mojibake.mjs"
+   Si la carpeta acentos-arreglados ya no existe, pedir que se regenere.
+
+Paso 3. Verificar
+   - npx tsc --noEmit                 (sin errores)
+   - npm run verify:acentos           (debe dar 0 y salir con codigo 0)
+   - git diff --stat                  (solo deben cambiar esos archivos)
+   - Abrir actions.ts: ninguna linea con "Ã", "Â" ni "â€".
+   - Confirmar que el archivo NO empieza con BOM.
+
+Paso 4. Subir y confirmar el despliegue
+   - git add, commit y git push origin main.
+   - En Railway, Deployments: esperar a que quede Active (en verde).
+     Leccion del 15 sep: "compilo en local" no es lo mismo que "desplego".
+   - En la app, provocar un mensaje de la pantalla Clausulas (por ejemplo,
+     crear una clausula sin titulo) y ver que dice "clausula" con acento.
+
+Paso 5. Diagnostico en Supabase (solo lectura, SQL Editor)
+   Correr el SELECT de la seccion 4 de auditoria-acentos.md (punto 1,
+   "Diagnostico"). Cuenta filas de audit_logs con texto roto por accion y
+   periodo, y revisa si clauses, template_sections o templates tienen algo.
+   Resultado esperado: filas rotas solo en audit_logs (CLAUSE_CREATED,
+   CLAUSE_EDITED, CLAUSE_DELETED desde el 14 sep; VAULT_UPLOAD, VAULT_DELETE,
+   ADMIN_LIMITS_UPDATED entre el 22 ago y el 1 sep). El numero real esta
+   NO VERIFICADO.
+
+Paso 6. Decidir que hacer con las filas rotas (no urgente)
+   - Opcion A (recomendada en la auditoria): una vista nueva
+     audit_logs_legible que corrige la lectura sin tocar los datos. Va en una
+     migracion NUEVA (borrador: 20260930000000_audit_logs_lectura_acentos.sql).
+     Hoy ninguna pantalla lee audit_logs, asi que sirve para cuando se construya
+     el historial.
+   - Opcion B (opcional): insertar una fila SYSTEM_NOTE por despacho afectado
+     explicando el error de codificacion. Es una fila nueva, no modifica nada.
+
+Paso 7. Prevencion
+   - En .vscode/settings.json:
+       "files.encoding": "utf8", "files.autoGuessEncoding": false
+   - Correr npm run verify:acentos en CI (.github/workflows) o en un hook
+     pre-commit.
+   - En PowerShell: leer con Get-Content -Raw -Encoding UTF8 y escribir con
+     [IO.File]::WriteAllText($ruta, $texto, [Text.UTF8Encoding]::new($false))
+     (UTF-8 sin BOM), o usar PowerShell 7 (pwsh).
+
+Hecho cuando: verify:acentos da 0, el despliegue esta Active y el mensaje de la
+pantalla Clausulas se ve con acentos.
+
+------------------------------------------------------------------------------
+P1-3. CONTEXTO-SAVE.txt DESFASADO (N5)
+------------------------------------------------------------------------------
+Problema: el commit 871446f dice "actualiza al 24 de septiembre", pero el
+archivo guardado sigue siendo el del 10 de septiembre. Manda repetir las seis
+tareas de 10.4, que ya estan hechas. Es el texto que se pega al abrir cada chat.
+
+Paso 1. Subir CONTEXTO-SAVE.txt al chat o al proyecto (no lo tengo; lo
+        escribo yo sobre el archivo real).
+Paso 2. Poner al dia, como minimo:
+   - 10.4 (las seis tareas) hecho el 15 sep.
+   - Railway: incidente de 4 dias del lock file (@emnapi) resuelto el 15 sep.
+   - D3 (modo oscuro): terminado el 23 sep, selector solo en /app.
+   - Fase 13: cerrada (13.2 corregida el 24 sep). Vive en fase13.md.
+   - F3: el importador existe; falta probarlo de punta a punta y confirmar
+     la restriccion a Pro.
+   - Google (5 oct): 2 pasos activa, app publicada, origen autorizado,
+     GOOGLE_CLIENT_ID en Railway, verificado con captura. Seccion 4: de
+     PENDIENTE a VERIFICADO.
+   - Acentos: estado del P1-2 segun como avance.
+   - Decisiones abiertas: D7 (NCF/ITBIS) y D8 (prorrateo). D3 ya no.
+   - PayPal descartado (D6); pasarela CardNET.
+Paso 3. Actualizar tambien la auditoria (BOTON-GOOGLE y N1/F10 pasan a
+        cerrados) y comprobar con git show que el archivo guardado cambio de
+        verdad, no solo el titulo del commit.
+
+Hecho cuando: el archivo guardado ya no manda repetir 10.4 y refleja lo de hoy.
+
+------------------------------------------------------------------------------
+P1-4. DMARC: DE p=none A p=quarantine
+------------------------------------------------------------------------------
+Estado: SPF y DKIM pasan (DKIM con selector hostingermail-a). DMARC esta en
+p=none. La auditoria pedia subir a p=quarantine; pct=25 hacia el 1 de octubre,
+leyendo antes el primer informe. Ya paso esa fecha.
+
+Paso 1. Leer el primer informe DMARC (los informes agregados llegan a la
+        direccion que figure en rua= del registro actual). Comprobar que el
+        correo legitimo (el que sale por Hostinger) pasa SPF o DKIM alineado
+        y que no hay origenes legitimos fallando.
+Paso 2. Ver el registro actual: TXT en _dmarc.savedocumentos.com (con una
+        herramienta de consulta DNS). Anotar el valor completo, sobre todo
+        rua=.
+Paso 3. Editar ese TXT en el panel donde administres el DNS del dominio.
+        Cambiar solo la politica y conservar el resto:
+          v=DMARC1; p=quarantine; pct=25; (mantener rua=... que ya tengas)
+        pct=25 aplica la politica solo al 25% de los mensajes que fallen:
+        es el escalon prudente.
+Paso 4. Esperar la propagacion y volver a consultar el registro.
+Paso 5. Probar: enviar un correo real de la plataforma (registro o
+        recuperar contrasena) a un Gmail y comprobar que llega a la bandeja
+        y que en "Mostrar original" aparecen SPF, DKIM y DMARC en PASS.
+Paso 6. Vigilar los informes unos dias antes del siguiente escalon
+        (pct=50, 100 y, mas adelante, p=reject).
+
+Hecho cuando: el TXT dice p=quarantine; pct=25 y el correo de la plataforma
+sigue llegando con los tres PASS.
+
+==============================================================================
+P2 - SIGUIENTE NIVEL
+==============================================================================
+- 12-PLAN-FINAL.md desactualizado (N6): 10.4 figura pendiente (hecho el 15
+  sep), D3 abierta (cerrada el 23), F3 pendiente, falta la Fase 13.
+- F3 Importar documentos: probar de punta a punta en produccion y confirmar
+  que solo Pro y Equipo importan (3.5).
+- F11 Cartas: 32 en borrador, ninguna revisada. Confirmar que las
+  migraciones 20260912* estan aplicadas (la "Intimacion de Pago" antigua
+  aparecio sin archivar). Las 187 restantes esperan a que estas 32 se aprueben.
+- F9 Cobros CardNET:
+    * 9.0 Afiliacion comercial con el RNC 132-28618-9 (tu).
+    * D7 NCF e ITBIS (contadora). Bloquea 9.2.
+    * D8 Prorrateo al anadir un integrante a mitad de mes.
+    * Luego: integracion, cobro mensual idempotente, pantalla de estado de
+      suscripcion, pruebas con dinero de mentira.
+- Estado RECHAZADA (2.4): no existe (usar ARCHIVED + columna de motivo).
+- Limpieza del catalogo (2.5): dia_pago / dias_pago, "Deposito de garantia" /
+  "Deposito en garantia", normalizar CRLF.
+- Verificar que el ultimo commit esta desplegado en Railway.
+- www.savedocumentos.com: el 10 sep daba 502 esperando certificado.
+- Terminos, privacidad y paginas legales: ninguna revisada por abogado.
+- F12: medir PageSpeed despues de los cambios del 16 al 19 sep (minimo: 90 en
+  movil).
+
+BLOQUEADO HASTA QUE TERMINE F2
+- F6 Arquitectura SEO: alinear las 11 categorias (6.1), /plantillas, 11
+  clusters, hojas de plantilla desde la base, enlazado interno, sitemap
+  dinamico.
+- llms.txt (esperar a F6).
+
+==============================================================================
+P3 - MENORES
+==============================================================================
+- Marcar los documentos 01 a 11 como "Historico - sustituido por
+  12-PLAN-FINAL.md" (N8). Hablan de PayPal, Gemini y 10 plantillas gratis.
+- Borrar a mano la carpeta _to_delete/ (N9).
+- Probar etiquetas de formulario con lector de pantalla (I11) y comprobar si
+  el receptor ve que le compartieron un documento (I19).
+- Google, pruebas menores sin hacer: login con tu cuenta en /login (debe ir
+  directo al panel) y el boton en movil.
+- Opcional: subir el logo en la pantalla de marca de Google. Dispara
+  verificacion y tarda unos dias habiles.
+- De la auditoria de Railway del 21 ago (historica), sin constancia de cierre:
+  confirmar con git log que .env y .env.local nunca se subieron, decidir que
+  hacer con el codigo huerfano de src/components, src/core y src/store, y
+  quitar la dependencia "motion".
