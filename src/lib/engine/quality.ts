@@ -92,11 +92,19 @@ export function checkTemplateQuality(bundle: TemplateBundle, meta: ReviewInfo = 
   for (const c of bundle.clauses) extractTags(c.body ?? '').forEach((t) => usedTags.add(t))
 
   // Las derivadas ({{precio_letras}}) existen aunque no sean variables.
-  const derivedAliases = new Set(
-    bundle.variables
-      .map((v) => v.derived_config?.as || (v.derived_config?.transform ? `${v.tag}_${v.derived_config.transform}` : null))
-      .filter(Boolean) as string[]
-  )
+  // Una variable puede exponer más de una: la principal (`as`, o
+  // etiqueta_transformación) y las de `extra`, que es como el género
+  // produce {{parte_primera_portador}} y {{parte_primera_domiciliado}} a
+  // la vez. El motor ya las genera todas (ver variables.ts); aquí hay que
+  // reconocerlas todas también, o se rechazan como "no existe".
+  const derivedAliases = new Set<string>()
+  for (const v of bundle.variables) {
+    const d = v.derived_config
+    if (!d) continue
+    const principal = d.as || (d.transform ? `${v.tag}_${d.transform}` : null)
+    if (principal) derivedAliases.add(principal)
+    for (const e of d.extra ?? []) if (e?.as) derivedAliases.add(e.as)
+  }
 
   const undeclared = [...usedTags].filter((t) => !declaredTags.has(t) && !derivedAliases.has(t))
   for (const tag of undeclared) {
