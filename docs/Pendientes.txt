@@ -1,6 +1,6 @@
 SAVE DOCUMENTOS - PENDIENTES
 SA&VE Comercial, S.R.L. - Punta Cana
-Actualizado: 5 de octubre de 2026
+Actualizado: 6 de octubre de 2026
 
 Fuentes: docs/planificacion (01 a 11, 12-PLAN-FINAL, fase13), SAVE-AUDITORIA-INTEGRAL
 (actualizacion del 29 de septiembre), auditoria-acentos, AUDITORIA-RAILWAY-SAVE,
@@ -19,7 +19,17 @@ CERRADO HOY (5 de octubre)
 [x] Prueba con otra cuenta: la ventana de Google dice "Ir a savedocumentos.com"
     y el login llego a la pantalla de bienvenida (Fase 10.1 y 10.4 paso 6)
 [x] Documento BOTON-GOOGLE-PASO-A-PASO.md actualizado a VERIFICADO
-    (falta reemplazar el original en el proyecto)
+[x] P1-2 Acentos: actions.ts corregido (commit 7a64979, sin BOM); catalogo
+    limpio en Supabase (clauses, template_sections, templates: 0 filas rotas);
+    npm run verify:acentos da 0 archivos con mojibake
+[x] P1-3 CONTEXTO-SAVE.txt: retirado del repo por decision de Eliana
+    (commit df1b82e, subido a origin/main)
+[x] P1-4 prueba de correo: recuperar contrasena enviado por la plataforma a un
+    Gmail con SPF, DKIM (selector hostingermail1) y DMARC en PASS con el dominio
+    savedocumentos.com. Informe DMARC de Google del 12 sep: 1 mensaje, todo PASS
+[x] Asunto del correo de recuperar contrasena: la palabra pasa a llevar la
+    letra enie en la plantilla de Supabase (dicho por Eliana; falta ver el
+    correo nuevo para confirmarlo)
 
 ==============================================================================
 P1 - LO MAS IMPORTANTE
@@ -28,12 +38,34 @@ P1 - LO MAS IMPORTANTE
    - Aprobar las 123 clausulas y despues las 251 plantillas (249 contratos y
      32 cartas). El orden no es negociable.
    - Revisan legalcifuentes@gmail.com y jmarquez@saveconsult.net.
-   - Ultima cifra escrita: 0 aprobadas. NO VERIFICADO hoy en Supabase.
+   - Captura del panel /app/revision (6 oct): 123 de 123 clausulas
+     APROBADAS; 0 de 249 plantillas aprobadas.
+   - BLOQUEO: las plantillas no se pueden aprobar. Error comun (visto en las
+     12 de la captura): "La variable {{parte_primera_domiciliado}} no existe"
+     (2 problemas por plantilla; solo se ve el primero).
+     CAUSA ENCONTRADA (6 oct, leyendo el codigo): src/lib/engine/quality.ts
+     solo reconoce el alias principal de una variable derivada (as) y se
+     olvida de derived_config.extra. El genero define parte_primera_portador
+     como principal y parte_primera_domiciliado como extra (igual para la
+     segunda parte), asi que el validador rechaza domiciliado como "no
+     existe". Los dos problemas por plantilla son parte_primera_domiciliado y
+     parte_segunda_domiciliado. El motor de render si genera los extra
+     (engine/variables.ts); solo falla el validador.
+     ARREGLO: quality.ts corregido (6 lineas). Probado aparte con un caso de
+     prueba: antes 3 bloqueantes, despues 1 (solo la variable inventada a
+     proposito). FALTA aplicarlo en el repo, subirlo, comprobar el despliegue
+     y volver a pulsar "Aprobar" en /app/revision. Pueden aparecer otros
+     problemas distintos en algunas plantillas: el panel los listara.
    - Bloquea F6 (SEO) y toda la adquisicion organica.
 
-2. Acentos rotos en produccion (N2)           <- EMPEZAMOS AQUI
-3. CONTEXTO-SAVE.txt desfasado (N5)           <- Y AQUI
-4. DMARC en p=none, subir a quarantine (4)    <- Y AQUI
+2. Acentos rotos en produccion (N2)           <- CERRADO el 5 oct
+   Opcional que queda: el SELECT de diagnostico de audit_logs y la vista
+   audit_logs_legible (solo sirve cuando exista pantalla de historial).
+   Prevencion: verificar que existan .editorconfig y la opcion de VS Code
+   "files.encoding": "utf8".
+3. CONTEXTO-SAVE.txt desfasado (N5)           <- DESCARTADO (ver abajo)
+4. DMARC en p=none, subir a quarantine (4)    <- EN CURSO: prueba OK, falta
+   cambiar el registro (el ultimo nslookup todavia mostraba p=none)
 
 ==============================================================================
 PASOS DETALLADOS DE P1 (2 a 4)
@@ -42,8 +74,9 @@ PASOS DETALLADOS DE P1 (2 a 4)
 ------------------------------------------------------------------------------
 P1-2. ACENTOS ROTOS (N2)
 ------------------------------------------------------------------------------
-Problema: src/app/app/clauses/actions.ts muestra al usuario "clÃ¡usula" en
-vez de "clausula" y graba "ClÃ¡usula creada" en audit_logs. En produccion desde
+Problema: src/app/app/clauses/actions.ts mostraba al usuario la palabra
+"clausula" con la "a" acentuada convertida en dos simbolos raros, y grababa la
+misma palabra rota en audit_logs. En produccion desde
 el commit de11569 (14 sep). Causa probable (hipotesis): edicion con Windows
 PowerShell 5.1 (Get-Content sin -Encoding + Set-Content -Encoding UTF8).
 
@@ -52,11 +85,17 @@ Reglas:
  - Las migraciones y el catalogo estan limpios: no hace falta migracion
    correctiva para plantillas ni clausulas.
 
+ESTADO 5 oct: pasos 1 a 4 CUMPLIDOS. actions.ts esta limpio (corregido en
+7a64979, empieza por 'use server', sin BOM) y el boton de Google, que viene en
+ese mismo commit, ya funciona en produccion. Quedan los pasos 5, 6 y 7.
+AVISO: no correr "fix-mojibake.mjs --write" sobre docs/: este mismo archivo
+citaba ejemplos de texto roto y el script los marcaba. Ya se quitaron.
+
 Paso 1. Comprobar el estado actual del repo (solo lectura)
    - Abrir el repo y correr:  node scripts/fix-mojibake.mjs
    - Ojo: la version actual del script da falso negativo ("0 archivos"). No
      fiarse del resultado hasta reemplazarlo en el paso 2.
-   - Mirar a mano si actions.ts todavia muestra "Ã¡" en los mensajes.
+   - Mirar a mano si actions.ts todavia muestra simbolos raros en los mensajes.
 
 Paso 2. Aplicar las copias corregidas
    Estaban preparadas en acentos-arreglados/ (en la carpeta de salidas de la
@@ -75,7 +114,7 @@ Paso 3. Verificar
    - npx tsc --noEmit                 (sin errores)
    - npm run verify:acentos           (debe dar 0 y salir con codigo 0)
    - git diff --stat                  (solo deben cambiar esos archivos)
-   - Abrir actions.ts: ninguna linea con "Ã", "Â" ni "â€".
+   - Abrir actions.ts: ninguna linea con simbolos raros en lugar de acentos.
    - Confirmar que el archivo NO empieza con BOM.
 
 Paso 4. Subir y confirmar el despliegue
@@ -86,6 +125,9 @@ Paso 4. Subir y confirmar el despliegue
      crear una clausula sin titulo) y ver que dice "clausula" con acento.
 
 Paso 5. Diagnostico en Supabase (solo lectura, SQL Editor)
+   RESULTADO 5 oct (parte del catalogo): clauses 0, template_sections 0,
+   templates 0 -> el catalogo esta LIMPIO (verificado). Falta el primer
+   SELECT, el de audit_logs.
    Correr el SELECT de la seccion 4 de auditoria-acentos.md (punto 1,
    "Diagnostico"). Cuenta filas de audit_logs con texto roto por accion y
    periodo, y revisa si clauses, template_sections o templates tienen algo.
@@ -116,36 +158,29 @@ Hecho cuando: verify:acentos da 0, el despliegue esta Active y el mensaje de la
 pantalla Clausulas se ve con acentos.
 
 ------------------------------------------------------------------------------
-P1-3. CONTEXTO-SAVE.txt DESFASADO (N5)
+P1-3. CONTEXTO-SAVE.txt  -  DESCARTADO (decision de Eliana, 5 oct)
 ------------------------------------------------------------------------------
-Problema: el commit 871446f dice "actualiza al 24 de septiembre", pero el
-archivo guardado sigue siendo el del 10 de septiembre. Manda repetir las seis
-tareas de 10.4, que ya estan hechas. Es el texto que se pega al abrir cada chat.
-
-Paso 1. Subir CONTEXTO-SAVE.txt al chat o al proyecto (no lo tengo; lo
-        escribo yo sobre el archivo real).
-Paso 2. Poner al dia, como minimo:
-   - 10.4 (las seis tareas) hecho el 15 sep.
-   - Railway: incidente de 4 dias del lock file (@emnapi) resuelto el 15 sep.
-   - D3 (modo oscuro): terminado el 23 sep, selector solo en /app.
-   - Fase 13: cerrada (13.2 corregida el 24 sep). Vive en fase13.md.
-   - F3: el importador existe; falta probarlo de punta a punta y confirmar
-     la restriccion a Pro.
-   - Google (5 oct): 2 pasos activa, app publicada, origen autorizado,
-     GOOGLE_CLIENT_ID en Railway, verificado con captura. Seccion 4: de
-     PENDIENTE a VERIFICADO.
-   - Acentos: estado del P1-2 segun como avance.
-   - Decisiones abiertas: D7 (NCF/ITBIS) y D8 (prorrateo). D3 ya no.
-   - PayPal descartado (D6); pasarela CardNET.
-Paso 3. Actualizar tambien la auditoria (BOTON-GOOGLE y N1/F10 pasan a
-        cerrados) y comprobar con git show que el archivo guardado cambio de
-        verdad, no solo el titulo del commit.
-
-Hecho cuando: el archivo guardado ya no manda repetir 10.4 y refleja lo de hoy.
+Eliana decidio no recuperar CONTEXTO-SAVE.txt. El archivo esta borrado en el
+disco pero sigue registrado en git (estado " D"). Para dejarlo definitivo:
+   git add CONTEXTO-SAVE.txt
+   git commit -m "chore: se retira CONTEXTO-SAVE.txt"
+(o junto con los demas cambios de docs en un solo commit).
+Referencias que ya no aplican: la auditoria N5 y la tarea "actualizar
+CONTEXTO-SAVE.txt (seccion 4)" del documento del boton de Google.
 
 ------------------------------------------------------------------------------
 P1-4. DMARC: DE p=none A p=quarantine
 ------------------------------------------------------------------------------
+ESTADO 5 oct: prueba previa HECHA (tres PASS con savedocumentos.com). Registro
+actual verificado con nslookup:
+  v=DMARC1; p=none; rua=mailto:info@savedocumentos.com; fo=1
+FALTA: editar el TXT de _dmarc y dejar exactamente
+  v=DMARC1; p=quarantine; pct=25; rua=mailto:info@savedocumentos.com; fo=1
+y repetir nslookup y la prueba de correo. Despues, vigilar los informes antes
+de subir a pct=50 y pct=100 (plazos sugeridos, no requisito).
+Nota: la prueba solo cubrio el correo de Supabase. El correo de cumpleanos sale
+por el SMTP de la aplicacion; revisarlo cuando pase uno real.
+
 Estado: SPF y DKIM pasan (DKIM con selector hostingermail-a). DMARC esta en
 p=none. La auditoria pedia subir a p=quarantine; pct=25 hacia el 1 de octubre,
 leyendo antes el primer informe. Ya paso esa fecha.
@@ -171,6 +206,50 @@ Paso 6. Vigilar los informes unos dias antes del siguiente escalon
 
 Hecho cuando: el TXT dice p=quarantine; pct=25 y el correo de la plataforma
 sigue llegando con los tres PASS.
+
+==============================================================================
+NUEVO (5 oct) - CUENTAS BANCARIAS EN EL FORMULARIO
+==============================================================================
+Pedido: que los contratos que tratan de dinero permitan agregar en el
+formulario una cuenta bancaria, con estos campos:
+  TITULAR DE LA CUENTA, IDENTIFICACION, BANCO, MONEDA, NUMERO DE CUENTA,
+  TIPO DE CUENTA.
+
+Criterio de "contrato que habla de dinero": plantillas que ya tienen alguna
+variable de tipo currency (el mismo criterio de moneda_contrato: 158 de 249).
+Mecanismo: variables nuevas en scripts/catalog/variables.ts, un interruptor
+(cantidad de cuentas), seccion condicional en el texto y reglas HIDE_VARIABLE,
+sin tocar render.ts (igual que la multi-persona de 13.6).
+Decidido (6 oct): hasta 4 cuentas por contrato (igual que el tope de 4 personas por parte).
+Se necesita el codigo del catalogo y un ejemplo de la multi-persona para
+redactarlo con el mismo formato.
+Aviso: la clausula nueva entra a la cola de revision legal (F2).
+Hecho cuando: un contrato en dolares con cuenta agregada la muestra en el
+documento final (en negrita), la oculta si no se agrega, y el conteo de
+plantillas vinculadas en Supabase coincide con lo esperado.
+
+==============================================================================
+NUEVO (6 oct) - PEDIDOS DE ELIANA
+==============================================================================
+A. Lenguaje entendible en toda la web. En la edicion de contratos aparecen
+   palabras tecnicas como "boolean" y "number". Traducirlas para quien no es
+   desarrollador (propuesta: boolean = "Si / No", number = "Numero",
+   text = "Texto", date = "Fecha"), y reescribir los mensajes de error del
+   panel de revision en lenguaje claro.
+B. Menos trabajo repetitivo para los abogados: arreglar el error comun en la
+   raiz, agrupar los errores iguales en el panel de revision ("249 plantillas
+   con el mismo problema") y poder aprobar en bloque las que no tienen
+   problemas.
+C. Plantillas y clausulas SIEMPRE editables desde el panel de revision, aunque
+   esten aprobadas. Choca con la regla de negocio 6 y el ADR-006 (una plantilla
+   publicada nunca se sobrescribe). Propuesta: editar crea una version nueva
+   (v1.x); la aprobada sigue visible a los usuarios hasta que la nueva se
+   apruebe. Una clausula editada afecta a todas las plantillas que la usan:
+   mostrar cuantas son.
+   CONFIRMADO por Eliana (6 oct): habra versiones de plantilla; la version
+   nueva reemplaza a la anterior cuando se aprueba; mientras tanto la
+   aprobada sigue disponible; los documentos ya guardados en la boveda de los
+   usuarios NO cambian.
 
 ==============================================================================
 P2 - SIGUIENTE NIVEL

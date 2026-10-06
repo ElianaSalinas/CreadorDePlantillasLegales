@@ -151,5 +151,5 @@ Google lo dibuja con su propio diseño, que no se adapta al modo oscuro.
 
 ## Cierre
 
-- Actualizar `CONTEXTO-SAVE.txt` (sección 4) y la auditoría: de **PENDIENTE** a **VERIFICADO**, con las capturas como prueba.
+- Actualizar la auditoría: de **PENDIENTE** a **VERIFICADO**, con las capturas como prueba. (`CONTEXTO-SAVE.txt` se retiró del repositorio el 5 de octubre de 2026, por decisión de la dueña, así que ya no se actualiza.)
 - Después, si se quiere, subir el logo en la pantalla de marca. Eso **sí** manda la app a verificación de Google, y tarda unos días hábiles.
