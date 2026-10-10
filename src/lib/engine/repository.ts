@@ -94,7 +94,18 @@ export async function listUsableTemplates() {
  * depende de las respuestas (empresa o persona, cuántas personas).
  */
 export type SubgrupoFormulario = {
-  id: 'general' | 'empresa' | 'persona1' | 'persona2' | 'persona3' | 'persona4'
+  id:
+    | 'general'
+    | 'empresa'
+    | 'persona1'
+    | 'persona2'
+    | 'persona3'
+    | 'persona4'
+    // Cuentas bancarias: un recuadro por cuenta.
+    | 'cuenta1'
+    | 'cuenta2'
+    | 'cuenta3'
+    | 'cuenta4'
   variables: Variable[]
 }
 
@@ -139,9 +150,11 @@ function campoDe(resto: string): string {
 }
 
 export function groupVariablesBySection(bundle: TemplateBundle): GrupoFormulario[] {
-  const GRUPOS: { key: string; title: string; prefijo?: string }[] = [
+  const GRUPOS: { key: string; title: string; prefijo?: string; patron?: RegExp }[] = [
     { key: 'primera', title: 'Primera parte', prefijo: 'parte_primera_' },
     { key: 'segunda', title: 'Segunda parte', prefijo: 'parte_segunda_' },
+    // cuenta_cantidad y cuenta1_… cuenta4_… (cuentas bancarias opcionales).
+    { key: 'cuentas', title: 'Cuentas bancarias', patron: /^cuenta(_cantidad|[1-4]_)/ },
     { key: 'otros', title: 'Otros datos' },
   ]
 
@@ -156,7 +169,9 @@ export function groupVariablesBySection(bundle: TemplateBundle): GrupoFormulario
     if (!variable || yaAgregada.has(variable.id)) continue
 
     const grupo =
-      GRUPOS.find((g) => g.prefijo && variable.tag.startsWith(g.prefijo)) ?? GRUPOS[GRUPOS.length - 1]
+      GRUPOS.find(
+        (g) => (g.prefijo && variable.tag.startsWith(g.prefijo)) || g.patron?.test(variable.tag)
+      ) ?? GRUPOS[GRUPOS.length - 1]
 
     groupByKey.get(grupo.key)!.variables.push(variable)
     yaAgregada.add(variable.id)
@@ -188,6 +203,22 @@ export function groupVariablesBySection(bundle: TemplateBundle): GrupoFormulario
       .map((id) => ({ id, variables: porId.get(id)! }))
       .filter((s) => s.variables.length > 0)
     grupo.variables = grupo.subgrupos.flatMap((s) => s.variables)
+  }
+
+  // Cuentas bancarias: la pregunta de cuántas va suelta arriba y cada
+  // cuenta va en su propio recuadro, para que no se mezclen los datos.
+  const cuentas = groupByKey.get('cuentas')!
+  if (cuentas.variables.length > 0) {
+    const orden: SubgrupoFormulario['id'][] = ['general', 'cuenta1', 'cuenta2', 'cuenta3', 'cuenta4']
+    const porId = new Map(orden.map((id) => [id, [] as Variable[]]))
+    for (const v of cuentas.variables) {
+      const m = /^cuenta([1-4])_/.exec(v.tag)
+      porId.get(m ? (`cuenta${m[1]}` as SubgrupoFormulario['id']) : 'general')!.push(v)
+    }
+    cuentas.subgrupos = orden
+      .map((id) => ({ id, variables: porId.get(id)! }))
+      .filter((s) => s.variables.length > 0)
+    cuentas.variables = cuentas.subgrupos.flatMap((s) => s.variables)
   }
 
   // Un cuadro vacío (plantilla sin variables de esa parte) no se muestra.

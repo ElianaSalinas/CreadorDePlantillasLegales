@@ -25,6 +25,8 @@ const ORDINAL_PERSONA = ['', 'Primera', 'Segunda', 'Tercera', 'Cuarta']
  * varias personas tiene "Primera persona", "Segunda persona"…
  */
 function tituloSubgrupo(id: SubgrupoFormulario['id'], parte: string, answers: Answers): string | null {
+  const cuenta = /^cuenta([1-4])$/.exec(id)
+  if (cuenta) return `Cuenta bancaria ${cuenta[1]}`
   const esEmpresa = answers[`parte_${parte}_tipo_parte`] === 'empresa'
   const cantidad = Number(answers[`parte_${parte}_cantidad`] ?? 1)
   if (id === 'general') return null
@@ -251,6 +253,11 @@ export default function GeneratorClient({
               className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
             >
               <h2 className="mb-5 font-bold text-slate-900 dark:text-white">{group.title}</h2>
+              {group.id === 'cuentas' && (
+                <p className="-mt-3 mb-5 text-xs text-slate-500">
+                  Cada recuadro es una cuenta distinta. Rellena en cada uno solo los datos de esa cuenta.
+                </p>
+              )}
 
               {!group.subgrupos ? (
                 campos(visible)
@@ -266,16 +273,29 @@ export default function GeneratorClient({
                     if (!titulo) return <div key={sub.id}>{campos(subVisibles)}</div>
 
                     const tituloId = `${group.id}-${sub.id}-titulo`
+                    const numeroCuenta = /^cuenta([1-4])$/.exec(sub.id)?.[1]
                     return (
                       <fieldset
                         key={sub.id}
                         aria-labelledby={tituloId}
-                        className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50"
+                        className={
+                          numeroCuenta
+                            ? 'rounded-lg border border-l-4 border-slate-200 border-l-emerald-500 bg-slate-50 p-4 dark:border-slate-700 dark:border-l-emerald-500 dark:bg-slate-800/50'
+                            : 'rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50'
+                        }
                       >
                         <h3
                           id={tituloId}
                           className="mb-4 text-sm font-semibold text-slate-800 dark:text-slate-200"
                         >
+                          {numeroCuenta && (
+                            <span
+                              aria-hidden="true"
+                              className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white"
+                            >
+                              {numeroCuenta}
+                            </span>
+                          )}
                           {titulo}
                         </h3>
                         {campos(subVisibles)}
